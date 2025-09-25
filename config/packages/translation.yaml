@@ -5,8 +5,6 @@ framework:
         fallbacks: ['fr', 'en']
         providers:
         # Performance improvements
-        cache_vary:
-            - 'locale'
         logging: false              # Disable logs in production for performance
 
 when@prod:
