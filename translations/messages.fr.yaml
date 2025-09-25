@@ -543,3 +543,153 @@ loan_application:
     not_found: "Document introuvable"
     file_not_found: "Fichier introuvable"
 
+# Révisions de prêt (Loan Reviews)
+review:
+  # Pages et sections
+  my_reviews: "Mes révisions"
+  my_reviews_subtitle: "Gérez vos tâches de révision et d'évaluation"
+  pending_reviews: "Révisions en attente"
+  in_progress_reviews: "Révisions en cours"
+  completed_reviews: "Révisions terminées"
+  conduct: "Effectuer une révision"
+  evaluation: "Évaluation"
+  guidelines: "Directives"
+  
+  # Statuts
+  status:
+    label: "Statut"
+    pending: "En attente"
+    in_progress: "En cours"
+    completed: "Terminé"
+    description:
+      pending: "En attente de démarrage"
+      in_progress: "Révision en cours de traitement"
+      completed: "Révision terminée avec décision"
+
+  # Décisions
+  decision:
+    label: "Décision"
+    help: "Sélectionnez votre décision basée sur l'évaluation"
+    required: "La décision est requise"
+    approved: "Approuvé"
+    rejected: "Rejeté"
+    needs_info: "Informations supplémentaires requises"
+    escalated: "Escaladé"
+    description:
+      approved: "La demande est approuvée et peut procéder"
+      rejected: "La demande est rejetée pour les raisons spécifiées"
+      needs_info: "Des informations ou documents supplémentaires sont requis"
+      escalated: "La demande nécessite une révision de niveau supérieur"
+
+  # Score de crédit
+  score:
+    label: "Score de crédit"
+    placeholder: "300-850"
+    help: "Score de crédit du demandeur (300-850)"
+    invalid_range: "Le score doit être entre 300 et 850"
+    unit: "points"
+    ranges: "Fourchettes de score"
+
+  # Niveau de risque
+  risk_level:
+    label: "Niveau de risque"
+    help: "Évaluation du niveau de risque basée sur l'analyse"
+
+  # Champs de formulaire
+  comments:
+    label: "Commentaires"
+    placeholder: "Vos commentaires et observations sur cette demande..."
+    help: "Commentaires détaillés sur votre évaluation"
+    
+  conditions:
+    label: "Conditions d'approbation"
+    placeholder: "Conditions spéciales pour cette approbation..."
+    help: "Conditions requises si la demande est approuvée"
+    
+  requested_documents:
+    label: "Documents demandés"
+    placeholder: "Liste des documents supplémentaires requis..."
+    help: "Documents que le demandeur doit fournir"
+
+  # Actions
+  start: "Commencer"
+  continue: "Continuer"
+  submit: "Finaliser la révision"
+  save_draft: "Sauvegarder comme brouillon"
+  escalate: "Escalader"
+  view_details: "Voir les détails"
+  view_all_queue: "Voir toute la file"
+  statistics: "Statistiques"
+  manage_queue: "Gérer la file"
+  view_statistics: "Voir les statistiques"
+  auto_assign: "Attribution automatique"
+  auto_assign_confirm: "Êtes-vous sûr de vouloir attribuer automatiquement les demandes en retard ?"
+
+  # Messages
+  no_pending:
+    title: "Aucune révision en attente"
+    message: "Toutes vos révisions sont à jour !"
+    
+  no_in_progress:
+    title: "Aucune révision en cours"
+    message: "Commencez une révision en attente pour voir l'activité ici"
+
+  # Informations temporelles
+  created: "Créé"
+  started: "Commencé"
+  duration: "Durée"
+  day: "jour"
+  days: "jours"
+  
+  # Charge de travail
+  active_workload: "Charge active"
+  capacity_indicator: "sur 10 max"
+  awaiting_start: "En attente de démarrage"
+  currently_working: "En cours de traitement"
+  total_completed: "Total terminé"
+
+  # Actions rapides
+  quick_actions: "Actions rapides"
+
+  # Directives d'évaluation
+  evaluation_criteria: "Critères d'évaluation"
+  guideline:
+    1: "Vérifiez tous les documents requis"
+    2: "Analysez la capacité de remboursement"
+    3: "Évaluez l'historique de crédit"
+    4: "Considérez le ratio dette/revenu"
+    5: "Vérifiez la cohérence des informations"
+
+  # Messages de feedback
+  completed_successfully: "Révision terminée avec succès"
+  completion_error: "Erreur lors de la finalisation: %error%"
+  draft_saved: "Brouillon sauvegardé avec succès"
+  assigned_successfully: "Attribution effectuée avec succès"
+  assignment_error: "Erreur lors de l'attribution: %error%"
+  escalated_successfully: "Révision escaladée avec succès"
+  escalation_error: "Erreur lors de l'escalade: %error%"
+  escalation_reason: "Raison de l'escalade"
+  escalation_reason_required: "La raison de l'escalade est requise"
+  auto_assigned: "%count% demandes attribuées automatiquement"
+  auto_assign_error: "Erreur lors de l'attribution automatique: %error%"
+  
+  # Erreurs
+  not_found: "Révision introuvable"
+  access_denied: "Accès refusé à cette révision"
+  
+  # Type de révision
+  type: "Type"
+
+# Niveaux de risque (Risk Levels)
+risk:
+  level:
+    low: "Faible"
+    medium: "Moyen"
+    high: "Élevé"
+    very_high: "Très élevé"
+    description:
+      low: "Risque faible - Approbation recommandée"
+      medium: "Risque moyen - Évaluation supplémentaire recommandée"
+      high: "Risque élevé - Prudence requise"
+      very_high: "Risque très élevé - Escalade recommandée"
+

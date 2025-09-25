@@ -90,6 +90,10 @@ class LoanApplication
     #[ORM\JoinColumn(nullable: true)]
     private ?User $reviewedBy = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $assignedTo = null;
+
     #[ORM\Column(type: 'json')]
     private array $metadata = [];
 
@@ -137,6 +141,12 @@ class LoanApplication
     #[ORM\OneToMany(mappedBy: 'loanApplication', targetEntity: LoanPayment::class, cascade: ['persist', 'remove'])]
     private Collection $payments;
 
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: LoanReview::class, cascade: ['persist', 'remove'])]
+    private Collection $reviews;
+
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: ApplicationStatusHistory::class, cascade: ['persist', 'remove'])]
+    private Collection $statusHistory;
+
     #[ORM\OneToOne(mappedBy: 'loanApplication', targetEntity: LoanContract::class)]
     private ?LoanContract $contract = null;
 
@@ -144,6 +154,8 @@ class LoanApplication
     {
         $this->documents = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
+        $this->statusHistory = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->uuid = Uuid::v4();
@@ -372,6 +384,17 @@ class LoanApplication
         return $this;
     }
 
+    public function getAssignedTo(): ?User
+    {
+        return $this->assignedTo;
+    }
+
+    public function setAssignedTo(?User $assignedTo): static
+    {
+        $this->assignedTo = $assignedTo;
+        return $this;
+    }
+
     public function getMetadata(): array
     {
         return $this->metadata;
@@ -566,6 +589,64 @@ class LoanApplication
         if ($this->payments->removeElement($payment)) {
             if ($payment->getLoanApplication() === $this) {
                 $payment->setLoanApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LoanReview>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(LoanReview $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(LoanReview $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            if ($review->getApplication() === $this) {
+                $review->setApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ApplicationStatusHistory>
+     */
+    public function getStatusHistory(): Collection
+    {
+        return $this->statusHistory;
+    }
+
+    public function addStatusHistory(ApplicationStatusHistory $statusHistory): static
+    {
+        if (!$this->statusHistory->contains($statusHistory)) {
+            $this->statusHistory->add($statusHistory);
+            $statusHistory->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatusHistory(ApplicationStatusHistory $statusHistory): static
+    {
+        if ($this->statusHistory->removeElement($statusHistory)) {
+            if ($statusHistory->getApplication() === $this) {
+                $statusHistory->setApplication(null);
             }
         }
 

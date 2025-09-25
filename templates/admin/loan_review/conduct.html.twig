@@ -1,0 +1,357 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'review.conduct'|trans }} - {{ application.uuid }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const decisionSelect = document.getElementById('loan_review_decision');
+            const scoreField = document.getElementById('loan_review_score');
+            const riskLevelField = document.getElementById('loan_review_riskLevel');
+            const conditionsField = document.getElementById('loan_review_conditions');
+            const requestedDocsField = document.getElementById('loan_review_requestedDocuments');
+            
+            // Auto-update risk level based on score
+            scoreField.addEventListener('input', function() {
+                const score = parseInt(this.value);
+                if (score >= 750) {
+                    riskLevelField.value = 'low';
+                } else if (score >= 650) {
+                    riskLevelField.value = 'medium';
+                } else if (score >= 550) {
+                    riskLevelField.value = 'high';
+                } else if (score >= 300) {
+                    riskLevelField.value = 'very_high';
+                }
+            });
+            
+            // Show/hide fields based on decision
+            decisionSelect.addEventListener('change', function() {
+                const decision = this.value;
+                
+                // Show conditions field for approved decisions
+                const conditionsContainer = conditionsField.closest('.mb-3');
+                if (decision === 'approved') {
+                    conditionsContainer.style.display = 'block';
+                } else {
+                    conditionsContainer.style.display = 'none';
+                }
+                
+                // Show requested documents field for needs_info decisions
+                const requestedDocsContainer = requestedDocsField.closest('.mb-3');
+                if (decision === 'needs_info') {
+                    requestedDocsContainer.style.display = 'block';
+                } else {
+                    requestedDocsContainer.style.display = 'none';
+                }
+            });
+            
+            // Initialize field visibility
+            decisionSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="bi bi-clipboard2-check me-2"></i>
+                        {{ 'review.conduct'|trans }}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {{ 'loan_application.reference'|trans }}: <strong>{{ application.uuid }}</strong> |
+                        {{ 'review.type'|trans }}: <strong>{{ review.reviewType|title }}</strong> |
+                        <span class="badge {{ review.statusBadgeClass }}">{{ review.status.label|trans }}</span>
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ path('admin_loan_review_show', {id: review.id}) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye me-2"></i>
+                        {{ 'review.view_details'|trans }}
+                    </a>
+                    <a href="{{ path('admin_loan_review_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        {{ 'action.back'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Application Summary -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-file-text me-2"></i>
+                                {{ 'loan_application.details'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.applicant'|trans }}:</td>
+                                            <td><strong>{{ application.applicant.displayName }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.amount'|trans }}:</td>
+                                            <td><strong>{{ application.amount|number_format(2, ',', ' ') }} €</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.duration'|trans }}:</td>
+                                            <td><strong>{{ application.requestedDuration }} {{ 'common.months'|trans }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.type'|trans }}:</td>
+                                            <td><strong>{{ ('loan.type.' ~ application.loanType)|trans }}</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.submitted'|trans }}:</td>
+                                            <td>{{ application.submittedAt ? application.submittedAt|date('d/m/Y H:i') : '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.current_status'|trans }}:</td>
+                                            <td><span class="badge {{ application.statusBadgeClass }}">{{ ('loan.status.' ~ application.status)|trans }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.documents'|trans }}:</td>
+                                            <td>
+                                                {{ documents|length }} {{ 'document.uploaded'|trans }}
+                                                {% set verifiedDocs = documents|filter(d => d.isVerified)|length %}
+                                                ({{ verifiedDocs }} {{ 'document.verified'|trans }})
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.purpose'|trans }}:</td>
+                                            <td>{{ application.purpose|slice(0, 100) }}{% if application.purpose|length > 100 %}...{% endif %}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {% if application.purpose|length > 100 %}
+                                <div class="mt-3">
+                                    <h6>{{ 'loan_application.full_purpose'|trans }}:</h6>
+                                    <p class="text-muted">{{ application.purpose }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard2-pulse me-2"></i>
+                                {{ 'review.evaluation'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.decision) }}
+                                    {{ form_widget(form.decision) }}
+                                    {% if form.decision.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form_errors(form.decision) }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">{{ 'review.decision.help'|trans }}</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.score) }}
+                                    <div class="input-group">
+                                        {{ form_widget(form.score) }}
+                                        <span class="input-group-text">{{ 'review.score.unit'|trans }}</span>
+                                    </div>
+                                    {% if form.score.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form_errors(form.score) }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">{{ form.score.vars.help|trans }}</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.riskLevel) }}
+                                    {{ form_widget(form.riskLevel) }}
+                                    {% if form.riskLevel.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form_errors(form.riskLevel) }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">{{ form.riskLevel.vars.help|trans }}</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.comments) }}
+                                {{ form_widget(form.comments) }}
+                                {% if form.comments.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.comments) }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.comments.vars.help|trans }}</div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.conditions) }}
+                                {{ form_widget(form.conditions) }}
+                                {% if form.conditions.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.conditions) }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.conditions.vars.help|trans }}</div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.requestedDocuments) }}
+                                {{ form_widget(form.requestedDocuments) }}
+                                {% if form.requestedDocuments.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.requestedDocuments) }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.requestedDocuments.vars.help|trans }}</div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex justify-content-between">
+                                <div class="d-flex gap-2">
+                                    {{ form_widget(form.submit) }}
+                                    {{ form_widget(form.save_draft) }}
+                                </div>
+                                
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-arrow-up-circle me-2"></i>
+                                        {{ 'review.escalate'|trans }}
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <form action="{{ path('admin_loan_review_escalate', {id: review.id}) }}" method="post" class="p-3" style="min-width: 300px;">
+                                            <div class="mb-2">
+                                                <label class="form-label">{{ 'review.escalation_reason'|trans }}:</label>
+                                                <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-warning btn-sm w-100">
+                                                {{ 'review.escalate'|trans }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents & Timeline -->
+                <div class="col-lg-4">
+                    <!-- Documents -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-folder me-2"></i>
+                                {{ 'loan_application.documents'|trans }}
+                                <span class="badge bg-secondary ms-2">{{ documents|length }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if documents is not empty %}
+                                <div class="list-group list-group-flush">
+                                    {% for document in documents %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="bi {{ document.documentType.icon }} text-primary me-2"></i>
+                                                <span class="small">{{ document.documentType.label|trans }}</span>
+                                                <div>
+                                                    <span class="badge {{ document.statusBadgeClass }} badge-sm">
+                                                        {{ document.statusLabel }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <a href="{{ path('loan_application_document_download', {id: application.uuid, docId: document.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-folder-x text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2">{{ 'document.no_documents.title'|trans }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Review Guidelines -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                {{ 'review.guidelines'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info border-0">
+                                <h6 class="alert-heading">{{ 'review.evaluation_criteria'|trans }}</h6>
+                                <ul class="mb-0 small">
+                                    <li>{{ 'review.guideline.1'|trans }}</li>
+                                    <li>{{ 'review.guideline.2'|trans }}</li>
+                                    <li>{{ 'review.guideline.3'|trans }}</li>
+                                    <li>{{ 'review.guideline.4'|trans }}</li>
+                                    <li>{{ 'review.guideline.5'|trans }}</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="alert alert-warning border-0">
+                                <h6 class="alert-heading">{{ 'review.score_ranges'|trans }}</h6>
+                                <div class="small">
+                                    <div class="d-flex justify-content-between">
+                                        <span>750-850:</span>
+                                        <span class="text-success">{{ 'risk.level.low'|trans }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>650-749:</span>
+                                        <span class="text-warning">{{ 'risk.level.medium'|trans }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>550-649:</span>
+                                        <span class="text-danger">{{ 'risk.level.high'|trans }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>300-549:</span>
+                                        <span class="text-dark">{{ 'risk.level.very_high'|trans }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

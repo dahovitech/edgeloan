@@ -1,0 +1,329 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'review.queue_management'|trans }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="bi bi-list-ul me-2"></i>
+                        {{ 'review.queue_management'|trans }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ 'review.queue_subtitle'|trans }}</p>
+                </div>
+                <div>
+                    <a href="{{ path('admin_loan_review_statistics') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-graph-up me-2"></i>
+                        {{ 'review.statistics'|trans }}
+                    </a>
+                    <button class="btn btn-success" onclick="autoAssignReviews()">
+                        <i class="bi bi-lightning me-2"></i>
+                        {{ 'review.auto_assign'|trans }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Overview -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-info mb-2">{{ statistics.total }}</div>
+                            <h6 class="card-title">{{ 'review.total_reviews'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-success mb-2">{{ statistics.approved }}</div>
+                            <h6 class="card-title">{{ 'review.approved'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-danger mb-2">{{ statistics.rejected }}</div>
+                            <h6 class="card-title">{{ 'review.rejected'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-warning mb-2">{{ statistics.needs_info }}</div>
+                            <h6 class="card-title">{{ 'review.needs_info'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-primary mb-2">{{ statistics.approval_rate }}%</div>
+                            <h6 class="card-title">{{ 'review.approval_rate'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <div class="display-6 text-secondary mb-2">{{ statistics.average_score ?? 'N/A' }}</div>
+                            <h6 class="card-title">{{ 'review.avg_score'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Reviews Queue -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-list-check me-2"></i>
+                                    {{ 'review.all_reviews'|trans }}
+                                    <span class="badge bg-secondary ms-2">{{ reviews|length }}</span>
+                                </h5>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <input type="radio" class="btn-check" name="filter" id="all" autocomplete="off" checked>
+                                    <label class="btn btn-outline-secondary" for="all">{{ 'common.all'|trans }}</label>
+                                    
+                                    <input type="radio" class="btn-check" name="filter" id="pending" autocomplete="off">
+                                    <label class="btn btn-outline-warning" for="pending">{{ 'review.status.pending'|trans }}</label>
+                                    
+                                    <input type="radio" class="btn-check" name="filter" id="in_progress" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="in_progress">{{ 'review.status.in_progress'|trans }}</label>
+                                    
+                                    <input type="radio" class="btn-check" name="filter" id="completed" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="completed">{{ 'review.status.completed'|trans }}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if reviews is not empty %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" id="reviewsTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>{{ 'loan_application.reference'|trans }}</th>
+                                                <th>{{ 'loan_application.applicant'|trans }}</th>
+                                                <th>{{ 'loan_application.amount'|trans }}</th>
+                                                <th>{{ 'review.reviewer'|trans }}</th>
+                                                <th>{{ 'review.status.label'|trans }}</th>
+                                                <th>{{ 'review.created'|trans }}</th>
+                                                <th class="text-center">{{ 'common.actions'|trans }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for review in reviews %}
+                                                <tr data-status="{{ review.status.value }}">
+                                                    <td>
+                                                        <a href="{{ path('admin_loan_review_show', {id: review.id}) }}" class="text-decoration-none">
+                                                            {{ review.application.uuid }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ review.application.applicant.displayName }}</td>
+                                                    <td>{{ review.application.amount|number_format(0, ',', ' ') }} €</td>
+                                                    <td>{{ review.reviewer.displayName }}</td>
+                                                    <td>
+                                                        <span class="badge {{ review.statusBadgeClass }}">
+                                                            {{ review.status.label|trans }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ review.createdAt|date('d/m/Y H:i') }}</td>
+                                                    <td class="text-center">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ path('admin_loan_review_show', {id: review.id}) }}" 
+                                                               class="btn btn-outline-primary">
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                            {% if review.status.value != 'completed' %}
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-outline-secondary dropdown-toggle" 
+                                                                            type="button" data-bs-toggle="dropdown">
+                                                                        <i class="bi bi-three-dots"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu">
+                                                                        <li>
+                                                                            <button class="dropdown-item" 
+                                                                                    onclick="reassignReview('{{ review.id }}', '{{ review.application.uuid }}')">
+                                                                                <i class="bi bi-person-plus me-2"></i>
+                                                                                {{ 'review.reassign'|trans }}
+                                                                            </button>
+                                                                        </li>
+                                                                        {% if review.status.value == 'pending' %}
+                                                                            <li>
+                                                                                <a class="dropdown-item" href="{{ path('admin_loan_review_conduct', {id: review.id}) }}">
+                                                                                    <i class="bi bi-play-circle me-2"></i>
+                                                                                    {{ 'review.start'|trans }}
+                                                                                </a>
+                                                                            </li>
+                                                                        {% endif %}
+                                                                    </ul>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="bi bi-clipboard2-x text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">{{ 'review.no_reviews.title'|trans }}</h5>
+                                    <p class="text-muted">{{ 'review.no_reviews.message'|trans }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviewer Workloads -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-people me-2"></i>
+                                {{ 'review.reviewer_workloads'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if workloads is not empty %}
+                                <div class="list-group list-group-flush">
+                                    {% for workloadData in workloads %}
+                                        {% set reviewer = workloadData.reviewer %}
+                                        {% set workload = workloadData.workload %}
+                                        <div class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ reviewer.displayName }}</h6>
+                                                    <div class="d-flex gap-2 mb-2">
+                                                        <small class="text-warning">
+                                                            <i class="bi bi-clock"></i> {{ workload.pending }}
+                                                        </small>
+                                                        <small class="text-primary">
+                                                            <i class="bi bi-hourglass-split"></i> {{ workload.in_progress }}
+                                                        </small>
+                                                        <small class="text-success">
+                                                            <i class="bi bi-check-circle"></i> {{ workload.completed }}
+                                                        </small>
+                                                    </div>
+                                                    <div class="progress" style="height: 4px;">
+                                                        <div class="progress-bar" 
+                                                             style="width: {{ (workload.active / 10 * 100)|round }}%"
+                                                             class="{{ workload.active >= 8 ? 'bg-danger' : (workload.active >= 6 ? 'bg-warning' : 'bg-success') }}">
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">{{ workload.active }}/10 {{ 'review.active_assignments'|trans }}</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge {{ workload.active >= 8 ? 'bg-danger' : (workload.active >= 6 ? 'bg-warning' : 'bg-success') }}">
+                                                        {{ workload.active }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2">{{ 'review.no_reviewers'|trans }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reassign Modal -->
+<div class="modal fade" id="reassignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'review.reassign_title'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="reassignForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'review.select_reviewer'|trans }}:</label>
+                        <select class="form-select" name="reviewer_id" required>
+                            <option value="">{{ 'review.auto_assign'|trans }}</option>
+                            {% for workloadData in workloads %}
+                                {% set reviewer = workloadData.reviewer %}
+                                {% set workload = workloadData.workload %}
+                                <option value="{{ reviewer.id }}" {{ workload.active >= 10 ? 'disabled' : '' }}>
+                                    {{ reviewer.displayName }} ({{ workload.active }}/10)
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.cancel'|trans }}</button>
+                    <button type="submit" class="btn btn-primary">{{ 'review.reassign'|trans }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function reassignReview(reviewId, applicationId) {
+    const modal = new bootstrap.Modal(document.getElementById('reassignModal'));
+    const form = document.getElementById('reassignForm');
+    form.action = `{{ path('admin_loan_review_assign', {applicationId: '__APP_ID__'}) }}`.replace('__APP_ID__', applicationId);
+    modal.show();
+}
+
+function autoAssignReviews() {
+    if (confirm('{{ 'review.confirm_auto_assign'|trans }}')) {
+        fetch('{{ path('admin_loan_review_auto_assign') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('{{ 'review.auto_assign_error_generic'|trans }}');
+            }
+        });
+    }
+}
+
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('input[name="filter"]');
+    const tableRows = document.querySelectorAll('#reviewsTable tbody tr');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('change', function() {
+            const filterValue = this.id;
+            
+            tableRows.forEach(row => {
+                if (filterValue === 'all' || row.dataset.status === filterValue) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

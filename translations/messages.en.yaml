@@ -498,3 +498,153 @@ loan_application:
     delete_not_allowed: "Deletion not allowed for this application"
     not_found: "Document not found"
     file_not_found: "File not found"
+
+# Loan Reviews
+review:
+  # Pages and sections
+  my_reviews: "My Reviews"
+  my_reviews_subtitle: "Manage your review and evaluation tasks"
+  pending_reviews: "Pending Reviews"
+  in_progress_reviews: "In Progress Reviews"
+  completed_reviews: "Completed Reviews"
+  conduct: "Conduct Review"
+  evaluation: "Evaluation"
+  guidelines: "Guidelines"
+  
+  # Status
+  status:
+    label: "Status"
+    pending: "Pending"
+    in_progress: "In Progress"
+    completed: "Completed"
+    description:
+      pending: "Waiting to be started"
+      in_progress: "Review is being processed"
+      completed: "Review completed with decision"
+
+  # Decisions
+  decision:
+    label: "Decision"
+    help: "Select your decision based on the evaluation"
+    required: "Decision is required"
+    approved: "Approved"
+    rejected: "Rejected"
+    needs_info: "Additional Information Required"
+    escalated: "Escalated"
+    description:
+      approved: "Application is approved and can proceed"
+      rejected: "Application is rejected for specified reasons"
+      needs_info: "Additional information or documents are required"
+      escalated: "Application requires higher-level review"
+
+  # Credit Score
+  score:
+    label: "Credit Score"
+    placeholder: "300-850"
+    help: "Applicant's credit score (300-850)"
+    invalid_range: "Score must be between 300 and 850"
+    unit: "points"
+    ranges: "Score Ranges"
+
+  # Risk Level
+  risk_level:
+    label: "Risk Level"
+    help: "Risk level assessment based on analysis"
+
+  # Form Fields
+  comments:
+    label: "Comments"
+    placeholder: "Your comments and observations on this application..."
+    help: "Detailed comments on your evaluation"
+    
+  conditions:
+    label: "Approval Conditions"
+    placeholder: "Special conditions for this approval..."
+    help: "Required conditions if application is approved"
+    
+  requested_documents:
+    label: "Requested Documents"
+    placeholder: "List of additional documents required..."
+    help: "Documents the applicant must provide"
+
+  # Actions
+  start: "Start"
+  continue: "Continue"
+  submit: "Complete Review"
+  save_draft: "Save as Draft"
+  escalate: "Escalate"
+  view_details: "View Details"
+  view_all_queue: "View All Queue"
+  statistics: "Statistics"
+  manage_queue: "Manage Queue"
+  view_statistics: "View Statistics"
+  auto_assign: "Auto Assign"
+  auto_assign_confirm: "Are you sure you want to auto-assign overdue applications?"
+
+  # Messages
+  no_pending:
+    title: "No Pending Reviews"
+    message: "All your reviews are up to date!"
+    
+  no_in_progress:
+    title: "No Reviews In Progress"
+    message: "Start a pending review to see activity here"
+
+  # Time Information
+  created: "Created"
+  started: "Started"
+  duration: "Duration"
+  day: "day"
+  days: "days"
+  
+  # Workload
+  active_workload: "Active Workload"
+  capacity_indicator: "out of 10 max"
+  awaiting_start: "Awaiting start"
+  currently_working: "Currently working"
+  total_completed: "Total completed"
+
+  # Quick Actions
+  quick_actions: "Quick Actions"
+
+  # Evaluation Guidelines
+  evaluation_criteria: "Evaluation Criteria"
+  guideline:
+    1: "Verify all required documents"
+    2: "Analyze repayment capacity"
+    3: "Evaluate credit history"
+    4: "Consider debt-to-income ratio"
+    5: "Check information consistency"
+
+  # Feedback Messages
+  completed_successfully: "Review completed successfully"
+  completion_error: "Error completing review: %error%"
+  draft_saved: "Draft saved successfully"
+  assigned_successfully: "Assignment completed successfully"
+  assignment_error: "Error during assignment: %error%"
+  escalated_successfully: "Review escalated successfully"
+  escalation_error: "Error during escalation: %error%"
+  escalation_reason: "Escalation Reason"
+  escalation_reason_required: "Escalation reason is required"
+  auto_assigned: "%count% applications auto-assigned"
+  auto_assign_error: "Error during auto-assignment: %error%"
+  
+  # Errors
+  not_found: "Review not found"
+  access_denied: "Access denied to this review"
+  
+  # Review Type
+  type: "Type"
+
+# Risk Levels
+risk:
+  level:
+    low: "Low"
+    medium: "Medium"
+    high: "High"
+    very_high: "Very High"
+    description:
+      low: "Low risk - Approval recommended"
+      medium: "Medium risk - Additional evaluation recommended"
+      high: "High risk - Caution required"
+      very_high: "Very high risk - Escalation recommended"

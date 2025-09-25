@@ -1,0 +1,317 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'review.details'|trans }} - {{ application.uuid }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-2">
+                        <i class="bi bi-clipboard2-check me-2"></i>
+                        {{ 'review.details'|trans }}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {{ 'loan_application.reference'|trans }}: <strong>{{ application.uuid }}</strong> |
+                        {{ 'review.reviewer'|trans }}: <strong>{{ review.reviewer.displayName }}</strong> |
+                        <span class="badge {{ review.statusBadgeClass }}">{{ review.status.label|trans }}</span>
+                    </p>
+                </div>
+                <div>
+                    {% if review.status.value != 'completed' and review.reviewer == app.user %}
+                        <a href="{{ path('admin_loan_review_conduct', {id: review.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i>
+                            {{ 'review.continue'|trans }}
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('admin_loan_review_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        {{ 'action.back'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Review Details -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clipboard2-pulse me-2"></i>
+                                {{ 'review.evaluation_results'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.decision.label'|trans }}:</td>
+                                            <td>
+                                                {% if review.decision %}
+                                                    <span class="badge {{ review.decisionBadgeClass }}">
+                                                        {{ review.decision.label|trans }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">{{ 'common.pending'|trans }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.score.label'|trans }}:</td>
+                                            <td>
+                                                {% if review.score %}
+                                                    <strong>{{ review.score }}</strong>/850
+                                                    <div class="progress mt-1" style="height: 4px;">
+                                                        <div class="progress-bar" style="width: {{ (review.score / 850 * 100)|round }}%"></div>
+                                                    </div>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.risk_level.label'|trans }}:</td>
+                                            <td>
+                                                {% if review.riskLevel %}
+                                                    <span class="badge {{ review.riskBadgeClass }}">
+                                                        {{ review.riskLevel.label|trans }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.type'|trans }}:</td>
+                                            <td><strong>{{ review.reviewType|title }}</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.created'|trans }}:</td>
+                                            <td>{{ review.createdAt|date('d/m/Y H:i') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.started'|trans }}:</td>
+                                            <td>{{ review.startedAt ? review.startedAt|date('d/m/Y H:i') : '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.completed'|trans }}:</td>
+                                            <td>{{ review.completedAt ? review.completedAt|date('d/m/Y H:i') : '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'review.duration'|trans }}:</td>
+                                            <td>
+                                                {% if review.durationInMinutes %}
+                                                    {% set days = review.durationInDays %}
+                                                    {% set minutes = review.durationInMinutes %}
+                                                    {% if days > 0 %}
+                                                        {{ days }} {{ 'common.days'|trans }}
+                                                    {% else %}
+                                                        {{ minutes }} {{ 'common.minutes'|trans }}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {{ 'review.in_progress'|trans }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {% if review.comments %}
+                                <hr>
+                                <h6>{{ 'review.comments.label'|trans }}:</h6>
+                                <div class="bg-light p-3 rounded">
+                                    {{ review.comments|nl2br }}
+                                </div>
+                            {% endif %}
+
+                            {% if review.conditions %}
+                                <hr>
+                                <h6>{{ 'review.conditions.label'|trans }}:</h6>
+                                <div class="alert alert-info border-0">
+                                    {{ review.conditions|nl2br }}
+                                </div>
+                            {% endif %}
+
+                            {% if review.requestedDocuments %}
+                                <hr>
+                                <h6>{{ 'review.requested_documents.label'|trans }}:</h6>
+                                <div class="alert alert-warning border-0">
+                                    {{ review.requestedDocuments|nl2br }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Application Details -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-file-text me-2"></i>
+                                {{ 'loan_application.details'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.applicant'|trans }}:</td>
+                                            <td><strong>{{ application.applicant.displayName }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.amount'|trans }}:</td>
+                                            <td><strong>{{ application.amount|number_format(2, ',', ' ') }} €</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.duration'|trans }}:</td>
+                                            <td><strong>{{ application.requestedDuration }} {{ 'common.months'|trans }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.type'|trans }}:</td>
+                                            <td><strong>{{ ('loan.type.' ~ application.loanType)|trans }}</strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.submitted'|trans }}:</td>
+                                            <td>{{ application.submittedAt ? application.submittedAt|date('d/m/Y H:i') : '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.current_status'|trans }}:</td>
+                                            <td><span class="badge {{ application.statusBadgeClass }}">{{ ('loan.status.' ~ application.status)|trans }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.documents'|trans }}:</td>
+                                            <td>{{ documents|length }} {{ 'document.uploaded'|trans }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">{{ 'loan_application.assigned_to'|trans }}:</td>
+                                            <td>{{ application.assignedTo ? application.assignedTo.displayName : '-' }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {% if application.purpose %}
+                                <hr>
+                                <h6>{{ 'loan_application.purpose'|trans }}:</h6>
+                                <p class="text-muted">{{ application.purpose }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Documents -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-folder me-2"></i>
+                                {{ 'loan_application.documents'|trans }}
+                                <span class="badge bg-secondary ms-2">{{ documents|length }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if documents is not empty %}
+                                <div class="list-group list-group-flush">
+                                    {% for document in documents %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="bi {{ document.documentType.icon }} text-primary me-2"></i>
+                                                <span class="small">{{ document.documentType.label|trans }}</span>
+                                                <div>
+                                                    <span class="badge {{ document.statusBadgeClass }} badge-sm">
+                                                        {{ document.statusLabel }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <a href="{{ path('loan_application_document_download', {id: application.uuid, docId: document.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-folder-x text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2">{{ 'document.no_documents.title'|trans }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status Timeline -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 py-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clock-history me-2"></i>
+                                {{ 'application.status_timeline'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if timeline is not empty %}
+                                <div class="timeline">
+                                    {% for entry in timeline %}
+                                        <div class="timeline-item p-3 border-bottom">
+                                            <div class="d-flex align-items-start">
+                                                <div class="flex-shrink-0">
+                                                    <div class="timeline-badge {{ entry.statusBadgeClass }}">
+                                                        <i class="bi {{ entry.changeIcon }}"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="timeline-title mb-1">{{ entry.statusChange }}</h6>
+                                                    <p class="timeline-body mb-1 small text-muted">
+                                                        {% if entry.reason %}
+                                                            {{ entry.reason }}
+                                                        {% else %}
+                                                            {{ 'status.changed_to'|trans({'%status%': entry.newStatus}) }}
+                                                        {% endif %}
+                                                    </p>
+                                                    <small class="text-muted">
+                                                        <i class="bi {{ entry.automated ? 'bi-robot' : 'bi-person' }} me-1"></i>
+                                                        {{ entry.changerName }} • {{ entry.formattedDate }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-clock text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2">{{ 'timeline.no_entries'|trans }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-badge {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+}
+</style>
+{% endblock %}
