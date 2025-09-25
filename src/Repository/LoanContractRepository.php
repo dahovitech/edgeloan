@@ -69,25 +69,31 @@ class LoanContractRepository extends ServiceEntityRepository
 
     public function getContractStatistics(): array
     {
-        $qb = $this->createQueryBuilder('lc');
-        
-        $total = $qb->select('COUNT(lc.id)')
+        // Total contracts
+        $total = $this->createQueryBuilder('lc')
+            ->select('COUNT(lc.id)')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $signed = $qb->select('COUNT(lc.id)')
+        // Signed contracts (signed, active, completed)
+        $signed = $this->createQueryBuilder('lc')
+            ->select('COUNT(lc.id)')
             ->where('lc.status IN (:statuses)')
             ->setParameter('statuses', ['signed', 'active', 'completed'])
             ->getQuery()
             ->getSingleScalarResult();
 
-        $active = $qb->select('COUNT(lc.id)')
+        // Active contracts
+        $active = $this->createQueryBuilder('lc')
+            ->select('COUNT(lc.id)')
             ->where('lc.status = :status')
             ->setParameter('status', 'active')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pending = $qb->select('COUNT(lc.id)')
+        // Pending signature contracts
+        $pending = $this->createQueryBuilder('lc')
+            ->select('COUNT(lc.id)')
             ->where('lc.status = :status')
             ->setParameter('status', 'sent')
             ->getQuery()

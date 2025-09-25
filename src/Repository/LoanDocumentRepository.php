@@ -111,19 +111,23 @@ class LoanDocumentRepository extends ServiceEntityRepository
 
     public function getDocumentStatistics(): array
     {
-        $qb = $this->createQueryBuilder('ld');
-        
-        $total = $qb->select('COUNT(ld.id)')
+        // Total documents
+        $total = $this->createQueryBuilder('ld')
+            ->select('COUNT(ld.id)')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $verified = $qb->select('COUNT(ld.id)')
+        // Verified documents
+        $verified = $this->createQueryBuilder('ld')
+            ->select('COUNT(ld.id)')
             ->where('ld.isVerified = :verified')
             ->setParameter('verified', true)
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pending = $qb->select('COUNT(ld.id)')
+        // Pending verification documents
+        $pending = $this->createQueryBuilder('ld')
+            ->select('COUNT(ld.id)')
             ->where('ld.isVerified = :verified')
             ->andWhere('ld.isRequired = :required')
             ->setParameter('verified', false)

@@ -78,24 +78,30 @@ class LoanPaymentRepository extends ServiceEntityRepository
 
     public function getPaymentStatistics(LoanApplication $application = null): array
     {
-        $qb = $this->createQueryBuilder('lp');
-        
+        // Base QueryBuilder for application filtering
+        $baseQb = $this->createQueryBuilder('lp');
         if ($application) {
-            $qb->where('lp.loanApplication = :application')
-               ->setParameter('application', $application);
+            $baseQb->where('lp.loanApplication = :application')
+                   ->setParameter('application', $application);
         }
 
-        $total = $qb->select('COUNT(lp.id)')
+        // Total payments count
+        $totalQb = clone $baseQb;
+        $total = $totalQb->select('COUNT(lp.id)')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $paid = $qb->select('COUNT(lp.id)')
+        // Paid payments count
+        $paidQb = clone $baseQb;
+        $paid = $paidQb->select('COUNT(lp.id)')
             ->andWhere('lp.status = :status')
             ->setParameter('status', 'paid')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $overdue = $qb->select('COUNT(lp.id)')
+        // Overdue payments count
+        $overdueQb = clone $baseQb;
+        $overdue = $overdueQb->select('COUNT(lp.id)')
             ->andWhere('lp.status != :paid_status')
             ->andWhere('lp.dueDate < :today')
             ->setParameter('paid_status', 'paid')
@@ -103,11 +109,15 @@ class LoanPaymentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $totalAmount = $qb->select('SUM(lp.amount)')
+        // Total amount
+        $totalAmountQb = clone $baseQb;
+        $totalAmount = $totalAmountQb->select('SUM(lp.amount)')
             ->getQuery()
             ->getSingleScalarResult() ?? 0;
 
-        $paidAmount = $qb->select('SUM(lp.paidAmount)')
+        // Paid amount
+        $paidAmountQb = clone $baseQb;
+        $paidAmount = $paidAmountQb->select('SUM(lp.paidAmount)')
             ->andWhere('lp.status = :status')
             ->setParameter('status', 'paid')
             ->getQuery()

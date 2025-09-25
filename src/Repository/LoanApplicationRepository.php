@@ -50,31 +50,39 @@ class LoanApplicationRepository extends ServiceEntityRepository
 
     public function getStatistics(): array
     {
-        $qb = $this->createQueryBuilder('la');
-        
-        $total = $qb->select('COUNT(la.id)')
+        // Total applications
+        $total = $this->createQueryBuilder('la')
+            ->select('COUNT(la.id)')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $pending = $qb->select('COUNT(la.id)')
+        // Pending applications
+        $pending = $this->createQueryBuilder('la')
+            ->select('COUNT(la.id)')
             ->where('la.status = :status')
             ->setParameter('status', 'pending')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $approved = $qb->select('COUNT(la.id)')
+        // Approved applications
+        $approved = $this->createQueryBuilder('la')
+            ->select('COUNT(la.id)')
             ->where('la.status = :status')
             ->setParameter('status', 'approved')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $active = $qb->select('COUNT(la.id)')
+        // Active applications
+        $active = $this->createQueryBuilder('la')
+            ->select('COUNT(la.id)')
             ->where('la.status = :status')
             ->setParameter('status', 'active')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $totalAmount = $qb->select('SUM(la.requestedAmount)')
+        // Total amount for approved and active loans
+        $totalAmount = $this->createQueryBuilder('la')
+            ->select('SUM(la.requestedAmount)')
             ->where('la.status IN (:statuses)')
             ->setParameter('statuses', ['approved', 'active'])
             ->getQuery()
