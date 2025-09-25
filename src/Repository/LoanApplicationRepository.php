@@ -21,11 +21,17 @@ class LoanApplicationRepository extends ServiceEntityRepository
     public function findByCustomer(User $customer): array
     {
         return $this->createQueryBuilder('la')
-            ->where('la.customer = :customer')
+            ->where('la.applicant = :customer')
             ->setParameter('customer', $customer)
             ->orderBy('la.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    // Alias for backward compatibility
+    public function findByApplicant(User $applicant): array
+    {
+        return $this->findByCustomer($applicant);
     }
 
     public function findByStatus(string $status): array
@@ -74,7 +80,7 @@ class LoanApplicationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $totalAmount = $qb->select('SUM(la.requestedAmount)')
+        $totalAmount = $qb->select('SUM(la.amount)')
             ->where('la.status IN (:statuses)')
             ->setParameter('statuses', ['approved', 'active'])
             ->getQuery()
@@ -101,7 +107,7 @@ class LoanApplicationRepository extends ServiceEntityRepository
     public function searchApplications(array $criteria): array
     {
         $qb = $this->createQueryBuilder('la')
-            ->join('la.customer', 'u');
+            ->join('la.applicant', 'u');
 
         if (!empty($criteria['status'])) {
             $qb->andWhere('la.status = :status')
@@ -119,17 +125,105 @@ class LoanApplicationRepository extends ServiceEntityRepository
         }
 
         if (!empty($criteria['min_amount'])) {
-            $qb->andWhere('la.requestedAmount >= :min_amount')
+            $qb->andWhere('la.amount >= :min_amount')
                ->setParameter('min_amount', $criteria['min_amount']);
         }
 
         if (!empty($criteria['max_amount'])) {
-            $qb->andWhere('la.requestedAmount <= :max_amount')
+            $qb->andWhere('la.amount <= :max_amount')
                ->setParameter('max_amount', $criteria['max_amount']);
         }
 
         return $qb->orderBy('la.createdAt', 'DESC')
                  ->getQuery()
                  ->getResult();
+    }
+
+    public function findByUuid(string $uuid): ?LoanApplication
+    {
+        return $this->createQueryBuilder('la')
+            ->where('la.uuid = :uuid')
+            ->setParameter('uuid', $uuid)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findByApplicationNumber(string $applicationNumber): ?LoanApplication
+    {
+        return $this->createQueryBuilder('la')
+            ->where('la.applicationNumber = :applicationNumber')
+            ->setParameter('applicationNumber', $applicationNumber)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findApplicationsNeedingReview(): array
+    {
+        return $this->createQueryBuilder('la')
+            ->where('la.status IN (:statuses)')
+            ->setParameter('statuses', ['submitted', 'under_review', 'additional_info_required'])
+            ->orderBy('la.submittedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOverdueApplications(int $days = 30): array
+    {
+        $overdueDate = new \DateTimeImmutable("-{$days} days");
+        
+        return $this->createQueryBuilder('la')
+            ->where('la.status IN (:statuses)')
+            ->andWhere('la.submittedAt < :overdueDate')
+            ->setParameter('statuses', ['submitted', 'under_review'])
+            ->setParameter('overdueDate', $overdueDate)
+            ->orderBy('la.submittedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getApplicationsByRiskLevel(string $riskLevel): array
+    {
+        return $this->createQueryBuilder('la')
+            ->where('la.riskLevel = :riskLevel')
+            ->setParameter('riskLevel', $riskLevel)
+            ->orderBy('la.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getMonthlyStatistics(\DateTimeImmutable $month): array
+    {
+        $startDate = $month->modify('first day of this month')->setTime(0, 0, 0);
+        $endDate = $month->modify('last day of this month')->setTime(23, 59, 59);
+
+        $qb = $this->createQueryBuilder('la');
+
+        $applications = $qb->select('COUNT(la.id)')
+            ->where('la.createdAt BETWEEN :startDate AND :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $approved = $qb->select('COUNT(la.id)')
+            ->where('la.approvedAt BETWEEN :startDate AND :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalAmount = $qb->select('SUM(la.amount)')
+            ->where('la.approvedAt BETWEEN :startDate AND :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
+
+        return [
+            'applications' => $applications,
+            'approved' => $approved,
+            'total_amount' => $totalAmount,
+            'approval_rate' => $applications > 0 ? ($approved / $applications) * 100 : 0,
+        ];
     }
 }

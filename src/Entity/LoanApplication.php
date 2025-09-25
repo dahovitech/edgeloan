@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: LoanApplicationRepository::class)]
 #[ORM\Table(name: 'loan_applications')]
@@ -18,25 +19,55 @@ class LoanApplication
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private ?Uuid $uuid = null;
+
     #[ORM\Column(length: 20, unique: true)]
     private string $applicationNumber;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private User $customer;
+    #[Assert\NotNull(message: 'loan.validation.customer_required')]
+    private User $applicant;
 
     #[ORM\Column(length: 50)]
-    #[Assert\Choice(choices: ['personal', 'business', 'auto', 'home', 'education'])]
+    #[Assert\NotBlank(message: 'loan.validation.loan_type_required')]
+    #[Assert\Choice(
+        choices: ['personal', 'business', 'auto', 'home', 'education', 'investment'],
+        message: 'loan.validation.loan_type_invalid'
+    )]
     private string $loanType = 'personal';
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Assert\NotBlank]
-    #[Assert\Positive]
-    private string $requestedAmount;
+    #[ORM\Column(type: 'decimal', precision: 12, scale: 2)]
+    #[Assert\NotBlank(message: 'loan.validation.amount_required')]
+    #[Assert\Range(
+        min: 1000,
+        max: 1000000,
+        minMessage: 'loan.validation.amount_min',
+        maxMessage: 'loan.validation.amount_max'
+    )]
+    private string $amount;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    #[Assert\Length(max: 500, maxMessage: 'loan.validation.purpose_max_length')]
+    private ?string $purpose = null;
+
+    #[ORM\Column(length: 30)]
+    #[Assert\NotBlank(message: 'loan.validation.status_required')]
+    #[Assert\Choice(
+        choices: ['draft', 'submitted', 'under_review', 'additional_info_required', 'approved', 'rejected', 'cancelled', 'active', 'completed', 'defaulted'],
+        message: 'loan.validation.status_invalid'
+    )]
+    private string $status = 'draft';
 
     #[ORM\Column]
-    #[Assert\NotBlank]
-    #[Assert\Positive]
+    #[Assert\NotBlank(message: 'loan.validation.duration_required')]
+    #[Assert\Range(
+        min: 6,
+        max: 360,
+        minMessage: 'loan.validation.duration_min',
+        maxMessage: 'loan.validation.duration_max'
+    )]
     private int $requestedDuration; // en mois
 
     #[ORM\Column(type: 'decimal', precision: 5, scale: 3, nullable: true)]
@@ -45,22 +76,28 @@ class LoanApplication
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?string $monthlyPayment = null;
 
-    #[ORM\Column(length: 20)]
-    #[Assert\Choice(choices: ['pending', 'under_review', 'approved', 'rejected', 'cancelled', 'active', 'completed'])]
-    private string $status = 'pending';
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $purpose = null;
-
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 300, max: 850, minMessage: 'loan.validation.credit_score_min', maxMessage: 'loan.validation.credit_score_max')]
     private ?int $creditScore = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $reviewNotes = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $reviewedBy = null;
+
     #[ORM\Column(type: 'json')]
     private array $metadata = [];
 
+    // Multi-language support for translatable fields
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $translations = [];
+
+    // Workflow timestamps
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -68,7 +105,30 @@ class LoanApplication
     private \DateTimeImmutable $updatedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $submittedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $reviewedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $approvedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $activatedAt = null;
+
+    // Risk assessment fields
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $riskAssessment = [];
+
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
+    private ?string $riskScore = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Choice(
+        choices: ['low', 'medium', 'high', 'very_high'],
+        message: 'loan.validation.risk_level_invalid'
+    )]
+    private ?string $riskLevel = null;
 
     // Relations
     #[ORM\OneToMany(mappedBy: 'loanApplication', targetEntity: LoanDocument::class, cascade: ['persist', 'remove'])]
@@ -86,7 +146,11 @@ class LoanApplication
         $this->payments = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->uuid = Uuid::v4();
         $this->applicationNumber = $this->generateApplicationNumber();
+        $this->translations = [];
+        $this->metadata = [];
+        $this->riskAssessment = [];
     }
 
     #[ORM\PreUpdate]
@@ -105,6 +169,11 @@ class LoanApplication
         return $this->id;
     }
 
+    public function getUuid(): ?Uuid
+    {
+        return $this->uuid;
+    }
+
     public function getApplicationNumber(): string
     {
         return $this->applicationNumber;
@@ -116,15 +185,26 @@ class LoanApplication
         return $this;
     }
 
+    public function getApplicant(): User
+    {
+        return $this->applicant;
+    }
+
+    public function setApplicant(User $applicant): static
+    {
+        $this->applicant = $applicant;
+        return $this;
+    }
+
+    // Alias for backward compatibility
     public function getCustomer(): User
     {
-        return $this->customer;
+        return $this->applicant;
     }
 
     public function setCustomer(User $customer): static
     {
-        $this->customer = $customer;
-        return $this;
+        return $this->setApplicant($customer);
     }
 
     public function getLoanType(): string
@@ -138,20 +218,36 @@ class LoanApplication
         return $this;
     }
 
+    public function getAmount(): string
+    {
+        return $this->amount ?? '0.00';
+    }
+
+    public function setAmount(float $amount): static
+    {
+        $this->amount = number_format($amount, 2, '.', '');
+        return $this;
+    }
+
+    public function getAmountFloat(): float
+    {
+        return (float) $this->amount;
+    }
+
+    // Alias for backward compatibility
     public function getRequestedAmount(): string
     {
-        return $this->requestedAmount ?? '0.00';
+        return $this->getAmount();
     }
 
     public function setRequestedAmount(float $requestedAmount): static
     {
-        $this->requestedAmount = number_format($requestedAmount, 2, '.', '');
-        return $this;
+        return $this->setAmount($requestedAmount);
     }
 
     public function getRequestedAmountFloat(): float
     {
-        return (float) $this->requestedAmount;
+        return $this->getAmountFloat();
     }
 
     public function getRequestedDuration(): int
@@ -204,11 +300,16 @@ class LoanApplication
 
     public function setStatus(string $status): static
     {
+        $oldStatus = $this->status;
         $this->status = $status;
         
-        if ($status === 'approved' && $this->approvedAt === null) {
-            $this->approvedAt = new \DateTimeImmutable();
-        }
+        // Handle status transitions with timestamps
+        match ($status) {
+            'submitted' => $this->submittedAt ??= new \DateTimeImmutable(),
+            'approved' => $this->approvedAt ??= new \DateTimeImmutable(),
+            'active' => $this->activatedAt ??= new \DateTimeImmutable(),
+            default => null
+        };
         
         return $this;
     }
@@ -246,6 +347,31 @@ class LoanApplication
         return $this;
     }
 
+    public function getReviewNotes(): ?string
+    {
+        return $this->reviewNotes;
+    }
+
+    public function setReviewNotes(?string $reviewNotes): static
+    {
+        $this->reviewNotes = $reviewNotes;
+        return $this;
+    }
+
+    public function getReviewedBy(): ?User
+    {
+        return $this->reviewedBy;
+    }
+
+    public function setReviewedBy(?User $reviewedBy): static
+    {
+        $this->reviewedBy = $reviewedBy;
+        if ($reviewedBy && $this->reviewedAt === null) {
+            $this->reviewedAt = new \DateTimeImmutable();
+        }
+        return $this;
+    }
+
     public function getMetadata(): array
     {
         return $this->metadata;
@@ -257,6 +383,18 @@ class LoanApplication
         return $this;
     }
 
+    public function addMetadata(string $key, mixed $value): static
+    {
+        $this->metadata[$key] = $value;
+        return $this;
+    }
+
+    public function getMetadataValue(string $key): mixed
+    {
+        return $this->metadata[$key] ?? null;
+    }
+
+    // Timestamp getters/setters
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -267,6 +405,28 @@ class LoanApplication
         return $this->updatedAt;
     }
 
+    public function getSubmittedAt(): ?\DateTimeImmutable
+    {
+        return $this->submittedAt;
+    }
+
+    public function setSubmittedAt(?\DateTimeImmutable $submittedAt): static
+    {
+        $this->submittedAt = $submittedAt;
+        return $this;
+    }
+
+    public function getReviewedAt(): ?\DateTimeImmutable
+    {
+        return $this->reviewedAt;
+    }
+
+    public function setReviewedAt(?\DateTimeImmutable $reviewedAt): static
+    {
+        $this->reviewedAt = $reviewedAt;
+        return $this;
+    }
+
     public function getApprovedAt(): ?\DateTimeImmutable
     {
         return $this->approvedAt;
@@ -275,6 +435,82 @@ class LoanApplication
     public function setApprovedAt(?\DateTimeImmutable $approvedAt): static
     {
         $this->approvedAt = $approvedAt;
+        return $this;
+    }
+
+    public function getActivatedAt(): ?\DateTimeImmutable
+    {
+        return $this->activatedAt;
+    }
+
+    public function setActivatedAt(?\DateTimeImmutable $activatedAt): static
+    {
+        $this->activatedAt = $activatedAt;
+        return $this;
+    }
+
+    // Risk assessment methods
+    public function getRiskAssessment(): ?array
+    {
+        return $this->riskAssessment;
+    }
+
+    public function setRiskAssessment(?array $riskAssessment): static
+    {
+        $this->riskAssessment = $riskAssessment;
+        return $this;
+    }
+
+    public function getRiskScore(): ?string
+    {
+        return $this->riskScore;
+    }
+
+    public function setRiskScore(?float $riskScore): static
+    {
+        $this->riskScore = $riskScore ? number_format($riskScore, 2, '.', '') : null;
+        return $this;
+    }
+
+    public function getRiskScoreFloat(): ?float
+    {
+        return $this->riskScore ? (float) $this->riskScore : null;
+    }
+
+    public function getRiskLevel(): ?string
+    {
+        return $this->riskLevel;
+    }
+
+    public function setRiskLevel(?string $riskLevel): static
+    {
+        $this->riskLevel = $riskLevel;
+        return $this;
+    }
+
+    // Multi-language support methods
+    public function getTranslations(): ?array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?array $translations): static
+    {
+        $this->translations = $translations;
+        return $this;
+    }
+
+    public function getTranslatedPurpose(string $locale = 'fr'): ?string
+    {
+        return $this->translations['purpose'][$locale] ?? $this->purpose;
+    }
+
+    public function setTranslatedPurpose(string $locale, ?string $purpose): static
+    {
+        if (!isset($this->translations['purpose'])) {
+            $this->translations['purpose'] = [];
+        }
+        $this->translations['purpose'][$locale] = $purpose;
         return $this;
     }
 
