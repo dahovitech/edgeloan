@@ -1,33 +1,45 @@
 # Interface Administration - Français
-navigation:
-  dashboard: Tableau de bord
-  services: Services
-  media: Gestionnaire de médias
-  languages: Langues
-  translations: Traductions
-  settings: Paramètres
-  logout: Déconnexion
 
+# Navigation
+navigation:
+  dashboard: "Tableau de bord"
+  services: "Services"
+  media: "Gestionnaire de médias"  
+  languages: "Langues"
+  translations: "Traductions"
+  settings: "Paramètres"
+  logout: "Déconnexion"
+
+# Gestion des langues pour l'administration
+language:
+  change_interface: "Changer la langue de l'interface"
+
+# Actions communes
+common:
+  actions:
+    view_site: "Voir le site"
+
+# Tableau de bord
 dashboard:
-  title: Tableau de bord
-  welcome: Bienvenue dans l'administration d'Opencms
-  statistics: Statistiques
-  recent_activity: Activité récente
-  quick_actions: Actions rapides
-  total_languages: Langues configurées
-  translation_progress: Progression des traductions
-  manage_languages: Gérer les langues
-  languages_count: Langues
-  translations_count: Traductions
-  completion: Complétude
-  view_all: Voir tous
-  configured_languages: Langues configurées
-  manage: Gérer
-  no_language_configured: Aucune langue configurée
-  add_language: Ajouter une langue
-  updated: Mis à jour
-  slug: Slug
-  status: Statut
+  title: "Tableau de bord EdgeLoan"
+  welcome: "Bienvenue dans l'administration d'EdgeLoan"
+  statistics: "Statistiques"
+  recent_activity: "Activité récente"
+  quick_actions: "Actions rapides"
+  total_languages: "Langues configurées"
+  translation_progress: "Progression des traductions"
+  manage_languages: "Gérer les langues"
+  languages_count: "Langues"
+  translations_count: "Traductions"
+  completion: "Complétude"
+  view_all: "Voir tous"
+  configured_languages: "Langues configurées"
+  manage: "Gérer"
+  no_language_configured: "Aucune langue configurée"
+  add_language: "Ajouter une langue"
+  updated: "Mis à jour"
+  slug: "Slug"
+  status: "Statut"
 
 languages:
   title: Gestion des langues

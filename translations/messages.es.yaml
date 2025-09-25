@@ -1,28 +1,132 @@
-# Services translations (Spanish)
+# EdgeLoan - Traducciones en español
+
+# Accesibilidad
+accessibility:
+  skip_to_content: "Ir al contenido principal"
+  notifications: "Notificaciones"
+  close_alert: "Cerrar notificación"
+  back_to_top: "Volver arriba"
+  main_navigation: "Navegación principal"
+  toggle_navigation: "Alternar navegación"
+  site_footer: "Pie de página del sitio"
+  footer_navigation: "Navegación del pie de página"
+  language_links: "Enlaces de idioma"
+
+# Navegación
+navigation:
+  home: "Inicio"
+  services: "Servicios"
+  contact: "Contacto"
+  about: "Acerca de"
+
+# Gestión de idiomas
+language:
+  change: "Cambiar idioma"
+  current: "Idioma actual"
+  dropdown_label: "Cambiar idioma"
+  default: "Idioma predeterminado"
+  switch_to: "Cambiar a %language%"
+
+# Sitio general
+site:
+  name: "EdgeLoan"
+
+# Común
+common:
+  loading: "Cargando..."
+
+# Página de inicio
+homepage:
+  title: "Solución de Préstamos en Línea Moderna"
+  meta_description: "EdgeLoan ofrece soluciones de préstamos personalizadas, rápidas y seguras. Obtén tu crédito en línea en minutos."
+  hero:
+    title: "Tu solución de préstamo personalizada"
+    subtitle: "Obtén rápidamente los fondos que necesitas con nuestras soluciones de préstamo flexibles y seguras."
+    actions: "Acciones principales"
+    discover_services: "Descubre nuestros servicios"
+    contact_us: "Contáctanos"
+    icon_description: "Icono que representa nuestro servicio"
+  features:
+    title: "¿Por qué elegir EdgeLoan?"
+    subtitle: "Soluciones de préstamo modernas adaptadas a tus necesidades"
+    fast:
+      title: "Rápido"
+      description: "Obtén una respuesta en minutos y recibe tus fondos rápidamente."
+    secure:
+      title: "Seguro"
+      description: "Tus datos están protegidos por los más altos estándares de seguridad."
+    support:
+      title: "Soporte 24/7"
+      description: "Nuestro equipo de expertos está disponible para asistirte en cualquier momento."
+  services:
+    title: "Nuestras soluciones de préstamo"
+    subtitle: "Elige la solución que mejor se adapte a tus necesidades"
+    loading_area: "Área de carga de servicios"
+    loading: "Cargando servicios..."
+    view_all: "Ver todos nuestros servicios"
+  cta:
+    title: "¿Listo para comenzar?"
+    subtitle: "Contáctanos ahora para una solución personalizada"
+    button: "Solicitar cotización"
+
+# Página de contacto
+contact:
+  title: "Contáctanos"
+  meta_description: "Contacta EdgeLoan para todas tus preguntas sobre nuestras soluciones de préstamo. Nuestro equipo de expertos responde rápidamente."
+  subtitle: "Nuestro equipo está aquí para responder todas tus preguntas"
+  email:
+    title: "Email"
+    description: "Envíanos un email, responderemos rápidamente"
+  phone:
+    title: "Teléfono"
+    description: "Llámanos para una respuesta inmediata"
+  address:
+    title: "Dirección"
+    description: "Visítanos en nuestra oficina"
+  form:
+    title: "Envíanos un mensaje"
+    first_name: "Nombre"
+    last_name: "Apellido"
+    email: "Email"
+    subject: "Asunto"
+    message: "Mensaje"
+    send: "Enviar mensaje"
+    sending: "Enviando..."
+    success_message: "¡Tu mensaje ha sido enviado exitosamente!"
+    errors:
+      first_name_required: "El nombre es requerido"
+      last_name_required: "El apellido es requerido"
+      email_invalid: "Email inválido"
+      subject_required: "El asunto es requerido"
+      message_required: "El mensaje es requerido"
+      submission_failed: "Error durante el envío"
+
+# Pie de página
+footer:
+  description: "EdgeLoan, tu socio de confianza para todas tus necesidades de financiamiento."
+  quick_links: "Enlaces rápidos"
+  languages: "Idiomas"
+  rights: "Todos los derechos reservados."
+  powered_by: "Desarrollado por"
+  symfony_link: "Symfony - Abre en nueva pestaña"
+
+# Servicios (continuación del contenido original)
 services:
   page_title: "Nuestros Servicios"
-  page_subtitle: "Descubre nuestras soluciones digitales a medida"
-  meta_description: "Descubre nuestros servicios digitales: desarrollo web, aplicaciones móviles, marketing digital y soluciones e-commerce."
-  read_more: "Saber más"
+  page_subtitle: "Descubre nuestras soluciones digitales personalizadas"
+  meta_description: "Descubre nuestros servicios digitales: desarrollo web, aplicaciones móviles, marketing digital y soluciones de comercio electrónico."
+  read_more: "Leer más"
   no_services: "No hay servicios disponibles"
   no_services_description: "Actualmente estamos trabajando en nuevos servicios. ¡Vuelve pronto!"
-  language_notice: "Estás viendo esta página en %language%. Algunos contenidos pueden no estar traducidos."
-  view_in_default: "Ver en francés"
+  language_notice: "Estás viendo esta página en %language%. Parte del contenido puede no estar traducido."
+  view_in_default: "Ver en español"
 
 service:
   back_to_services: "Volver a servicios"
   interested: "¿Interesado en este servicio?"
-  contact_description: "Contáctanos para discutir tu proyecto y obtener un presupuesto personalizado."
+  contact_description: "Contáctanos para discutir tu proyecto y obtener una cotización personalizada."
   contact_us: "Contáctanos"
   other_services: "Otros servicios"
   available_languages: "Este servicio está disponible en los siguientes idiomas:"
   loading_other_services: "Cargando otros servicios..."
   no_other_services: "No hay otros servicios disponibles"
-  error_loading_services: "Error al cargar servicios"
-
-navigation:
-  home: "Inicio"
-  services: "Servicios"
-  about: "Acerca de"
-  contact: "Contacto"
-  language_selector: "Cambiar idioma"

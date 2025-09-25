@@ -1,4 +1,116 @@
-# Services translations (German)
+# EdgeLoan - Deutsche Übersetzungen
+
+# Barrierefreiheit
+accessibility:
+  skip_to_content: "Zum Hauptinhalt springen"
+  notifications: "Benachrichtigungen"
+  close_alert: "Benachrichtigung schließen"
+  back_to_top: "Nach oben"
+  main_navigation: "Hauptnavigation"
+  toggle_navigation: "Navigation umschalten"
+  site_footer: "Seitenfuß"
+  footer_navigation: "Fußzeilennavigation"
+  language_links: "Sprachlinks"
+
+# Navigation
+navigation:
+  home: "Startseite"
+  services: "Dienstleistungen"
+  contact: "Kontakt"
+  about: "Über uns"
+
+# Sprachverwaltung
+language:
+  change: "Sprache ändern"
+  current: "Aktuelle Sprache"
+  dropdown_label: "Sprache ändern"
+  default: "Standardsprache"
+  switch_to: "Wechseln zu %language%"
+
+# Allgemeine Website
+site:
+  name: "EdgeLoan"
+
+# Allgemein
+common:
+  loading: "Laden..."
+
+# Startseite
+homepage:
+  title: "Moderne Online-Darlehenslösung"
+  meta_description: "EdgeLoan bietet personalisierte, schnelle und sichere Darlehenslösungen. Erhalten Sie Ihren Kredit online in wenigen Minuten."
+  hero:
+    title: "Ihre personalisierte Darlehenslösung"
+    subtitle: "Erhalten Sie schnell die benötigten Mittel mit unseren flexiblen und sicheren Darlehenslösungen."
+    actions: "Hauptaktionen"
+    discover_services: "Unsere Dienstleistungen entdecken"
+    contact_us: "Kontaktieren Sie uns"
+    icon_description: "Symbol, das unseren Service darstellt"
+  features:
+    title: "Warum EdgeLoan wählen?"
+    subtitle: "Moderne Darlehenslösungen, die an Ihre Bedürfnisse angepasst sind"
+    fast:
+      title: "Schnell"
+      description: "Erhalten Sie eine Antwort in wenigen Minuten und erhalten Sie Ihre Mittel schnell."
+    secure:
+      title: "Sicher"
+      description: "Ihre Daten sind durch die höchsten Sicherheitsstandards geschützt."
+    support:
+      title: "24/7 Support"
+      description: "Unser Expertenteam steht Ihnen jederzeit zur Verfügung."
+  services:
+    title: "Unsere Darlehenslösungen"
+    subtitle: "Wählen Sie die Lösung, die am besten zu Ihren Bedürfnissen passt"
+    loading_area: "Service-Ladebereich"
+    loading: "Dienstleistungen werden geladen..."
+    view_all: "Alle unsere Dienstleistungen anzeigen"
+  cta:
+    title: "Bereit anzufangen?"
+    subtitle: "Kontaktieren Sie uns jetzt für eine personalisierte Lösung"
+    button: "Angebot anfordern"
+
+# Kontaktseite
+contact:
+  title: "Kontaktieren Sie uns"
+  meta_description: "Kontaktieren Sie EdgeLoan für alle Ihre Fragen zu unseren Darlehenslösungen. Unser Expertenteam antwortet schnell."
+  subtitle: "Unser Team ist hier, um alle Ihre Fragen zu beantworten"
+  email:
+    title: "E-Mail"
+    description: "Senden Sie uns eine E-Mail, wir antworten schnell"
+  phone:
+    title: "Telefon"
+    description: "Rufen Sie uns für eine sofortige Antwort an"
+  address:
+    title: "Adresse"
+    description: "Besuchen Sie uns in unserem Büro"
+  form:
+    title: "Senden Sie uns eine Nachricht"
+    first_name: "Vorname"
+    last_name: "Nachname"
+    email: "E-Mail"
+    subject: "Betreff"
+    message: "Nachricht"
+    send: "Nachricht senden"
+    sending: "Senden..."
+    success_message: "Ihre Nachricht wurde erfolgreich gesendet!"
+    errors:
+      first_name_required: "Vorname ist erforderlich"
+      last_name_required: "Nachname ist erforderlich"
+      email_invalid: "Ungültige E-Mail"
+      subject_required: "Betreff ist erforderlich"
+      message_required: "Nachricht ist erforderlich"
+      submission_failed: "Fehler beim Senden"
+
+# Fußzeile
+footer:
+  description: "EdgeLoan, Ihr vertrauensvoller Partner für alle Ihre Finanzierungsbedürfnisse."
+  quick_links: "Schnelllinks"
+  languages: "Sprachen"
+  rights: "Alle Rechte vorbehalten."
+  powered_by: "Betrieben von"
+  symfony_link: "Symfony - Öffnet in neuem Tab"
+
+# Dienstleistungen (Fortsetzung des ursprünglichen Inhalts)
 services:
   page_title: "Unsere Dienstleistungen"
   page_subtitle: "Entdecken Sie unsere maßgeschneiderten digitalen Lösungen"
@@ -6,8 +118,8 @@ services:
   read_more: "Mehr erfahren"
   no_services: "Keine Dienstleistungen verfügbar"
   no_services_description: "Wir arbeiten derzeit an neuen Dienstleistungen. Schauen Sie bald wieder vorbei!"
-  language_notice: "Sie betrachten diese Seite auf %language%. Einige Inhalte sind möglicherweise nicht übersetzt."
-  view_in_default: "Auf Französisch anzeigen"
+  language_notice: "Sie sehen diese Seite in %language%. Einige Inhalte sind möglicherweise nicht übersetzt."
+  view_in_default: "Auf Deutsch anzeigen"
 
 service:
   back_to_services: "Zurück zu Dienstleistungen"
@@ -15,14 +127,6 @@ service:
   contact_description: "Kontaktieren Sie uns, um Ihr Projekt zu besprechen und ein personalisiertes Angebot zu erhalten."
   contact_us: "Kontaktieren Sie uns"
   other_services: "Andere Dienstleistungen"
-  available_languages: "Diese Dienstleistung ist in folgenden Sprachen verfügbar:"
-  loading_other_services: "Laden andere Dienstleistungen..."
+  available_languages: "Diese Dienstleistung ist in den folgenden Sprachen verfügbar:"
+  loading_other_services: "Andere Dienstleistungen werden geladen..."
   no_other_services: "Keine anderen Dienstleistungen verfügbar"
-  error_loading_services: "Fehler beim Laden der Dienstleistungen"
-
-navigation:
-  home: "Startseite"
-  services: "Dienstleistungen"
-  about: "Über uns"
-  contact: "Kontakt"
-  language_selector: "Sprache ändern"

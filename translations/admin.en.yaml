@@ -1,33 +1,45 @@
 # Administration Interface - English
-navigation:
-  dashboard: Dashboard
-  services: Services
-  media: Media Manager
-  languages: Languages
-  translations: Translations
-  settings: Settings
-  logout: Logout
 
+# Navigation  
+navigation:
+  dashboard: "Dashboard"
+  services: "Services"
+  media: "Media Manager"
+  languages: "Languages"
+  translations: "Translations"
+  settings: "Settings"
+  logout: "Logout"
+
+# Language management for administration
+language:
+  change_interface: "Change interface language"
+
+# Common actions
+common:
+  actions:
+    view_site: "View site"
+
+# Dashboard
 dashboard:
-  title: Dashboard
-  welcome: Welcome to Opencms Administration
-  statistics: Statistics
-  recent_activity: Recent Activity
-  quick_actions: Quick Actions
-  total_languages: Configured Languages
-  translation_progress: Translation Progress
-  manage_languages: Manage languages
-  languages_count: Languages
-  translations_count: Translations
-  completion: Completion
-  view_all: View All
-  configured_languages: Configured Languages
-  manage: Manage
-  no_language_configured: No languages configured
-  add_language: Add Language
-  updated: Updated
-  slug: Slug
-  status: Status
+  title: "EdgeLoan Dashboard"
+  welcome: "Welcome to EdgeLoan Administration"
+  statistics: "Statistics"
+  recent_activity: "Recent Activity"
+  quick_actions: "Quick Actions"
+  total_languages: "Configured Languages"
+  translation_progress: "Translation Progress"
+  manage_languages: "Manage languages"
+  languages_count: "Languages"
+  translations_count: "Translations"
+  completion: "Completion"
+  view_all: "View All"
+  configured_languages: "Configured Languages"
+  manage: "Manage"
+  no_language_configured: "No languages configured"
+  add_language: "Add Language"
+  updated: "Updated"
+  slug: "Slug"
+  status: "Status"
 
 languages:
   title: Language Management

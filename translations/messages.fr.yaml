@@ -1,4 +1,116 @@
-# Services translations (French)
+# EdgeLoan - Traductions françaises (French translations)
+
+# Accessibilité (Accessibility)
+accessibility:
+  skip_to_content: "Aller au contenu principal"
+  notifications: "Notifications"
+  close_alert: "Fermer la notification"
+  back_to_top: "Retour en haut de la page"
+  main_navigation: "Navigation principale"
+  toggle_navigation: "Basculer la navigation"
+  site_footer: "Pied de page du site"
+  footer_navigation: "Navigation du pied de page"
+  language_links: "Liens de langue"
+
+# Navigation
+navigation:
+  home: "Accueil"
+  services: "Services"
+  contact: "Contact"
+  about: "À propos"
+
+# Gestion des langues (Language management)
+language:
+  change: "Changer de langue"
+  current: "Langue actuelle"
+  dropdown_label: "Changer de langue"
+  default: "Langue par défaut"
+  switch_to: "Passer à %language%"
+
+# Site général
+site:
+  name: "EdgeLoan"
+
+# Commun (Common)
+common:
+  loading: "Chargement..."
+
+# Page d'accueil (Homepage)
+homepage:
+  title: "Solution de prêts en ligne moderne"
+  meta_description: "EdgeLoan vous propose des solutions de prêts personnalisées, rapides et sécurisées. Obtenez votre crédit en ligne en quelques minutes."
+  hero:
+    title: "Votre solution de prêt personnalisée"
+    subtitle: "Obtenez rapidement les fonds dont vous avez besoin avec nos solutions de prêt flexibles et sécurisées."
+    actions: "Actions principales"
+    discover_services: "Découvrir nos services"
+    contact_us: "Nous contacter"
+    icon_description: "Icône représentant notre service"
+  features:
+    title: "Pourquoi choisir EdgeLoan ?"
+    subtitle: "Des solutions de prêt modernes adaptées à vos besoins"
+    fast:
+      title: "Rapide"
+      description: "Obtenez une réponse en quelques minutes et recevez vos fonds rapidement."
+    secure:
+      title: "Sécurisé"
+      description: "Vos données sont protégées par les plus hauts standards de sécurité."
+    support:
+      title: "Support 24/7"
+      description: "Notre équipe d'experts est disponible pour vous accompagner à tout moment."
+  services:
+    title: "Nos solutions de prêt"
+    subtitle: "Choisissez la solution qui correspond le mieux à vos besoins"
+    loading_area: "Zone de chargement des services"
+    loading: "Chargement des services..."
+    view_all: "Voir tous nos services"
+  cta:
+    title: "Prêt à commencer ?"
+    subtitle: "Contactez-nous dès maintenant pour une solution personnalisée"
+    button: "Demander un devis"
+
+# Page de contact (Contact page)
+contact:
+  title: "Contactez-nous"
+  meta_description: "Contactez EdgeLoan pour toutes vos questions sur nos solutions de prêt. Notre équipe d'experts vous répond rapidement."
+  subtitle: "Notre équipe est là pour répondre à toutes vos questions"
+  email:
+    title: "Email"
+    description: "Envoyez-nous un email, nous vous répondrons rapidement"
+  phone:
+    title: "Téléphone"
+    description: "Appelez-nous pour une réponse immédiate"
+  address:
+    title: "Adresse"
+    description: "Rendez-nous visite à notre bureau"
+  form:
+    title: "Envoyez-nous un message"
+    first_name: "Prénom"
+    last_name: "Nom"
+    email: "Email"
+    subject: "Sujet"
+    message: "Message"
+    send: "Envoyer le message"
+    sending: "Envoi en cours..."
+    success_message: "Votre message a été envoyé avec succès !"
+    errors:
+      first_name_required: "Le prénom est requis"
+      last_name_required: "Le nom est requis"
+      email_invalid: "Email invalide"
+      subject_required: "Le sujet est requis"
+      message_required: "Le message est requis"
+      submission_failed: "Erreur lors de l'envoi"
+
+# Pied de page (Footer)
+footer:
+  description: "EdgeLoan, votre partenaire de confiance pour tous vos besoins de financement."
+  quick_links: "Liens rapides"
+  languages: "Langues"
+  rights: "Tous droits réservés."
+  powered_by: "Propulsé par"
+  symfony_link: "Symfony - Ouvre dans un nouvel onglet"
+
+# Services (continuité de l'ancien contenu)
 services:
   page_title: "Nos Services"
   page_subtitle: "Découvrez nos solutions digitales sur mesure"

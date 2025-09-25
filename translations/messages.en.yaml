@@ -1,13 +1,125 @@
-# Services translations (English)
+# EdgeLoan - English translations
+
+# Accessibility
+accessibility:
+  skip_to_content: "Skip to main content"
+  notifications: "Notifications"
+  close_alert: "Close notification"
+  back_to_top: "Back to top"
+  main_navigation: "Main navigation"
+  toggle_navigation: "Toggle navigation"
+  site_footer: "Site footer"
+  footer_navigation: "Footer navigation"
+  language_links: "Language links"
+
+# Navigation
+navigation:
+  home: "Home"
+  services: "Services"
+  contact: "Contact"
+  about: "About"
+
+# Language management
+language:
+  change: "Change language"
+  current: "Current language"
+  dropdown_label: "Change language"
+  default: "Default language"
+  switch_to: "Switch to %language%"
+
+# Site general
+site:
+  name: "EdgeLoan"
+
+# Common
+common:
+  loading: "Loading..."
+
+# Homepage
+homepage:
+  title: "Modern Online Loan Solution"
+  meta_description: "EdgeLoan offers personalized, fast and secure loan solutions. Get your credit online in minutes."
+  hero:
+    title: "Your personalized loan solution"
+    subtitle: "Quickly get the funds you need with our flexible and secure loan solutions."
+    actions: "Main actions"
+    discover_services: "Discover our services"
+    contact_us: "Contact us"
+    icon_description: "Icon representing our service"
+  features:
+    title: "Why choose EdgeLoan?"
+    subtitle: "Modern loan solutions adapted to your needs"
+    fast:
+      title: "Fast"
+      description: "Get an answer in minutes and receive your funds quickly."
+    secure:
+      title: "Secure"
+      description: "Your data is protected by the highest security standards."
+    support:
+      title: "24/7 Support"
+      description: "Our team of experts is available to assist you at any time."
+  services:
+    title: "Our loan solutions"
+    subtitle: "Choose the solution that best fits your needs"
+    loading_area: "Services loading area"
+    loading: "Loading services..."
+    view_all: "View all our services"
+  cta:
+    title: "Ready to start?"
+    subtitle: "Contact us now for a personalized solution"
+    button: "Request a quote"
+
+# Contact page
+contact:
+  title: "Contact us"
+  meta_description: "Contact EdgeLoan for all your questions about our loan solutions. Our team of experts responds quickly."
+  subtitle: "Our team is here to answer all your questions"
+  email:
+    title: "Email"
+    description: "Send us an email, we will respond quickly"
+  phone:
+    title: "Phone"
+    description: "Call us for an immediate response"
+  address:
+    title: "Address"
+    description: "Visit us at our office"
+  form:
+    title: "Send us a message"
+    first_name: "First name"
+    last_name: "Last name"
+    email: "Email"
+    subject: "Subject"
+    message: "Message"
+    send: "Send message"
+    sending: "Sending..."
+    success_message: "Your message has been sent successfully!"
+    errors:
+      first_name_required: "First name is required"
+      last_name_required: "Last name is required"
+      email_invalid: "Invalid email"
+      subject_required: "Subject is required"
+      message_required: "Message is required"
+      submission_failed: "Error during sending"
+
+# Footer
+footer:
+  description: "EdgeLoan, your trusted partner for all your financing needs."
+  quick_links: "Quick links"
+  languages: "Languages"
+  rights: "All rights reserved."
+  powered_by: "Powered by"
+  symfony_link: "Symfony - Opens in new tab"
+
+# Services (continued from original content)
 services:
   page_title: "Our Services"
-  page_subtitle: "Discover our tailor-made digital solutions"
+  page_subtitle: "Discover our custom digital solutions"
   meta_description: "Discover our digital services: web development, mobile applications, digital marketing and e-commerce solutions."
   read_more: "Learn more"
   no_services: "No services available"
-  no_services_description: "We are currently working on new services. Come back soon!"
+  no_services_description: "We are currently working on new services. Check back soon!"
   language_notice: "You are viewing this page in %language%. Some content may not be translated."
-  view_in_default: "View in French"
+  view_in_default: "View in English"
 
 service:
   back_to_services: "Back to services"
@@ -18,124 +130,3 @@ service:
   available_languages: "This service is available in the following languages:"
   loading_other_services: "Loading other services..."
   no_other_services: "No other services available"
-  error_loading_services: "Error loading services"
-
-navigation:
-  home: "Home"
-  services: "Services"
-  about: "About"
-  contact: "Contact"
-  language_selector: "Change language"
-
-# Homepage translations
-homepage:
-  title: "Welcome to Opencms"
-  meta_description: "Opencms - Innovative digital solutions for your business. Discover our web, mobile and marketing services."
-  hero:
-    title: "Innovative Digital Solutions"
-    subtitle: "We create exceptional digital experiences that transform your vision into reality."
-    discover_services: "Discover our services"
-    contact_us: "Contact us"
-  features:
-    title: "Why Choose Opencms?"
-    subtitle: "We stand out through our expertise and personalized approach"
-    fast:
-      title: "Fast"
-      description: "Solutions developed quickly without compromising on quality."
-    secure:
-      title: "Secure"
-      description: "Enhanced security to protect your data and your customers' data."
-    support:
-      title: "24/7 Support"
-      description: "A dedicated team at your service for all your needs."
-  services:
-    title: "Our Popular Services"
-    subtitle: "Discover our most requested solutions"
-    loading: "Loading services..."
-    view_all: "View all our services"
-    learn_more: "Learn more"
-    no_services: "No services available"
-    no_services_description: "We are preparing new services for you."
-    error_loading: "Error loading"
-  cta:
-    title: "Ready to Start Your Project?"
-    subtitle: "Contact us today to discuss your needs and receive a personalized quote."
-    button: "Get started now"
-
-# Contact page translations
-contact:
-  title: "Contact Us"
-  subtitle: "We would love to discuss your project with you"
-  meta_description: "Contact the Opencms team to discuss your digital solution needs. Free quote and personalized advice."
-  email:
-    title: "Email"
-    description: "Send us a message, we respond within 24h"
-  phone:
-    title: "Phone"
-    description: "Call us Monday to Friday from 9am to 6pm"
-  address:
-    title: "Address"
-    description: "Come visit us at our offices"
-  form:
-    title: "Send us a message"
-    first_name: "First name"
-    last_name: "Last name"
-    email: "Email address"
-    subject: "Subject"
-    message: "Message"
-    send: "Send message"
-    success_message: "Your message has been sent successfully! We will respond to you soon."
-
-# About page translations
-about:
-  title: "About Opencms"
-  subtitle: "Discover our story, our mission and our passionate team"
-  meta_description: "Discover the Opencms team, our mission and our values. Digital solution experts since 2020."
-  mission:
-    title: "Our Mission"
-    description: "At Opencms, we strive to create innovative digital solutions that transform businesses and improve users' lives."
-    details: "Since our creation, we have helped over 100 companies digitize their processes and achieve their business goals through our tailor-made solutions."
-  values:
-    title: "Our Values"
-    subtitle: "The principles that guide our daily work"
-    innovation:
-      title: "Innovation"
-      description: "We stay at the forefront of technology to offer the best solutions."
-    passion:
-      title: "Passion"
-      description: "We love what we do and it shows in every project."
-    excellence:
-      title: "Excellence"
-      description: "We aim for excellence in every detail of our achievements."
-  team:
-    title: "Our Team"
-    subtitle: "The talents who bring your projects to life"
-    ceo:
-      name: "Marie Dupont"
-      title: "CEO"
-    cto:
-      name: "Pierre Martin"
-      title: "CTO"
-    designer:
-      name: "Sophie Leroy"
-      title: "Creative Director"
-    developer:
-      name: "Antoine Moreau"
-      title: "Senior Developer"
-  history:
-    title: "Our History"
-    description: "Founded in 2020, Opencms was born from the desire to create digital solutions that really make a difference."
-    details: "Today, we are proud to have supported hundreds of companies in their digital transformation, from startups to large enterprises."
-  contact_us: "Contact us"
-
-# Language and general translations
-language:
-  change: "Change language"
-  default: "Default language"
-
-footer:
-  description: "Innovative digital solutions for your business."
-  quick_links: "Quick links"
-  languages: "Languages"
-  rights: "All rights reserved."
-  powered_by: "Powered by"

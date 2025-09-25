@@ -1,18 +1,31 @@
 # Administrationsoberfläche - Deutsch
-navigation:
-  dashboard: Dashboard
-  services: Dienste
-  media: Medien-Manager
-  languages: Sprachen
-  translations: Übersetzungen
-  settings: Einstellungen
-  logout: Abmelden
 
+# Navigation
+navigation:
+  dashboard: "Dashboard"
+  services: "Dienste"
+  media: "Medien-Manager"
+  languages: "Sprachen"
+  translations: "Übersetzungen"
+  settings: "Einstellungen"
+  logout: "Abmelden"
+
+# Sprachverwaltung für Administration
+language:
+  change_interface: "Interface-Sprache ändern"
+
+# Gemeinsame Aktionen
+common:
+  actions:
+    view_site: "Website anzeigen"
+
+# Dashboard
 dashboard:
-  welcome: 'Willkommen in der Opencms-Verwaltung'
-  statistics: Statistiken
-  recent_activity: 'Letzte Aktivitäten'
-  quick_actions: Schnellaktionen
+  title: "EdgeLoan Dashboard"
+  welcome: "Willkommen in der EdgeLoan-Verwaltung"
+  statistics: "Statistiken"
+  recent_activity: "Letzte Aktivitäten"
+  quick_actions: "Schnellaktionen"
 
 languages:
   title: Sprachenverwaltung

@@ -1,33 +1,45 @@
 # Interfaz de Administración - Español
-navigation:
-  dashboard: Panel de Control
-  services: Servicios
-  media: Gestor de Medios
-  languages: Idiomas
-  translations: Traducciones
-  settings: Configuración
-  logout: Cerrar Sesión
 
+# Navegación
+navigation:
+  dashboard: "Panel de Control"
+  services: "Servicios"
+  media: "Gestor de Medios"
+  languages: "Idiomas"
+  translations: "Traducciones"
+  settings: "Configuración"
+  logout: "Cerrar Sesión"
+
+# Gestión de idiomas para administración
+language:
+  change_interface: "Cambiar idioma de la interfaz"
+
+# Acciones comunes
+common:
+  actions:
+    view_site: "Ver sitio"
+
+# Panel de control
 dashboard:
-  title: Panel de Control
-  welcome: Bienvenido a la Administración de Opencms
-  statistics: Estadísticas
-  recent_activity: Actividad Reciente
-  quick_actions: Acciones Rápidas
-  total_languages: Idiomas Configurados
-  translation_progress: Progreso de Traducciones
-  manage_languages: Gestionar idiomas
-  languages_count: Idiomas
-  translations_count: Traducciones
-  completion: Complección
-  view_all: Ver Todo
-  configured_languages: Idiomas Configurados
-  manage: Gestionar
-  no_language_configured: No hay idiomas configurados
-  add_language: Agregar Idioma
-  updated: Actualizado
-  slug: Slug
-  status: Estado
+  title: "Panel de Control EdgeLoan"
+  welcome: "Bienvenido a la Administración de EdgeLoan"
+  statistics: "Estadísticas"
+  recent_activity: "Actividad Reciente"
+  quick_actions: "Acciones Rápidas"
+  total_languages: "Idiomas Configurados"
+  translation_progress: "Progreso de Traducciones"
+  manage_languages: "Gestionar idiomas"
+  languages_count: "Idiomas"
+  translations_count: "Traducciones"
+  completion: "Complección"
+  view_all: "Ver Todo"
+  configured_languages: "Idiomas Configurados"
+  manage: "Gestionar"
+  no_language_configured: "No hay idiomas configurados"
+  add_language: "Agregar Idioma"
+  updated: "Actualizado"
+  slug: "Slug"
+  status: "Estado"
 
 languages:
   title: Gestión de Idiomas
