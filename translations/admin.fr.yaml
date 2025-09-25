@@ -10,10 +10,6 @@ navigation:
   settings: "Paramètres"
   logout: "Déconnexion"
 
-# Gestion des langues pour l'administration (fusionné avec section language plus bas)
-
-# Actions communes (fusionné avec section common plus bas)
-
 # Tableau de bord
 dashboard:
   title: "Tableau de bord EdgeLoan"
@@ -163,6 +159,11 @@ language:
   switch_error: Erreur lors du changement de langue
 
 forms:
+  media:
+    selector:
+      label: "Sélecteur de médias"
+    textarea:
+      label: "Éditeur avec médias"
   language:
     code:
       label: Code de la langue

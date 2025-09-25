@@ -21,32 +21,31 @@ class LanguageType extends AbstractType
             ->add('code', LocaleType::class, [
                 'label' => 'forms.language.code.label',
                 'help' => 'forms.language.code.help',
-                'translation_domain' => 'admin',
                 'placeholder' => 'forms.language.code.placeholder',
                 'preferred_choices' => ['fr', 'en', 'es', 'de', 'it', 'pt'],
-                'constraints' => [
-                    new Assert\NotBlank(),
-                    new Assert\Locale()
+                'attr' => [
+                    'class' => 'form-select',
+                    'aria-describedby' => 'code-help'
                 ]
             ])
             ->add('name', SymfonyLanguageType::class, [
                 'label' => 'forms.language.name.label',
                 'help' => 'forms.language.name.help',
-                'translation_domain' => 'admin',
                 'placeholder' => 'forms.language.name.placeholder',
                 'preferred_choices' => ['fr', 'en', 'es', 'de', 'it', 'pt'],
-                'constraints' => [
-                    new Assert\NotBlank(),
-                    new Assert\Language()
+                'attr' => [
+                    'class' => 'form-select',
+                    'aria-describedby' => 'name-help'
                 ]
             ])
             ->add('nativeName', TextType::class, [
                 'label' => 'forms.language.native_name.label',
                 'help' => 'forms.language.native_name.help',
-                'translation_domain' => 'admin',
                 'attr' => [
                     'placeholder' => 'forms.language.native_name.placeholder',
                     'maxlength' => 100,
+                    'class' => 'form-control',
+                    'aria-describedby' => 'native-name-help'
                 ],
                 'constraints' => [
                     new Assert\NotBlank(),
@@ -56,29 +55,29 @@ class LanguageType extends AbstractType
             ->add('isActive', CheckboxType::class, [
                 'label' => 'forms.language.is_active.label',
                 'help' => 'forms.language.is_active.help',
-                'translation_domain' => 'admin',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
+                    'aria-describedby' => 'active-help'
                 ]
             ])
             ->add('isDefault', CheckboxType::class, [
                 'label' => 'forms.language.is_default.label',
                 'help' => 'forms.language.is_default.help',
-                'translation_domain' => 'admin',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input',
+                    'aria-describedby' => 'default-help'
                 ]
             ])
             ->add('sortOrder', IntegerType::class, [
                 'label' => 'forms.language.sort_order.label',
                 'help' => 'forms.language.sort_order.help',
-                'translation_domain' => 'admin',
                 'attr' => [
                     'min' => 0,
                     'step' => 1,
                     'class' => 'form-control',
+                    'aria-describedby' => 'sort-order-help'
                 ],
                 'constraints' => [
                     new Assert\NotBlank(),
@@ -92,6 +91,7 @@ class LanguageType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Language::class,
+            'translation_domain' => 'admin', // Configuration globale du domaine
         ]);
     }
 }

@@ -19,16 +19,26 @@ class MediaTextareaType extends AbstractType
         $view->vars['enable_editor'] = $options['enable_editor'];
         $view->vars['editor_height'] = $options['editor_height'];
         
-        // Ajouter les classes CSS nécessaires
-        $classes = $view->vars['attr']['class'] ?? '';
+        // Ajouter les classes CSS nécessaires avec sécurité
+        $existingClasses = $view->vars['attr']['class'] ?? '';
+        $newClasses = [];
+        
         if ($options['enable_editor']) {
-            $classes .= ' custom-editor';
+            $newClasses[] = 'custom-editor';
         }
+        
+        $view->vars['attr']['class'] = trim($existingClasses . ' ' . implode(' ', $newClasses));
+        
         if ($options['enable_media']) {
             $view->vars['attr']['data-enable-media'] = 'true';
         }
-        $view->vars['attr']['class'] = trim($classes);
-        $view->vars['attr']['data-editor-height'] = $options['editor_height'];
+        
+        $view->vars['attr']['data-editor-height'] = (string) $options['editor_height'];
+        
+        // Améliorer l'accessibilité
+        $view->vars['attr']['aria-label'] = 'forms.media.textarea.label';
+        $view->vars['attr']['role'] = 'textbox';
+        $view->vars['attr']['aria-multiline'] = 'true';
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -37,6 +47,7 @@ class MediaTextareaType extends AbstractType
             'enable_media' => true,
             'enable_editor' => true,
             'editor_height' => 300,
+            'translation_domain' => 'admin', // Ajout du domaine de traduction
         ]);
 
         $resolver->setAllowedTypes('enable_media', 'bool');

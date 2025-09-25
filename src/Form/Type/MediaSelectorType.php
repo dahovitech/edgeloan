@@ -20,11 +20,16 @@ class MediaSelectorType extends AbstractType
         $view->vars['show_preview'] = $options['show_preview'];
         $view->vars['allow_upload'] = $options['allow_upload'];
         
-        // Ajouter les classes CSS et attributs data nécessaires
-        $view->vars['attr']['class'] = ($view->vars['attr']['class'] ?? '') . ' media-selector';
+        // Ajouter les classes CSS et attributs data nécessaires pour l'accessibilité
+        $existingClass = $view->vars['attr']['class'] ?? '';
+        $view->vars['attr']['class'] = trim($existingClass . ' media-selector');
         $view->vars['attr']['data-multiple'] = $options['multiple'] ? 'true' : 'false';
         $view->vars['attr']['data-show-preview'] = $options['show_preview'] ? 'true' : 'false';
         $view->vars['attr']['data-allow-upload'] = $options['allow_upload'] ? 'true' : 'false';
+        
+        // Améliorer l'accessibilité
+        $view->vars['attr']['aria-label'] = 'forms.media.selector.label';
+        $view->vars['attr']['role'] = 'listbox';
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -39,9 +44,10 @@ class MediaSelectorType extends AbstractType
             'expanded' => false,
             'show_preview' => true,
             'allow_upload' => true,
+            'translation_domain' => 'admin', // Ajout du domaine de traduction
             'query_builder' => function (MediaRepository $repository) {
                 return $repository->createQueryBuilder('m')
-                    ->orderBy('m.id', 'DESC');
+                    ->orderBy('m.createdAt', 'DESC'); // Correction: tri par date de création
             },
         ]);
 

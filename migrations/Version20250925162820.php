@@ -8,7 +8,9 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Migration pour créer la table de paramètres système
+ * Cette migration crée uniquement la structure de la table.
+ * Les données par défaut sont gérées par SettingFixtures.
  */
 final class Version20250925162820 extends AbstractMigration
 {
@@ -38,31 +40,17 @@ final class Version20250925162820 extends AbstractMigration
         )');
         
         $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_SETTING_KEY ON setting (setting_key)');
-        
-        // Insert default settings - SQLite compatible
-        $this->addSql("INSERT INTO setting (setting_key, setting_value, setting_type, setting_name, description, category, is_public, is_required, default_value, created_at, updated_at, sort_order) VALUES 
-            ('site_name', 'EdgeLoan', 'string', 'Nom du site', 'Le nom principal du site web', 'general', 1, 1, 'EdgeLoan', datetime('now'), datetime('now'), 1),
-            ('site_description', 'Solution de prêts en ligne moderne et sécurisée', 'text', 'Description du site', 'Description utilisée pour le SEO et les réseaux sociaux', 'general', 1, 1, '', datetime('now'), datetime('now'), 2),
-            ('site_url', 'https://edgeloan.com', 'url', 'URL du site', 'URL complète du site web', 'general', 1, 1, '', datetime('now'), datetime('now'), 3),
-            ('site_logo', '/assets/images/logo.png', 'file', 'Logo du site', 'Chemin vers le logo principal', 'branding', 1, 0, '/assets/images/logo.png', datetime('now'), datetime('now'), 1),
-            ('site_favicon', '/favicon.ico', 'file', 'Favicon', 'Icône du site (favicon)', 'branding', 1, 0, '/favicon.ico', datetime('now'), datetime('now'), 2),
-            ('contact_email', 'contact@edgeloan.com', 'email', 'Email de contact', 'Adresse email principale de contact', 'contact', 1, 1, '', datetime('now'), datetime('now'), 1),
-            ('contact_phone', '+33 1 23 45 67 89', 'string', 'Téléphone de contact', 'Numéro de téléphone principal', 'contact', 1, 1, '', datetime('now'), datetime('now'), 2),
-            ('contact_address', '123 Rue de la Finance, 75001 Paris, France', 'text', 'Adresse', 'Adresse postale complète', 'contact', 1, 1, '', datetime('now'), datetime('now'), 3),
-            ('social_facebook', 'https://facebook.com/edgeloan', 'url', 'Facebook', 'URL de la page Facebook', 'social', 1, 0, '', datetime('now'), datetime('now'), 1),
-            ('social_twitter', 'https://twitter.com/edgeloan', 'url', 'Twitter/X', 'URL du profil Twitter/X', 'social', 1, 0, '', datetime('now'), datetime('now'), 2),
-            ('social_linkedin', 'https://linkedin.com/company/edgeloan', 'url', 'LinkedIn', 'URL de la page LinkedIn', 'social', 1, 0, '', datetime('now'), datetime('now'), 3),
-            ('maintenance_mode', '0', 'boolean', 'Mode maintenance', 'Activer/désactiver le mode maintenance', 'system', 0, 0, '0', datetime('now'), datetime('now'), 1),
-            ('max_loan_amount', '100000', 'integer', 'Montant maximum de prêt', 'Montant maximum autorisé pour un prêt', 'loan', 1, 1, '100000', datetime('now'), datetime('now'), 1),
-            ('min_loan_amount', '1000', 'integer', 'Montant minimum de prêt', 'Montant minimum autorisé pour un prêt', 'loan', 1, 1, '1000', datetime('now'), datetime('now'), 2),
-            ('theme_primary_color', '#007bff', 'color', 'Couleur principale', 'Couleur principale du thème', 'theme', 1, 0, '#007bff', datetime('now'), datetime('now'), 1),
-            ('theme_secondary_color', '#6c757d', 'color', 'Couleur secondaire', 'Couleur secondaire du thème', 'theme', 1, 0, '#6c757d', datetime('now'), datetime('now'), 2)
-        ");
+        $this->addSql('CREATE INDEX IDX_SETTING_CATEGORY ON setting (category)');
+        $this->addSql('CREATE INDEX IDX_SETTING_PUBLIC ON setting (is_public)');
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        // Sauvegarder les données importantes avant suppression
+        $this->addSql('-- ATTENTION: Cette migration supprime définitivement toutes les données de paramètres');
+        $this->addSql('DROP INDEX UNIQ_IDENTIFIER_SETTING_KEY');
+        $this->addSql('DROP INDEX IDX_SETTING_CATEGORY');
+        $this->addSql('DROP INDEX IDX_SETTING_PUBLIC');
         $this->addSql('DROP TABLE setting');
     }
 }
