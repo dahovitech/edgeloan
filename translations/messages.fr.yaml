@@ -189,10 +189,6 @@ loans:
   type_auto: "Automobile"
   type_home: "Immobilier"
   type_education: "Éducation"
-  type_business: "Entreprise"
-  type_auto: "Automobile"
-  type_home: "Immobilier"
-  type_education: "Éducation"
 
 # Demande de prêt (Loan Application)
 loan_application:
