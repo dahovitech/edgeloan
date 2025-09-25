@@ -152,7 +152,7 @@ class LoanService
                 ->setReceiptNumber($receiptNumber);
 
         // Déterminer le statut basé sur le montant payé
-        if ($amount >= $payment->getAmount()) {
+        if ($amount >= $payment->getAmountFloat()) {
             $payment->setStatus('paid');
         } else {
             $payment->setStatus('partial');
@@ -160,8 +160,21 @@ class LoanService
 
         $this->entityManager->flush();
 
+        $this->logger->info('Paiement enregistré', [
+            'payment_id' => $payment->getId(),
+            'amount_paid' => $amount,
+            'receipt_number' => $receiptNumber
+        ]);
+
         // Envoyer confirmation de paiement
-        $this->sendPaymentConfirmationEmail($payment);
+        try {
+            $this->sendPaymentConfirmationEmail($payment);
+        } catch (\Exception $e) {
+            $this->logger->warning('Échec envoi email confirmation paiement', [
+                'payment_id' => $payment->getId(),
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     private function calculateInterestRate(User $customer, float $amount): float

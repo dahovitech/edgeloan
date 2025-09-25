@@ -5,13 +5,12 @@ namespace App\Entity;
 use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
-
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Media
 {
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,19 +20,87 @@ class Media
     private ?string $fileName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    private ?string $originalName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $alt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $extension = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $mimeType = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $size = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $path = null;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
+
     private $file;
-     
     private $tempFilename;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getOriginalName(): ?string
+    {
+        return $this->originalName;
+    }
+
+    public function setOriginalName(?string $originalName): self
+    {
+        $this->originalName = $originalName;
+        return $this;
+    }
+
+    public function getMimeType(): ?string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(?string $mimeType): self
+    {
+        $this->mimeType = $mimeType;
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setSize(?int $size): self
+    {
+        $this->size = $size;
+        return $this;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(?string $path): self
+    {
+        $this->path = $path;
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function getAlt(): ?string

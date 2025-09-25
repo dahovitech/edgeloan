@@ -138,15 +138,20 @@ class LoanApplication
         return $this;
     }
 
-    public function getRequestedAmount(): float
+    public function getRequestedAmount(): string
     {
-        return (float) $this->requestedAmount;
+        return $this->requestedAmount ?? '0.00';
     }
 
     public function setRequestedAmount(float $requestedAmount): static
     {
-        $this->requestedAmount = (string) $requestedAmount;
+        $this->requestedAmount = number_format($requestedAmount, 2, '.', '');
         return $this;
+    }
+
+    public function getRequestedAmountFloat(): float
+    {
+        return (float) $this->requestedAmount;
     }
 
     public function getRequestedDuration(): int
@@ -160,26 +165,36 @@ class LoanApplication
         return $this;
     }
 
-    public function getInterestRate(): ?float
+    public function getInterestRate(): ?string
     {
-        return $this->interestRate ? (float) $this->interestRate : null;
+        return $this->interestRate;
     }
 
     public function setInterestRate(?float $interestRate): static
     {
-        $this->interestRate = $interestRate ? (string) $interestRate : null;
+        $this->interestRate = $interestRate ? number_format($interestRate, 3, '.', '') : null;
         return $this;
     }
 
-    public function getMonthlyPayment(): ?float
+    public function getInterestRateFloat(): ?float
     {
-        return $this->monthlyPayment ? (float) $this->monthlyPayment : null;
+        return $this->interestRate ? (float) $this->interestRate : null;
+    }
+
+    public function getMonthlyPayment(): ?string
+    {
+        return $this->monthlyPayment;
     }
 
     public function setMonthlyPayment(?float $monthlyPayment): static
     {
-        $this->monthlyPayment = $monthlyPayment ? (string) $monthlyPayment : null;
+        $this->monthlyPayment = $monthlyPayment ? number_format($monthlyPayment, 2, '.', '') : null;
         return $this;
+    }
+
+    public function getMonthlyPaymentFloat(): ?float
+    {
+        return $this->monthlyPayment ? (float) $this->monthlyPayment : null;
     }
 
     public function getStatus(): string
@@ -337,7 +352,7 @@ class LoanApplication
         if ($this->monthlyPayment === null) {
             return null;
         }
-        return $this->monthlyPayment * $this->requestedDuration;
+        return (float) $this->monthlyPayment * $this->requestedDuration;
     }
 
     public function getTotalInterest(): ?float
@@ -346,7 +361,7 @@ class LoanApplication
         if ($totalAmount === null) {
             return null;
         }
-        return $totalAmount - $this->requestedAmount;
+        return $totalAmount - (float) $this->requestedAmount;
     }
 
     public function isPending(): bool

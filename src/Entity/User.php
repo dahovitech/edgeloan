@@ -292,26 +292,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->clientType === 'business';
     }
 
-    public function getMonthlyIncome(): ?float
+    public function getMonthlyIncome(): ?string
     {
-        return $this->monthlyIncome ? (float) $this->monthlyIncome : null;
+        return $this->monthlyIncome;
     }
 
     public function setMonthlyIncome(?float $monthlyIncome): static
     {
-        $this->monthlyIncome = $monthlyIncome ? (string) $monthlyIncome : null;
+        $this->monthlyIncome = $monthlyIncome ? number_format($monthlyIncome, 2, '.', '') : null;
         return $this;
     }
 
-    public function getMonthlyCharges(): ?float
+    public function getMonthlyIncomeFloat(): ?float
     {
-        return $this->monthlyCharges ? (float) $this->monthlyCharges : null;
+        return $this->monthlyIncome ? (float) $this->monthlyIncome : null;
+    }
+
+    public function getMonthlyCharges(): ?string
+    {
+        return $this->monthlyCharges;
     }
 
     public function setMonthlyCharges(?float $monthlyCharges): static
     {
-        $this->monthlyCharges = $monthlyCharges ? (string) $monthlyCharges : null;
+        $this->monthlyCharges = $monthlyCharges ? number_format($monthlyCharges, 2, '.', '') : null;
         return $this;
+    }
+
+    public function getMonthlyChargesFloat(): ?float
+    {
+        return $this->monthlyCharges ? (float) $this->monthlyCharges : null;
     }
 
     public function getEmploymentStatus(): ?string
@@ -380,15 +390,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAnnualRevenue(): ?float
+    public function getAnnualRevenue(): ?string
     {
-        return $this->annualRevenue ? (float) $this->annualRevenue : null;
+        return $this->annualRevenue;
     }
 
     public function setAnnualRevenue(?float $annualRevenue): static
     {
-        $this->annualRevenue = $annualRevenue ? (string) $annualRevenue : null;
+        $this->annualRevenue = $annualRevenue ? number_format($annualRevenue, 2, '.', '') : null;
         return $this;
+    }
+
+    public function getAnnualRevenueFloat(): ?float
+    {
+        return $this->annualRevenue ? (float) $this->annualRevenue : null;
     }
 
     public function isAccountVerified(): bool
@@ -415,8 +430,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getNetIncome(): ?float
     {
-        $income = $this->getMonthlyIncome();
-        $charges = $this->getMonthlyCharges();
+        $income = $this->getMonthlyIncomeFloat();
+        $charges = $this->getMonthlyChargesFloat();
         
         if ($income === null || $charges === null) {
             return null;
@@ -427,12 +442,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getDebtRatio(): ?float
     {
-        $income = $this->getMonthlyIncome();
+        $income = $this->getMonthlyIncomeFloat();
         if ($income === null || $income <= 0) {
             return null;
         }
         
-        $charges = $this->getMonthlyCharges() ?? 0.0;
+        $charges = $this->getMonthlyChargesFloat() ?? 0.0;
         return ($charges / $income) * 100;
     }
 

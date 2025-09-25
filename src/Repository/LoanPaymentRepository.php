@@ -141,10 +141,10 @@ class LoanPaymentRepository extends ServiceEntityRepository
 
     public function createPaymentSchedule(LoanApplication $application): array
     {
-        $monthlyPayment = $application->getMonthlyPayment();
+        $monthlyPaymentFloat = $application->getMonthlyPaymentFloat();
         $duration = $application->getRequestedDuration();
         
-        if (!$monthlyPayment || !$duration) {
+        if (!$monthlyPaymentFloat || !$duration) {
             return [];
         }
 
@@ -157,7 +157,7 @@ class LoanPaymentRepository extends ServiceEntityRepository
 
             $payment = new LoanPayment();
             $payment->setLoanApplication($application)
-                   ->setAmount($monthlyPayment)
+                   ->setAmount($monthlyPaymentFloat)
                    ->setDueDate($dueDate);
 
             $payments[] = $payment;

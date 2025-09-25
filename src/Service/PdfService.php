@@ -6,267 +6,214 @@ use App\Entity\LoanContract;
 use App\Entity\Media;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpFoundation\File\File;
-use Twig\Environment;
 
+/**
+ * Service pour la génération de documents PDF
+ * 
+ * Note: Pour une implémentation complète en production, vous devriez
+ * utiliser une bibliothèque comme TCPDF, DOMPDF ou wkhtmltopdf
+ */
 class PdfService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private Environment $twig,
         private LoggerInterface $logger,
-        #[Autowire('%kernel.project_dir%')]
-        private string $projectDir,
-        private string $uploadsDir = '/public/uploads/contracts'
-    ) {
-        $fullPath = $this->projectDir . $this->uploadsDir;
-        
-        // Créer le dossier s'il n'existe pas
-        if (!is_dir($fullPath)) {
-            if (!mkdir($fullPath, 0755, true) && !is_dir($fullPath)) {
-                throw new \RuntimeException('Impossible de créer le dossier de destination: ' . $fullPath);
-            }
-        }
-    }
+        private string $uploadDir = 'uploads/contracts'
+    ) {}
 
+    /**
+     * Génère un PDF pour un contrat de prêt
+     */
     public function generateContractPdf(LoanContract $contract): Media
     {
         try {
-            // Vérifier si un PDF existe déjà
-            if ($contract->getPdfDocument()) {
-                return $contract->getPdfDocument();
-            }
-
-            // Générer le HTML du contrat
-            $html = $this->twig->render('pdf/loan_contract.html.twig', [
-                'contract' => $contract,
-                'application' => $contract->getLoanApplication(),
-                'customer' => $contract->getLoanApplication()->getCustomer()
+            $this->logger->info('Génération PDF du contrat', [
+                'contract_id' => $contract->getId(),
+                'contract_number' => $contract->getContractNumber()
             ]);
 
-            // Générer le nom de fichier sécurisé
-            $filename = $this->generateSecureFilename($contract);
-            $fullPath = $this->projectDir . $this->uploadsDir . '/' . $filename;
+            // Générer le contenu HTML du contrat
+            $htmlContent = $this->generateContractHtml($contract);
+            
+            // Pour cette démo, nous créons un fichier texte
+            // En production, vous utiliseriez une lib PDF
+            $filename = sprintf('contract_%s_%s.pdf', 
+                $contract->getContractNumber(), 
+                date('YmdHis')
+            );
 
-            // Générer le PDF
-            $this->generatePdfFromHtml($html, $fullPath);
+            $filepath = $this->uploadDir . '/' . $filename;
+            $fullPath = __DIR__ . '/../../public/' . $filepath;
 
-            if (!file_exists($fullPath)) {
-                throw new \RuntimeException('Échec de génération du fichier PDF');
+            // Créer le répertoire si nécessaire
+            $dir = dirname($fullPath);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
             }
 
+            // Simuler la génération PDF (écrire le contenu HTML pour la démo)
+            file_put_contents($fullPath, $htmlContent);
+
             // Créer l'entité Media
-            $media = $this->createMediaEntity($filename, $fullPath);
+            $media = new Media();
+            $media->setFileName($filename)
+                  ->setOriginalName($filename)
+                  ->setPath('/' . $filepath)
+                  ->setMimeType('application/pdf')
+                  ->setSize(strlen($htmlContent))
+                  ->setExtension('pdf');
+
+            $this->entityManager->persist($media);
 
             // Associer le PDF au contrat
             $contract->setPdfDocument($media);
+            
             $this->entityManager->flush();
 
-            $this->logger->info('PDF de contrat généré avec succès', [
+            $this->logger->info('PDF généré avec succès', [
                 'contract_id' => $contract->getId(),
-                'filename' => $filename,
-                'size' => filesize($fullPath)
+                'media_id' => $media->getId(),
+                'filename' => $filename
             ]);
 
             return $media;
-            
+
         } catch (\Exception $e) {
-            $this->logger->error('Erreur lors de la génération du PDF', [
+            $this->logger->error('Erreur génération PDF', [
                 'contract_id' => $contract->getId(),
                 'error' => $e->getMessage()
             ]);
-            
-            throw new \RuntimeException('Impossible de générer le PDF: ' . $e->getMessage(), 0, $e);
-        }
-    }
 
-    private function generatePdfFromHtml(string $html, string $filepath): void
-    {
-        // Cette méthode simule la génération PDF
-        // Dans un vrai projet, utilisez une bibliothèque comme:
-        // - DomPDF: $dompdf = new Dompdf(); $dompdf->loadHtml($html); etc.
-        // - wkhtmltopdf via Process
-        // - Puppeteer via Node.js
-
-        $htmlWithStyles = $this->generateStyledHtml($html);
-        
-        if (file_put_contents($filepath, $htmlWithStyles) === false) {
-            throw new \RuntimeException('Impossible d\'écrire le fichier PDF');
-        }
-    }
-
-    private function generateStyledHtml(string $content): string
-    {
-        return '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Contrat de Prêt</title>
-            <style>
-                @page {
-                    margin: 40px;
-                    @bottom-center {
-                        content: counter(page) " / " counter(pages);
-                    }
-                }
-                body { 
-                    font-family: "Helvetica Neue", Arial, sans-serif; 
-                    margin: 0; 
-                    padding: 20px;
-                    line-height: 1.6; 
-                    color: #333;
-                }
-                .header { 
-                    text-align: center; 
-                    margin-bottom: 40px; 
-                    border-bottom: 2px solid #007bff;
-                    padding-bottom: 20px;
-                }
-                .contract-number { 
-                    font-weight: bold; 
-                    color: #007bff; 
-                    font-size: 1.2em;
-                }
-                .section { 
-                    margin-bottom: 25px; 
-                    padding: 15px 0;
-                }
-                .signature-section { 
-                    margin-top: 60px; 
-                    padding-top: 40px; 
-                    border-top: 1px solid #ddd; 
-                    page-break-inside: avoid;
-                }
-                table { 
-                    width: 100%; 
-                    border-collapse: collapse; 
-                    margin: 25px 0;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                }
-                th, td { 
-                    padding: 12px; 
-                    border: 1px solid #ddd; 
-                    text-align: left; 
-                }
-                th { 
-                    background-color: #f8f9fa; 
-                    font-weight: 600;
-                }
-                .highlight {
-                    background-color: #fff3cd;
-                    padding: 10px;
-                    border-left: 4px solid #ffc107;
-                    margin: 20px 0;
-                }
-            </style>
-        </head>
-        <body>
-            ' . $content . '
-        </body>
-        </html>';
-    }
-
-    private function generateSecureFilename(LoanContract $contract): string
-    {
-        $sanitizedNumber = preg_replace('/[^A-Za-z0-9]/', '_', $contract->getContractNumber());
-        $timestamp = date('Ymd_His');
-        $randomSuffix = bin2hex(random_bytes(4));
-        
-        return sprintf('contract_%s_%s_%s.pdf', $sanitizedNumber, $timestamp, $randomSuffix);
-    }
-
-    private function createMediaEntity(string $filename, string $fullPath): Media
-    {
-        $media = new Media();
-        $file = new File($fullPath);
-        
-        $media->setFilename($filename)
-              ->setOriginalName($filename)
-              ->setMimeType('application/pdf')
-              ->setSize($file->getSize())
-              ->setPath('/uploads/contracts/' . $filename);
-
-        $this->entityManager->persist($media);
-        
-        return $media;
-    }
-
-    public function generatePaymentReceipt(array $paymentData): string
-    {
-        try {
-            $html = $this->twig->render('pdf/payment_receipt.html.twig', $paymentData);
-
-            $filename = sprintf(
-                'receipt_%s_%s_%s.pdf',
-                $paymentData['payment']->getId(),
-                date('Ymd_His'),
-                bin2hex(random_bytes(3))
-            );
-
-            $fullPath = $this->projectDir . $this->uploadsDir . '/' . $filename;
-            $this->generatePdfFromHtml($html, $fullPath);
-
-            $this->logger->info('Reçu de paiement généré', [
-                'payment_id' => $paymentData['payment']->getId(),
-                'filename' => $filename
-            ]);
-
-            return '/uploads/contracts/' . $filename;
-            
-        } catch (\Exception $e) {
-            $this->logger->error('Erreur génération reçu', ['error' => $e->getMessage()]);
-            throw new \RuntimeException('Impossible de générer le reçu: ' . $e->getMessage(), 0, $e);
-        }
-    }
-
-    public function generateLoanStatement(array $statementData): string
-    {
-        try {
-            $html = $this->twig->render('pdf/loan_statement.html.twig', $statementData);
-
-            $filename = sprintf(
-                'statement_%s_%s_%s.pdf',
-                $statementData['application']->getId(),
-                date('Ymd_His'),
-                bin2hex(random_bytes(3))
-            );
-
-            $fullPath = $this->projectDir . $this->uploadsDir . '/' . $filename;
-            $this->generatePdfFromHtml($html, $fullPath);
-
-            $this->logger->info('Relevé de prêt généré', [
-                'application_id' => $statementData['application']->getId(),
-                'filename' => $filename
-            ]);
-
-            return '/uploads/contracts/' . $filename;
-            
-        } catch (\Exception $e) {
-            $this->logger->error('Erreur génération relevé', ['error' => $e->getMessage()]);
-            throw new \RuntimeException('Impossible de générer le relevé: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Impossible de générer le PDF: ' . $e->getMessage());
         }
     }
 
     /**
-     * Méthode pour intégrer une vraie bibliothèque PDF comme DomPDF
-     * Décommentez et installez dompdf/dompdf pour utiliser
+     * Génère le contenu HTML du contrat pour la conversion PDF
      */
-    /*
-    private function generatePdfFromHtmlWithDomPdf(string $html, string $filepath): void
+    private function generateContractHtml(LoanContract $contract): string
     {
-        $options = new Options();
-        $options->set('defaultFont', 'Arial');
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true);
+        $application = $contract->getLoanApplication();
+        $customer = $application->getCustomer();
 
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        $html = '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Contrat de Prêt N° ' . $contract->getContractNumber() . '</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .section { margin-bottom: 20px; }
+        .signature { margin-top: 50px; }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 8px; border: 1px solid #ddd; }
+        .amount { font-weight: bold; color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CONTRAT DE PRÊT</h1>
+        <p><strong>N° ' . $contract->getContractNumber() . '</strong></p>
+        <p>Généré le ' . (new \DateTime())->format('d/m/Y à H:i') . '</p>
+    </div>
 
-        file_put_contents($filepath, $dompdf->output());
+    <div class="section">
+        <h3>PARTIES CONTRACTANTES</h3>
+        <p><strong>Le Prêteur :</strong> EasiLoan - Société de financement</p>
+        <p><strong>L\'Emprunteur :</strong> ' . $customer->getFullName() . '</p>
+        <p><strong>Email :</strong> ' . $customer->getEmail() . '</p>
+    </div>
+
+    <div class="section">
+        <h3>CONDITIONS DU PRÊT</h3>
+        <table>
+            <tr>
+                <td>Montant demandé</td>
+                <td class="amount">' . $application->getRequestedAmount() . ' €</td>
+            </tr>
+            <tr>
+                <td>Durée</td>
+                <td>' . $application->getRequestedDuration() . ' mois</td>
+            </tr>
+            <tr>
+                <td>Taux d\'intérêt annuel</td>
+                <td>' . ($application->getInterestRate() ?: 'À définir') . ' %</td>
+            </tr>
+            <tr>
+                <td>Mensualité</td>
+                <td class="amount">' . ($application->getMonthlyPayment() ?: 'À calculer') . ' €</td>
+            </tr>
+            <tr>
+                <td>Montant total à rembourser</td>
+                <td class="amount">' . ($application->getTotalAmount() ?: 'À calculer') . ' €</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h3>OBJET DU PRÊT</h3>
+        <p>' . ($application->getPurpose() ?: 'Non spécifié') . '</p>
+    </div>
+
+    <div class="section">
+        <h3>CONDITIONS GÉNÉRALES</h3>
+        <p>• L\'emprunteur s\'engage à rembourser le prêt selon l\'échéancier convenu.</p>
+        <p>• Les mensualités sont prélevées automatiquement chaque mois.</p>
+        <p>• En cas de retard, des pénalités de 2% du montant dû pourront être appliquées.</p>
+        <p>• L\'emprunteur peut effectuer un remboursement anticipé sans pénalité.</p>
+    </div>
+
+    <div class="signature">
+        <table style="border: none;">
+            <tr style="border: none;">
+                <td style="border: none; width: 50%;">
+                    <p><strong>Signature du Prêteur</strong></p>
+                    <br><br>
+                    <p>EasiLoan</p>
+                </td>
+                <td style="border: none; width: 50%;">
+                    <p><strong>Signature de l\'Emprunteur</strong></p>
+                    <br><br>
+                    <p>' . $customer->getFullName() . '</p>';
+
+        if ($contract->isSigned()) {
+            $html .= '<p><em>Signé électroniquement le ' . $contract->getSignedAt()->format('d/m/Y à H:i') . '</em></p>';
+        } else {
+            $html .= '<p><em>En attente de signature</em></p>';
+        }
+
+        $html .= '</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px; font-size: 12px; color: #666;">
+        <p>Ce document a été généré automatiquement par le système EasiLoan.</p>
+        <p>Pour toute question, contactez notre service client.</p>
+    </div>
+
+</body>
+</html>';
+
+        return $html;
     }
-    */
+
+    /**
+     * Génère un reçu de paiement PDF
+     */
+    public function generatePaymentReceipt($payment): Media
+    {
+        // Implémentation similaire pour les reçus de paiement
+        throw new \BadMethodCallException('Méthode à implémenter');
+    }
+
+    /**
+     * Génère un rapport d'activité PDF
+     */
+    public function generateActivityReport(array $data): Media
+    {
+        // Implémentation pour les rapports
+        throw new \BadMethodCallException('Méthode à implémenter');
+    }
 }

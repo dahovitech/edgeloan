@@ -82,15 +82,20 @@ class LoanPayment
         return $this;
     }
 
-    public function getAmount(): float
+    public function getAmount(): string
     {
-        return (float) $this->amount;
+        return $this->amount ?? '0.00';
     }
 
     public function setAmount(float $amount): static
     {
-        $this->amount = (string) $amount;
+        $this->amount = number_format($amount, 2, '.', '');
         return $this;
+    }
+
+    public function getAmountFloat(): float
+    {
+        return (float) $this->amount;
     }
 
     public function getDueDate(): \DateTimeInterface
@@ -126,15 +131,20 @@ class LoanPayment
         return $this;
     }
 
-    public function getPaidAmount(): ?float
+    public function getPaidAmount(): ?string
     {
-        return $this->paidAmount ? (float) $this->paidAmount : null;
+        return $this->paidAmount;
     }
 
     public function setPaidAmount(?float $paidAmount): static
     {
-        $this->paidAmount = $paidAmount ? (string) $paidAmount : null;
+        $this->paidAmount = $paidAmount ? number_format($paidAmount, 2, '.', '') : null;
         return $this;
+    }
+
+    public function getPaidAmountFloat(): ?float
+    {
+        return $this->paidAmount ? (float) $this->paidAmount : null;
     }
 
     public function getReceiptNumber(): ?string
@@ -236,8 +246,8 @@ class LoanPayment
 
     public function getRemainingAmount(): float
     {
-        $amount = (float) $this->amount;
-        $paidAmount = $this->paidAmount ? (float) $this->paidAmount : 0.0;
+        $amount = $this->getAmountFloat();
+        $paidAmount = $this->getPaidAmountFloat() ?? 0.0;
         
         return max(0.0, $amount - $paidAmount);
     }
