@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -101,8 +103,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $verifiedAt = null;
 
+    /**
+     * @var Collection<int, Role>
+     */
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: 'user_roles')]
+    private Collection $userRoles;
+
     public function __construct()
     {
+        $this->userRoles = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
@@ -449,6 +459,179 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         
         $charges = $this->getMonthlyChargesFloat() ?? 0.0;
         return ($charges / $income) * 100;
+    }
+
+    // Enhanced Role Management Methods
+
+    /**
+     * @return Collection<int, Role>
+     */
+    public function getUserRoles(): Collection
+    {
+        return $this->userRoles;
+    }
+
+    public function addUserRole(Role $userRole): static
+    {
+        if (!$this->userRoles->contains($userRole)) {
+            $this->userRoles->add($userRole);
+        }
+
+        return $this;
+    }
+
+    public function removeUserRole(Role $userRole): static
+    {
+        $this->userRoles->removeElement($userRole);
+
+        return $this;
+    }
+
+    public function hasUserRole(Role $role): bool
+    {
+        return $this->userRoles->contains($role);
+    }
+
+    public function hasUserRoleByCode(string $roleCode): bool
+    {
+        foreach ($this->userRoles as $role) {
+            if ($role->getCode() === strtoupper($roleCode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if user has specific permission through their roles
+     */
+    public function hasPermission(string $permissionCode): bool
+    {
+        foreach ($this->userRoles as $role) {
+            if ($role->hasPermissionByCode($permissionCode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if user can perform action on resource
+     */
+    public function canPerformAction(string $resource, string $action): bool
+    {
+        foreach ($this->userRoles as $role) {
+            foreach ($role->getPermissions() as $permission) {
+                if ($permission->matches($resource, $action)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get all permissions from user's roles
+     *
+     * @return Permission[]
+     */
+    public function getAllPermissions(): array
+    {
+        $permissions = [];
+        foreach ($this->userRoles as $role) {
+            foreach ($role->getPermissions() as $permission) {
+                $permissions[$permission->getCode()] = $permission;
+            }
+        }
+        return array_values($permissions);
+    }
+
+    /**
+     * Override getRoles to include Role entities
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles; // Keep existing string-based roles for compatibility
+        
+        // Add roles from Role entities
+        foreach ($this->userRoles as $userRole) {
+            if ($userRole->isActive()) {
+                $roles[] = $userRole->getCode();
+            }
+        }
+
+        // Guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * Get highest priority role
+     */
+    public function getHighestPriorityRole(): ?Role
+    {
+        $highestRole = null;
+        $highestPriority = -1;
+
+        foreach ($this->userRoles as $role) {
+            if ($role->isActive() && $role->getPriority() > $highestPriority) {
+                $highestPriority = $role->getPriority();
+                $highestRole = $role;
+            }
+        }
+
+        return $highestRole;
+    }
+
+    /**
+     * Get user's active roles sorted by priority
+     *
+     * @return Role[]
+     */
+    public function getActiveRoles(): array
+    {
+        $activeRoles = [];
+        foreach ($this->userRoles as $role) {
+            if ($role->isActive()) {
+                $activeRoles[] = $role;
+            }
+        }
+
+        // Sort by priority (highest first)
+        usort($activeRoles, fn($a, $b) => $b->getPriority() - $a->getPriority());
+
+        return $activeRoles;
+    }
+
+    /**
+     * Check if user is an administrator (has any admin role)
+     */
+    public function isAdministrator(): bool
+    {
+        return $this->hasUserRoleByCode('ROLE_ADMIN') || 
+               $this->hasUserRoleByCode('ROLE_SUPER_ADMIN') ||
+               $this->hasRole('ROLE_ADMIN');
+    }
+
+    /**
+     * Check if user can manage loans
+     */
+    public function canManageLoans(): bool
+    {
+        return $this->hasPermission('LOAN_MANAGEMENT_CREATE') || 
+               $this->hasPermission('LOAN_MANAGEMENT_UPDATE') ||
+               $this->hasUserRoleByCode('ROLE_LOAN_OFFICER');
+    }
+
+    /**
+     * Check if user can manage users
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->hasPermission('USER_MANAGEMENT_CREATE') || 
+               $this->hasPermission('USER_MANAGEMENT_UPDATE') ||
+               $this->hasUserRoleByCode('ROLE_USER_MANAGER');
     }
 
     /**

@@ -1,0 +1,321 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.role.new.title'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .permissions-grid {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+        .permission-category {
+            margin-bottom: 1.5rem;
+        }
+        .permission-category:last-child {
+            margin-bottom: 0;
+        }
+        .category-header {
+            background: #e9ecef;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-plus me-2"></i>
+                        {{ 'admin.role.new.title'|trans({}, 'admin') }}
+                    </h1>
+                    <p class="text-muted mb-0">{{ 'admin.role.new.subtitle'|trans({}, 'admin') }}</p>
+                </div>
+                <a href="{{ path('admin_role_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    {{ 'admin.role.actions.back'|trans({}, 'admin') }}
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="row">
+                <div class="col-lg-8">
+                    {{ form_start(form, {attr: {class: 'needs-validation', novalidate: 'novalidate'}}) }}
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                {{ 'admin.role.form.basic_info'|trans({}, 'admin') }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.code, null, {label_attr: {class: 'form-label required'}}) }}
+                                        {{ form_widget(form.code, {attr: {class: 'form-control'}}) }}
+                                        <div class="form-text">{{ 'admin.role.form.code.help'|trans({}, 'admin') }}</div>
+                                        {{ form_errors(form.code) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.name, null, {label_attr: {class: 'form-label required'}}) }}
+                                        {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
+                                        <div class="form-text">{{ 'admin.role.form.name.help'|trans({}, 'admin') }}</div>
+                                        {{ form_errors(form.name) }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_label(form.description, null, {label_attr: {class: 'form-label'}}) }}
+                                {{ form_widget(form.description, {attr: {class: 'form-control', rows: 3}}) }}
+                                <div class="form-text">{{ 'admin.role.form.description.help'|trans({}, 'admin') }}</div>
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(form.priority, null, {label_attr: {class: 'form-label'}}) }}
+                                        {{ form_widget(form.priority, {attr: {class: 'form-control', min: 0, max: 100}}) }}
+                                        <div class="form-text">{{ 'admin.role.form.priority.help'|trans({}, 'admin') }}</div>
+                                        {{ form_errors(form.priority) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <div class="form-check">
+                                            {{ form_widget(form.isActive, {attr: {class: 'form-check-input'}}) }}
+                                            {{ form_label(form.isActive, null, {label_attr: {class: 'form-check-label'}}) }}
+                                        </div>
+                                        <div class="form-text">{{ 'admin.role.form.active.help'|trans({}, 'admin') }}</div>
+                                        {{ form_errors(form.isActive) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if form.permissions is defined %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-key me-2"></i>
+                                {{ 'admin.role.form.permissions'|trans({}, 'admin') }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted">{{ 'admin.role.form.permissions.help'|trans({}, 'admin') }}</span>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-success" id="select-all-permissions">
+                                            <i class="fas fa-check-double me-1"></i>
+                                            {{ 'admin.role.form.permissions.select_all'|trans({}, 'admin') }}
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" id="clear-all-permissions">
+                                            <i class="fas fa-times me-1"></i>
+                                            {{ 'admin.role.form.permissions.clear_all'|trans({}, 'admin') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="permissions-grid">
+                                    {{ form_widget(form.permissions) }}
+                                </div>
+                                {{ form_errors(form.permissions) }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('admin_role_index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>
+                                    {{ 'admin.form.cancel'|trans({}, 'admin') }}
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>
+                                    {{ 'admin.role.form.create'|trans({}, 'admin') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+
+                <!-- Help Sidebar -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-question-circle me-2"></i>
+                                {{ 'admin.role.new.help.title'|trans({}, 'admin') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="fw-bold">{{ 'admin.role.new.help.code'|trans({}, 'admin') }}</h6>
+                                <p class="small text-muted">{{ 'admin.role.new.help.code_description'|trans({}, 'admin') }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold">{{ 'admin.role.new.help.priority'|trans({}, 'admin') }}</h6>
+                                <p class="small text-muted">{{ 'admin.role.new.help.priority_description'|trans({}, 'admin') }}</p>
+                                <ul class="small text-muted">
+                                    <li>{{ 'admin.role.new.help.priority_high'|trans({}, 'admin') }}</li>
+                                    <li>{{ 'admin.role.new.help.priority_medium'|trans({}, 'admin') }}</li>
+                                    <li>{{ 'admin.role.new.help.priority_low'|trans({}, 'admin') }}</li>
+                                </ul>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="fw-bold">{{ 'admin.role.new.help.permissions'|trans({}, 'admin') }}</h6>
+                                <p class="small text-muted">{{ 'admin.role.new.help.permissions_description'|trans({}, 'admin') }}</p>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                <strong>{{ 'admin.role.new.help.tip'|trans({}, 'admin') }}</strong>
+                                <br>
+                                <small>{{ 'admin.role.new.help.tip_description'|trans({}, 'admin') }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permission Categories Preview -->
+                    {% if form.permissions is defined %}
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                {{ 'admin.role.new.help.categories'|trans({}, 'admin') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary me-1">USER_MANAGEMENT</span>
+                                    {{ 'admin.permission.category.user_management'|trans({}, 'admin') }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-success me-1">LOAN_MANAGEMENT</span>
+                                    {{ 'admin.permission.category.loan_management'|trans({}, 'admin') }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-info me-1">DOCUMENT_MANAGEMENT</span>
+                                    {{ 'admin.permission.category.document_management'|trans({}, 'admin') }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-warning me-1">SYSTEM_ADMINISTRATION</span>
+                                    {{ 'admin.permission.category.system_administration'|trans({}, 'admin') }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary me-1">REPORTING</span>
+                                    {{ 'admin.permission.category.reporting'|trans({}, 'admin') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation
+            const form = document.querySelector('.needs-validation');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                });
+            }
+
+            // Auto-generate role code from name
+            const nameField = document.getElementById('role_name');
+            const codeField = document.getElementById('role_code');
+            if (nameField && codeField && !codeField.value) {
+                nameField.addEventListener('input', function() {
+                    const name = this.value;
+                    const code = name.toUpperCase()
+                                    .replace(/[^A-Z0-9\s]/g, '')
+                                    .replace(/\s+/g, '_')
+                                    .replace(/^_+|_+$/g, '');
+                    if (code) {
+                        codeField.value = 'ROLE_' + code;
+                    }
+                });
+            }
+
+            // Permission selection helpers
+            const selectAllBtn = document.getElementById('select-all-permissions');
+            const clearAllBtn = document.getElementById('clear-all-permissions');
+            
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', function() {
+                    const checkboxes = document.querySelectorAll('input[name="role[permissions][]"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                });
+            }
+
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function() {
+                    const checkboxes = document.querySelectorAll('input[name="role[permissions][]"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                });
+            }
+
+            // Category-based selection
+            const categoryHeaders = document.querySelectorAll('.category-header');
+            categoryHeaders.forEach(header => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    if (category) {
+                        const categoryCheckboxes = document.querySelectorAll(`input[data-category="${category}"]`);
+                        const allChecked = Array.from(categoryCheckboxes).every(cb => cb.checked);
+                        
+                        categoryCheckboxes.forEach(checkbox => {
+                            checkbox.checked = !allChecked;
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

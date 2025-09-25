@@ -1,0 +1,323 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ role.name }} - {{ 'admin.role.show.title'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .role-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .permission-category {
+            margin-bottom: 1.5rem;
+        }
+        .permission-badge {
+            margin: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        .users-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .timeline-item {
+            border-left: 2px solid #e9ecef;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .timeline-item:last-child {
+            border-left-color: transparent;
+        }
+        .timeline-badge {
+            width: 12px;
+            height: 12px;
+            background-color: #6c757d;
+            border-radius: 50%;
+            margin-left: -7px;
+            margin-right: 0.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="role-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="d-flex align-items-center mb-2">
+                    <h1 class="h3 mb-0 me-3">
+                        <i class="fas fa-user-shield me-2"></i>
+                        {{ role.name }}
+                    </h1>
+                    <span class="badge bg-light text-dark">{{ role.code }}</span>
+                    {% if role.systemRole %}
+                    <span class="badge bg-danger ms-2">{{ 'admin.role.type.system'|trans({}, 'admin') }}</span>
+                    {% endif %}
+                </div>
+                <p class="mb-3 opacity-75">{{ role.description ?: 'admin.role.no_description'|trans({}, 'admin') }}</p>
+                <div class="row">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-signal me-2"></i>
+                            <span>{{ 'admin.role.priority'|trans({}, 'admin') }}: {{ role.priority }}</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-calendar me-2"></i>
+                            <span>{{ 'admin.role.created_at'|trans({}, 'admin') }}: {{ role.createdAt|date('d/m/Y H:i') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge bg-{{ role.active ? 'success' : 'secondary' }} p-2">
+                            <i class="fas fa-{{ role.active ? 'check' : 'pause' }} me-1"></i>
+                            {{ role.active ? 'admin.role.status.active'|trans({}, 'admin') : 'admin.role.status.inactive'|trans({}, 'admin') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_role_index') }}" class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        {{ 'admin.role.actions.back'|trans({}, 'admin') }}
+                    </a>
+                    {% if not role.systemRole %}
+                    <a href="{{ path('admin_role_edit', {id: role.id}) }}" class="btn btn-light">
+                        <i class="fas fa-edit me-1"></i>
+                        {{ 'admin.role.actions.edit'|trans({}, 'admin') }}
+                    </a>
+                    <a href="{{ path('admin_role_permissions', {id: role.id}) }}" class="btn btn-warning">
+                        <i class="fas fa-key me-1"></i>
+                        {{ 'admin.role.actions.permissions'|trans({}, 'admin') }}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-primary mb-2">{{ role.permissions|length }}</div>
+                    <h6 class="card-title">{{ 'admin.role.stats.permissions'|trans({}, 'admin') }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-success mb-2">{{ users_count }}</div>
+                    <h6 class="card-title">{{ 'admin.role.stats.users'|trans({}, 'admin') }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-info mb-2">{{ permissions_by_category|length }}</div>
+                    <h6 class="card-title">{{ 'admin.role.stats.categories'|trans({}, 'admin') }}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6 text-warning mb-2">{{ role.priority }}</div>
+                    <h6 class="card-title">{{ 'admin.role.stats.priority'|trans({}, 'admin') }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Permissions -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2"></i>
+                        {{ 'admin.role.show.permissions'|trans({}, 'admin') }}
+                    </h5>
+                    {% if not role.systemRole %}
+                    <a href="{{ path('admin_role_permissions', {id: role.id}) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i>
+                        {{ 'admin.role.actions.manage_permissions'|trans({}, 'admin') }}
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if permissions_by_category|length > 0 %}
+                        {% for category, permissions in permissions_by_category %}
+                        <div class="permission-category">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-folder me-1"></i>
+                                {{ ('admin.permission.category.' ~ category|lower)|trans({}, 'admin') }}
+                                <span class="badge bg-secondary ms-2">{{ permissions|length }}</span>
+                            </h6>
+                            <div class="permissions-list">
+                                {% for permission in permissions %}
+                                <span class="badge permission-badge bg-primary text-white" 
+                                      title="{{ permission.description }}">
+                                    {{ permission.name }}
+                                    {% if permission.resource and permission.action %}
+                                    <small class="opacity-75">({{ permission.resource }}_{{ permission.action }})</small>
+                                    {% endif %}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-key fa-2x text-muted mb-3"></i>
+                            <h6 class="text-muted">{{ 'admin.role.show.no_permissions'|trans({}, 'admin') }}</h6>
+                            {% if not role.systemRole %}
+                            <a href="{{ path('admin_role_permissions', {id: role.id}) }}" class="btn btn-primary btn-sm mt-2">
+                                <i class="fas fa-plus me-1"></i>
+                                {{ 'admin.role.show.add_permissions'|trans({}, 'admin') }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Users and Actions -->
+        <div class="col-lg-4">
+            <!-- Users -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        {{ 'admin.role.show.assigned_users'|trans({}, 'admin') }}
+                        <span class="badge bg-primary ms-2">{{ users_count }}</span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if role.users|length > 0 %}
+                    <div class="users-list">
+                        {% for user in role.users %}
+                        <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
+                            <div class="flex-grow-1">
+                                <div class="fw-medium">{{ user.fullName }}</div>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                            <span class="badge bg-{{ user.active ? 'success' : 'secondary' }}">
+                                {{ user.active ? 'admin.user.status.active'|trans({}, 'admin') : 'admin.user.status.inactive'|trans({}, 'admin') }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-user-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">{{ 'admin.role.show.no_users'|trans({}, 'admin') }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        {{ 'admin.role.show.actions'|trans({}, 'admin') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if not role.systemRole %}
+                        <form method="POST" action="{{ path('admin_role_toggle_status', {id: role.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ role.id) }}">
+                            <button type="submit" class="btn btn-{{ role.active ? 'warning' : 'success' }} w-100">
+                                <i class="fas fa-{{ role.active ? 'pause' : 'play' }} me-1"></i>
+                                {{ role.active ? 'admin.role.actions.deactivate'|trans({}, 'admin') : 'admin.role.actions.activate'|trans({}, 'admin') }}
+                            </button>
+                        </form>
+                        
+                        {% if role.users|length == 0 %}
+                        <form method="POST" action="{{ path('admin_role_delete', {id: role.id}) }}" 
+                              onsubmit="return confirm('{{ 'admin.role.delete.confirm'|trans({}, 'admin')|e('js') }}')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ role.id) }}">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-trash me-1"></i>
+                                {{ 'admin.role.actions.delete'|trans({}, 'admin') }}
+                            </button>
+                        </form>
+                        {% else %}
+                        <button type="button" class="btn btn-danger w-100" disabled 
+                                title="{{ 'admin.role.delete.has_users'|trans({}, 'admin') }}">
+                            <i class="fas fa-trash me-1"></i>
+                            {{ 'admin.role.actions.delete'|trans({}, 'admin') }}
+                        </button>
+                        {% endif %}
+                        {% else %}
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <small>{{ 'admin.role.show.system_role_notice'|trans({}, 'admin') }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        {{ 'admin.role.show.timeline'|trans({}, 'admin') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item d-flex">
+                            <div class="timeline-badge bg-success"></div>
+                            <div>
+                                <div class="small fw-medium">{{ 'admin.role.timeline.created'|trans({}, 'admin') }}</div>
+                                <div class="text-muted small">{{ role.createdAt|date('d/m/Y H:i') }}</div>
+                            </div>
+                        </div>
+                        {% if role.updatedAt != role.createdAt %}
+                        <div class="timeline-item d-flex">
+                            <div class="timeline-badge bg-warning"></div>
+                            <div>
+                                <div class="small fw-medium">{{ 'admin.role.timeline.updated'|trans({}, 'admin') }}</div>
+                                <div class="text-muted small">{{ role.updatedAt|date('d/m/Y H:i') }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Add tooltip support for permission badges
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof bootstrap !== 'undefined') {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+        });
+    </script>
+{% endblock %}

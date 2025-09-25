@@ -1,0 +1,340 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.role.index.title'|trans({}, 'admin') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .role-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .role-card.system-role {
+            border-left-color: #dc3545;
+        }
+        .role-card.user-role {
+            border-left-color: #007bff;
+        }
+        .role-priority-badge {
+            font-size: 0.75em;
+            padding: 0.25em 0.5em;
+            border-radius: 0.25rem;
+        }
+        .permissions-preview {
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .statistics-grid {
+            gap: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user-shield me-2"></i>
+                {{ 'admin.role.index.title'|trans({}, 'admin') }}
+            </h1>
+            <p class="text-muted mb-0">{{ 'admin.role.index.subtitle'|trans({}, 'admin') }}</p>
+        </div>
+        <div>
+            <a href="{{ path('admin_role_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                {{ 'admin.role.index.new_role'|trans({}, 'admin') }}
+            </a>
+            <a href="{{ path('admin_role_statistics') }}" class="btn btn-outline-info ms-2">
+                <i class="fas fa-chart-bar me-1"></i>
+                {{ 'admin.role.index.statistics'|trans({}, 'admin') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row statistics-grid mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.total_roles }}</div>
+                <div>{{ 'admin.role.statistics.total_roles'|trans({}, 'admin') }}</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.active_roles }}</div>
+                <div>{{ 'admin.role.statistics.active_roles'|trans({}, 'admin') }}</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.system_roles }}</div>
+                <div>{{ 'admin.role.statistics.system_roles'|trans({}, 'admin') }}</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ statistics.user_assigned_roles }}</div>
+                <div>{{ 'admin.role.statistics.assigned_roles'|trans({}, 'admin') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">{{ 'admin.role.index.search.label'|trans({}, 'admin') }}</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ current_search }}" 
+                           placeholder="{{ 'admin.role.index.search.placeholder'|trans({}, 'admin') }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="filter" class="form-label">{{ 'admin.role.index.filter.label'|trans({}, 'admin') }}</label>
+                    <select class="form-select" id="filter" name="filter">
+                        <option value="all" {{ current_filter == 'all' ? 'selected' : '' }}>
+                            {{ 'admin.role.index.filter.all'|trans({}, 'admin') }}
+                        </option>
+                        <option value="active" {{ current_filter == 'active' ? 'selected' : '' }}>
+                            {{ 'admin.role.index.filter.active'|trans({}, 'admin') }}
+                        </option>
+                        <option value="inactive" {{ current_filter == 'inactive' ? 'selected' : '' }}>
+                            {{ 'admin.role.index.filter.inactive'|trans({}, 'admin') }}
+                        </option>
+                        <option value="system" {{ current_filter == 'system' ? 'selected' : '' }}>
+                            {{ 'admin.role.index.filter.system'|trans({}, 'admin') }}
+                        </option>
+                        <option value="user" {{ current_filter == 'user' ? 'selected' : '' }}>
+                            {{ 'admin.role.index.filter.user'|trans({}, 'admin') }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-search me-1"></i>
+                        {{ 'admin.role.index.search.button'|trans({}, 'admin') }}
+                    </button>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{{ path('admin_role_index') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-1"></i>
+                        {{ 'admin.role.index.clear'|trans({}, 'admin') }}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    {% if roles|length > 0 %}
+    <form id="bulk-form" method="POST" action="{{ path('admin_role_bulk_actions') }}">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" id="select-all" class="form-check-input me-2">
+                            <label for="select-all" class="form-check-label me-3">
+                                {{ 'admin.role.index.select_all'|trans({}, 'admin') }}
+                            </label>
+                            <select name="bulk_action" class="form-select me-2" style="width: auto;">
+                                <option value="">{{ 'admin.role.index.bulk_actions.choose'|trans({}, 'admin') }}</option>
+                                <option value="activate">{{ 'admin.role.index.bulk_actions.activate'|trans({}, 'admin') }}</option>
+                                <option value="deactivate">{{ 'admin.role.index.bulk_actions.deactivate'|trans({}, 'admin') }}</option>
+                                <option value="delete">{{ 'admin.role.index.bulk_actions.delete'|trans({}, 'admin') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button type="submit" class="btn btn-warning" disabled id="bulk-submit">
+                            <i class="fas fa-bolt me-1"></i>
+                            {{ 'admin.role.index.bulk_actions.execute'|trans({}, 'admin') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roles Grid -->
+        <div class="row">
+            {% for role in roles %}
+            <div class="col-xl-4 col-lg-6 mb-4">
+                <div class="card role-card h-100 {{ role.systemRole ? 'system-role' : 'user-role' }}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" name="selected_roles[]" value="{{ role.id }}" class="form-check-input me-2 role-checkbox">
+                            <h6 class="mb-0">
+                                <span class="badge role-priority-badge" style="background-color: {{ role.priority > 80 ? '#dc3545' : (role.priority > 50 ? '#ffc107' : '#28a745') }}">
+                                    {{ role.priority }}
+                                </span>
+                                {{ role.name }}
+                            </h6>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ path('admin_role_show', {id: role.id}) }}">
+                                    <i class="fas fa-eye me-1"></i>{{ 'admin.role.actions.view'|trans({}, 'admin') }}
+                                </a></li>
+                                {% if not role.systemRole %}
+                                <li><a class="dropdown-item" href="{{ path('admin_role_edit', {id: role.id}) }}">
+                                    <i class="fas fa-edit me-1"></i>{{ 'admin.role.actions.edit'|trans({}, 'admin') }}
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('admin_role_permissions', {id: role.id}) }}">
+                                    <i class="fas fa-key me-1"></i>{{ 'admin.role.actions.permissions'|trans({}, 'admin') }}
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ path('admin_role_toggle_status', {id: role.id}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ role.id) }}">
+                                        <button class="dropdown-item" type="submit">
+                                            <i class="fas fa-{{ role.active ? 'pause' : 'play' }} me-1"></i>
+                                            {{ role.active ? 'admin.role.actions.deactivate'|trans({}, 'admin') : 'admin.role.actions.activate'|trans({}, 'admin') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                {% if role.users|length == 0 %}
+                                <li>
+                                    <form method="POST" action="{{ path('admin_role_delete', {id: role.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'admin.role.delete.confirm'|trans({}, 'admin') }}')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ role.id) }}">
+                                        <button class="dropdown-item text-danger" type="submit">
+                                            <i class="fas fa-trash me-1"></i>{{ 'admin.role.actions.delete'|trans({}, 'admin') }}
+                                        </button>
+                                    </form>
+                                </li>
+                                {% endif %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span class="badge bg-{{ role.active ? 'success' : 'secondary' }}">
+                                    {{ role.active ? 'admin.role.status.active'|trans({}, 'admin') : 'admin.role.status.inactive'|trans({}, 'admin') }}
+                                </span>
+                            </div>
+                            <div class="col-6 text-end">
+                                {% if role.systemRole %}
+                                <span class="badge bg-danger">{{ 'admin.role.type.system'|trans({}, 'admin') }}</span>
+                                {% else %}
+                                <span class="badge bg-primary">{{ 'admin.role.type.user'|trans({}, 'admin') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted small mb-3">{{ role.description ?: 'admin.role.no_description'|trans({}, 'admin') }}</p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="fw-bold">{{ role.users|length }}</div>
+                                <small class="text-muted">{{ 'admin.role.users_count'|trans({}, 'admin') }}</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="fw-bold">{{ role.permissions|length }}</div>
+                                <small class="text-muted">{{ 'admin.role.permissions_count'|trans({}, 'admin') }}</small>
+                            </div>
+                        </div>
+
+                        {% if role.permissions|length > 0 %}
+                        <div class="permissions-preview">
+                            <h6 class="small fw-bold text-muted mb-2">{{ 'admin.role.permissions_preview'|trans({}, 'admin') }}</h6>
+                            {% for permission in role.permissions|slice(0, 3) %}
+                            <span class="badge bg-light text-dark me-1 mb-1">{{ permission.name }}</span>
+                            {% endfor %}
+                            {% if role.permissions|length > 3 %}
+                            <span class="badge bg-secondary">+{{ role.permissions|length - 3 }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ 'admin.role.created_at'|trans({}, 'admin') }}: {{ role.createdAt|date('d/m/Y H:i') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-user-shield fa-4x text-muted mb-3"></i>
+        <h4>{{ 'admin.role.index.no_roles'|trans({}, 'admin') }}</h4>
+        <p class="text-muted mb-4">{{ 'admin.role.index.no_roles_description'|trans({}, 'admin') }}</p>
+        <a href="{{ path('admin_role_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>
+            {{ 'admin.role.index.create_first_role'|trans({}, 'admin') }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Bulk actions handling
+        const selectAllCheckbox = document.getElementById('select-all');
+        const roleCheckboxes = document.querySelectorAll('.role-checkbox');
+        const bulkSubmit = document.getElementById('bulk-submit');
+        const bulkActionSelect = document.querySelector('select[name="bulk_action"]');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                roleCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateBulkButton();
+            });
+        }
+
+        roleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkButton);
+        });
+
+        if (bulkActionSelect) {
+            bulkActionSelect.addEventListener('change', updateBulkButton);
+        }
+
+        function updateBulkButton() {
+            const checkedBoxes = document.querySelectorAll('.role-checkbox:checked');
+            const hasAction = bulkActionSelect && bulkActionSelect.value !== '';
+            
+            if (bulkSubmit) {
+                bulkSubmit.disabled = checkedBoxes.length === 0 || !hasAction;
+            }
+        }
+
+        // Confirm bulk delete action
+        if (document.getElementById('bulk-form')) {
+            document.getElementById('bulk-form').addEventListener('submit', function(e) {
+                const action = bulkActionSelect.value;
+                if (action === 'delete') {
+                    if (!confirm('{{ 'admin.role.bulk_actions.delete_confirm'|trans({}, 'admin')|e('js') }}')) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
