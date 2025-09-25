@@ -142,8 +142,10 @@ homepage:
 loans:
   my_loans: "Mes Prêts"
   dashboard_welcome: "Bienvenue"
+  dashboard_meta_description: "Gérez vos demandes de prêt, suivez vos contrats et vos paiements sur votre tableau de bord personnel EdgeLoan."
   manage_easily: "gérez vos prêts facilement"
   new_application: "Nouvelle Demande"
+  applications_list: "Mes Demandes de Prêt"
   total_applications: "Total Demandes"
   active_loans: "Prêts Actifs"
   pending: "En Attente"
@@ -183,6 +185,10 @@ loans:
   
   # Types
   type_personal: "Personnel"
+  type_business: "Entreprise"
+  type_auto: "Automobile"
+  type_home: "Immobilier"
+  type_education: "Éducation"
   type_business: "Entreprise"
   type_auto: "Automobile"
   type_home: "Immobilier"
