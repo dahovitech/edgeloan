@@ -15,44 +15,44 @@ class LoanApplication
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 20, unique: true)]
+    #[ORM\Column(length: 20, unique: true)]
     private string $applicationNumber;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private User $customer;
 
-    #[ORM\Column(type: 'string', length: 50)]
+    #[ORM\Column(length: 50)]
     #[Assert\Choice(choices: ['personal', 'business', 'auto', 'home', 'education'])]
     private string $loanType = 'personal';
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\NotBlank]
     #[Assert\Positive]
-    private float $requestedAmount;
+    private string $requestedAmount;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     #[Assert\NotBlank]
     #[Assert\Positive]
     private int $requestedDuration; // en mois
 
     #[ORM\Column(type: 'decimal', precision: 5, scale: 3, nullable: true)]
-    private ?float $interestRate = null;
+    private ?string $interestRate = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $monthlyPayment = null;
+    private ?string $monthlyPayment = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(length: 20)]
     #[Assert\Choice(choices: ['pending', 'under_review', 'approved', 'rejected', 'cancelled', 'active', 'completed'])]
     private string $status = 'pending';
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $purpose = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?int $creditScore = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -97,7 +97,7 @@ class LoanApplication
 
     private function generateApplicationNumber(): string
     {
-        return 'LA' . date('Y') . str_pad((string)rand(100000, 999999), 6, '0', STR_PAD_LEFT);
+        return 'LA' . date('Y') . str_pad((string)random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
     }
 
     public function getId(): ?int
@@ -140,12 +140,12 @@ class LoanApplication
 
     public function getRequestedAmount(): float
     {
-        return $this->requestedAmount;
+        return (float) $this->requestedAmount;
     }
 
     public function setRequestedAmount(float $requestedAmount): static
     {
-        $this->requestedAmount = $requestedAmount;
+        $this->requestedAmount = (string) $requestedAmount;
         return $this;
     }
 
@@ -162,23 +162,23 @@ class LoanApplication
 
     public function getInterestRate(): ?float
     {
-        return $this->interestRate;
+        return $this->interestRate ? (float) $this->interestRate : null;
     }
 
     public function setInterestRate(?float $interestRate): static
     {
-        $this->interestRate = $interestRate;
+        $this->interestRate = $interestRate ? (string) $interestRate : null;
         return $this;
     }
 
     public function getMonthlyPayment(): ?float
     {
-        return $this->monthlyPayment;
+        return $this->monthlyPayment ? (float) $this->monthlyPayment : null;
     }
 
     public function setMonthlyPayment(?float $monthlyPayment): static
     {
-        $this->monthlyPayment = $monthlyPayment;
+        $this->monthlyPayment = $monthlyPayment ? (string) $monthlyPayment : null;
         return $this;
     }
 

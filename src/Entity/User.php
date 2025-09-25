@@ -60,42 +60,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $lastLoginAt = null;
 
     // Loan-specific fields
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(length: 20)]
     private string $clientType = 'individual'; // 'individual' or 'business'
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $monthlyIncome = null;
+    private ?string $monthlyIncome = null;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $monthlyCharges = null;
+    private ?string $monthlyCharges = null;
 
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(length: 50, nullable: true)]
     private ?string $employmentStatus = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $employer = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $employmentStartDate = null;
 
     // Business-specific fields
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(length: 100, nullable: true)]
     private ?string $businessName = null;
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $businessRegistration = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?int $businessYears = null;
 
     #[ORM\Column(type: 'decimal', precision: 12, scale: 2, nullable: true)]
-    private ?float $annualRevenue = null;
+    private ?string $annualRevenue = null;
 
     // Account verification
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column]
     private bool $isAccountVerified = false;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
@@ -294,23 +294,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getMonthlyIncome(): ?float
     {
-        return $this->monthlyIncome;
+        return $this->monthlyIncome ? (float) $this->monthlyIncome : null;
     }
 
     public function setMonthlyIncome(?float $monthlyIncome): static
     {
-        $this->monthlyIncome = $monthlyIncome;
+        $this->monthlyIncome = $monthlyIncome ? (string) $monthlyIncome : null;
         return $this;
     }
 
     public function getMonthlyCharges(): ?float
     {
-        return $this->monthlyCharges;
+        return $this->monthlyCharges ? (float) $this->monthlyCharges : null;
     }
 
     public function setMonthlyCharges(?float $monthlyCharges): static
     {
-        $this->monthlyCharges = $monthlyCharges;
+        $this->monthlyCharges = $monthlyCharges ? (string) $monthlyCharges : null;
         return $this;
     }
 
@@ -382,12 +382,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getAnnualRevenue(): ?float
     {
-        return $this->annualRevenue;
+        return $this->annualRevenue ? (float) $this->annualRevenue : null;
     }
 
     public function setAnnualRevenue(?float $annualRevenue): static
     {
-        $this->annualRevenue = $annualRevenue;
+        $this->annualRevenue = $annualRevenue ? (string) $annualRevenue : null;
         return $this;
     }
 
@@ -415,19 +415,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getNetIncome(): ?float
     {
-        if ($this->monthlyIncome === null || $this->monthlyCharges === null) {
+        $income = $this->getMonthlyIncome();
+        $charges = $this->getMonthlyCharges();
+        
+        if ($income === null || $charges === null) {
             return null;
         }
-        return max(0, $this->monthlyIncome - $this->monthlyCharges);
+        
+        return max(0.0, $income - $charges);
     }
 
     public function getDebtRatio(): ?float
     {
-        if ($this->monthlyIncome === null || $this->monthlyIncome <= 0) {
+        $income = $this->getMonthlyIncome();
+        if ($income === null || $income <= 0) {
             return null;
         }
-        $charges = $this->monthlyCharges ?? 0;
-        return ($charges / $this->monthlyIncome) * 100;
+        
+        $charges = $this->getMonthlyCharges() ?? 0.0;
+        return ($charges / $income) * 100;
     }
 
     /**

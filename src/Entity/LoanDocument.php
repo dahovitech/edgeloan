@@ -13,7 +13,7 @@ class LoanDocument
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: LoanApplication::class, inversedBy: 'documents')]
@@ -24,17 +24,17 @@ class LoanDocument
     #[ORM\JoinColumn(nullable: false)]
     private Media $media;
 
-    #[ORM\Column(type: 'string', length: 50)]
+    #[ORM\Column(length: 50)]
     #[Assert\Choice(choices: ['identity', 'income_proof', 'bank_statement', 'employment_proof', 'business_registration', 'tax_return', 'other'])]
     private string $documentType;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column]
     private bool $isRequired = true;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column]
     private bool $isVerified = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -43,7 +43,7 @@ class LoanDocument
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $verifiedAt = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $verifiedBy = null;
 
     #[ORM\Column(type: 'text', nullable: true)]

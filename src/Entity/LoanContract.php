@@ -13,14 +13,14 @@ class LoanContract
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\OneToOne(targetEntity: LoanApplication::class, inversedBy: 'contract')]
     #[ORM\JoinColumn(nullable: false)]
     private LoanApplication $loanApplication;
 
-    #[ORM\Column(type: 'string', length: 20, unique: true)]
+    #[ORM\Column(length: 20, unique: true)]
     private string $contractNumber;
 
     #[ORM\Column(type: 'text')]
@@ -32,10 +32,10 @@ class LoanContract
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $signedAt = null;
 
-    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    #[ORM\Column(length: 45, nullable: true)]
     private ?string $signedFromIp = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(length: 20)]
     #[Assert\Choice(choices: ['draft', 'sent', 'signed', 'active', 'completed', 'terminated'])]
     private string $status = 'draft';
 
@@ -70,7 +70,7 @@ class LoanContract
 
     private function generateContractNumber(): string
     {
-        return 'CTR' . date('Y') . str_pad((string)rand(100000, 999999), 6, '0', STR_PAD_LEFT);
+        return 'CTR' . date('Y') . str_pad((string)random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
     }
 
     public function getId(): ?int

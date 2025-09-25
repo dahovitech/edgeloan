@@ -51,6 +51,8 @@ class LoanAdminController extends AbstractController
     {
         $status = $request->query->get('status');
         $search = $request->query->get('search');
+        $page = max(1, (int) $request->query->get('page', 1));
+        $perPage = 20;
 
         $criteria = [];
         if ($status) {
@@ -61,13 +63,22 @@ class LoanAdminController extends AbstractController
         }
 
         $applications = empty($criteria) 
-            ? $this->applicationRepository->findAll()
+            ? $this->applicationRepository->findBy([], ['createdAt' => 'DESC'], $perPage, ($page - 1) * $perPage)
             : $this->applicationRepository->searchApplications($criteria);
+
+        $totalCount = empty($criteria) 
+            ? $this->applicationRepository->count([])
+            : count($this->applicationRepository->searchApplications($criteria));
+
+        $totalPages = max(1, (int) ceil($totalCount / $perPage));
 
         return $this->render('admin/loans/applications.html.twig', [
             'applications' => $applications,
             'current_status' => $status,
             'search_term' => $search,
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+            'total_count' => $totalCount,
         ]);
     }
 
@@ -86,10 +97,17 @@ class LoanAdminController extends AbstractController
     #[Route('/applications/{id}/approve', name: 'admin_loan_application_approve', methods: ['POST'])]
     public function approveApplication(LoanApplication $application, Request $request): Response
     {
-        $notes = $request->request->get('notes');
+        // Vérification du token CSRF
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('approve_loan_' . $application->getId(), $token)) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('admin_loan_application_show', ['id' => $application->getId()]);
+        }
+
+        $notes = trim($request->request->get('notes', ''));
 
         try {
-            $contract = $this->loanService->approveApplication($application, $notes);
+            $contract = $this->loanService->approveApplication($application, $notes ?: null);
             $this->addFlash('success', 'Demande de prêt approuvée avec succès. Le contrat a été généré.');
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur lors de l\'approbation: ' . $e->getMessage());
@@ -101,10 +119,22 @@ class LoanAdminController extends AbstractController
     #[Route('/applications/{id}/reject', name: 'admin_loan_application_reject', methods: ['POST'])]
     public function rejectApplication(LoanApplication $application, Request $request): Response
     {
-        $reason = $request->request->get('reason');
+        // Vérification du token CSRF
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('reject_loan_' . $application->getId(), $token)) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('admin_loan_application_show', ['id' => $application->getId()]);
+        }
+
+        $reason = trim($request->request->get('reason', ''));
 
         if (empty($reason)) {
             $this->addFlash('error', 'Une raison de rejet est requise.');
+            return $this->redirectToRoute('admin_loan_application_show', ['id' => $application->getId()]);
+        }
+
+        if (strlen($reason) < 10) {
+            $this->addFlash('error', 'La raison de rejet doit contenir au moins 10 caractères.');
             return $this->redirectToRoute('admin_loan_application_show', ['id' => $application->getId()]);
         }
 

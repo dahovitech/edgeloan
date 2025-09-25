@@ -13,7 +13,7 @@ class LoanPayment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: LoanApplication::class, inversedBy: 'payments')]
@@ -23,7 +23,7 @@ class LoanPayment
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Assert\NotBlank]
     #[Assert\Positive]
-    private float $amount;
+    private string $amount;
 
     #[ORM\Column(type: 'date')]
     private \DateTimeInterface $dueDate;
@@ -31,14 +31,14 @@ class LoanPayment
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $paidDate = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(length: 20)]
     #[Assert\Choice(choices: ['pending', 'paid', 'late', 'partial', 'cancelled'])]
     private string $status = 'pending';
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
-    private ?float $paidAmount = null;
+    private ?string $paidAmount = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $receiptNumber = null;
 
     #[ORM\ManyToOne(targetEntity: Media::class)]
@@ -84,12 +84,12 @@ class LoanPayment
 
     public function getAmount(): float
     {
-        return $this->amount;
+        return (float) $this->amount;
     }
 
     public function setAmount(float $amount): static
     {
-        $this->amount = $amount;
+        $this->amount = (string) $amount;
         return $this;
     }
 
@@ -128,12 +128,12 @@ class LoanPayment
 
     public function getPaidAmount(): ?float
     {
-        return $this->paidAmount;
+        return $this->paidAmount ? (float) $this->paidAmount : null;
     }
 
     public function setPaidAmount(?float $paidAmount): static
     {
-        $this->paidAmount = $paidAmount;
+        $this->paidAmount = $paidAmount ? (string) $paidAmount : null;
         return $this;
     }
 
@@ -236,10 +236,9 @@ class LoanPayment
 
     public function getRemainingAmount(): float
     {
-        if ($this->paidAmount === null) {
-            return $this->amount;
-        }
+        $amount = (float) $this->amount;
+        $paidAmount = $this->paidAmount ? (float) $this->paidAmount : 0.0;
         
-        return max(0, $this->amount - $this->paidAmount);
+        return max(0.0, $amount - $paidAmount);
     }
 }

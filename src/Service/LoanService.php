@@ -12,6 +12,8 @@ use App\Repository\LoanPaymentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
 
 class LoanService
@@ -23,17 +25,28 @@ class LoanService
         private LoanPaymentRepository $paymentRepository,
         private MailerInterface $mailer,
         private Environment $twig,
+        private ValidatorInterface $validator,
+        private LoggerInterface $logger,
         private string $fromEmail = 'noreply@easiloan.com'
     ) {}
 
     public function createLoanApplication(User $customer, array $data): LoanApplication
     {
+        // Validation des données d'entrée
+        $this->validateLoanApplicationData($data);
+        
         $application = new LoanApplication();
         $application->setCustomer($customer)
                    ->setLoanType($data['loan_type'] ?? 'personal')
                    ->setRequestedAmount($data['requested_amount'])
                    ->setRequestedDuration($data['requested_duration'])
                    ->setPurpose($data['purpose'] ?? null);
+
+        // Validation de l'entité
+        $violations = $this->validator->validate($application);
+        if (count($violations) > 0) {
+            throw new \InvalidArgumentException('Données de prêt invalides: ' . (string) $violations);
+        }
 
         // Calculer le taux d'intérêt basé sur le profil client
         $interestRate = $this->calculateInterestRate($customer, $data['requested_amount']);
@@ -50,8 +63,22 @@ class LoanService
         $this->entityManager->persist($application);
         $this->entityManager->flush();
 
+        $this->logger->info('Nouvelle demande de prêt créée', [
+            'application_id' => $application->getId(),
+            'customer_id' => $customer->getId(),
+            'amount' => $data['requested_amount'],
+            'duration' => $data['requested_duration']
+        ]);
+
         // Envoyer email de confirmation
-        $this->sendApplicationConfirmationEmail($application);
+        try {
+            $this->sendApplicationConfirmationEmail($application);
+        } catch (\Exception $e) {
+            $this->logger->warning('Échec envoi email confirmation', [
+                'application_id' => $application->getId(),
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return $application;
     }
@@ -325,5 +352,35 @@ class LoanService
     public function getPaymentRepository(): LoanPaymentRepository
     {
         return $this->paymentRepository;
+    }
+
+    private function validateLoanApplicationData(array $data): void
+    {
+        $errors = [];
+        
+        if (empty($data['requested_amount']) || $data['requested_amount'] <= 0) {
+            $errors[] = 'Le montant demandé doit être supérieur à zéro';
+        }
+        
+        if ($data['requested_amount'] > 500000) {
+            $errors[] = 'Le montant demandé ne peut pas dépasser 500 000€';
+        }
+        
+        if (empty($data['requested_duration']) || $data['requested_duration'] <= 0) {
+            $errors[] = 'La durée doit être supérieure à zéro';
+        }
+        
+        if ($data['requested_duration'] > 360) {
+            $errors[] = 'La durée ne peut pas dépasser 30 ans';
+        }
+        
+        $validLoanTypes = ['personal', 'business', 'auto', 'home', 'education'];
+        if (!empty($data['loan_type']) && !in_array($data['loan_type'], $validLoanTypes, true)) {
+            $errors[] = 'Type de prêt invalide';
+        }
+        
+        if (!empty($errors)) {
+            throw new \InvalidArgumentException(implode(', ', $errors));
+        }
     }
 }

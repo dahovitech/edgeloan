@@ -9,6 +9,7 @@ use App\Entity\Media;
 use App\Repository\LoanApplicationRepository;
 use App\Service\LoanService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,8 @@ class LoanController extends AbstractController
         private LoanService $loanService,
         private EntityManagerInterface $entityManager,
         private LoanApplicationRepository $applicationRepository,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
+        private LoggerInterface $logger
     ) {}
 
     #[Route('/', name: 'loan_dashboard')]
@@ -45,36 +47,57 @@ class LoanController extends AbstractController
     public function apply(Request $request): Response
     {
         if ($request->isMethod('POST')) {
+            // Vérification CSRF
+            if (!$this->isCsrfTokenValid('loan_application', $request->request->get('_token'))) {
+                $this->addFlash('error', 'Token de sécurité invalide.');
+                return $this->render('loan/apply.html.twig');
+            }
+
             $data = [
                 'loan_type' => $request->request->get('loan_type'),
                 'requested_amount' => (float) $request->request->get('requested_amount'),
                 'requested_duration' => (int) $request->request->get('requested_duration'),
-                'purpose' => $request->request->get('purpose'),
+                'purpose' => trim($request->request->get('purpose', '')),
             ];
 
-            // Validation basique
-            $errors = [];
-            if (empty($data['loan_type'])) {
-                $errors[] = 'Le type de prêt est requis';
-            }
-            if ($data['requested_amount'] <= 0) {
-                $errors[] = 'Le montant doit être supérieur à zéro';
-            }
-            if ($data['requested_duration'] <= 0) {
-                $errors[] = 'La durée doit être supérieure à zéro';
-            }
+            // Validation étendue
+            $violations = $this->validator->validate($data, [
+                'loan_type' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank(['message' => 'Le type de prêt est requis']),
+                    new \Symfony\Component\Validator\Constraints\Choice([
+                        'choices' => ['personal', 'business', 'auto', 'home', 'education'],
+                        'message' => 'Type de prêt invalide'
+                    ])
+                ],
+                'requested_amount' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank(['message' => 'Le montant est requis']),
+                    new \Symfony\Component\Validator\Constraints\Positive(['message' => 'Le montant doit être positif']),
+                    new \Symfony\Component\Validator\Constraints\LessThanOrEqual([
+                        'value' => 500000,
+                        'message' => 'Le montant ne peut pas dépasser 500 000€'
+                    ])
+                ],
+                'requested_duration' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank(['message' => 'La durée est requise']),
+                    new \Symfony\Component\Validator\Constraints\Positive(['message' => 'La durée doit être positive']),
+                    new \Symfony\Component\Validator\Constraints\LessThanOrEqual([
+                        'value' => 360,
+                        'message' => 'La durée ne peut pas dépasser 30 ans'
+                    ])
+                ]
+            ]);
 
-            if (empty($errors)) {
+            if (count($violations) > 0) {
+                foreach ($violations as $violation) {
+                    $this->addFlash('error', $violation->getMessage());
+                }
+            } else {
                 try {
                     $application = $this->loanService->createLoanApplication($this->getUser(), $data);
                     $this->addFlash('success', 'Votre demande de prêt a été soumise avec succès !');
                     return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
                 } catch (\Exception $e) {
                     $this->addFlash('error', 'Erreur lors de la soumission: ' . $e->getMessage());
-                }
-            } else {
-                foreach ($errors as $error) {
-                    $this->addFlash('error', $error);
                 }
             }
         }
@@ -116,28 +139,69 @@ class LoanController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        // Vérification CSRF
+        if (!$this->isCsrfTokenValid('upload_document_' . $application->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
+        }
+
         /** @var UploadedFile $uploadedFile */
         $uploadedFile = $request->files->get('document');
         $documentType = $request->request->get('document_type');
-        $description = $request->request->get('description');
+        $description = trim($request->request->get('description', ''));
 
         if (!$uploadedFile || !$documentType) {
             $this->addFlash('error', 'Fichier et type de document requis.');
             return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
         }
 
+        // Validation du fichier
+        $allowedMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        $maxSize = 10 * 1024 * 1024; // 10MB
+        
+        if (!in_array($uploadedFile->getMimeType(), $allowedMimes, true)) {
+            $this->addFlash('error', 'Format de fichier non autorisé. Seuls PDF, JPEG et PNG sont acceptés.');
+            return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
+        }
+
+        if ($uploadedFile->getSize() > $maxSize) {
+            $this->addFlash('error', 'Fichier trop volumineux. Taille maximale : 10MB.');
+            return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
+        }
+
+        // Validation du type de document
+        $validDocTypes = ['identity', 'income_proof', 'bank_statement', 'employment_proof', 'business_registration', 'tax_return', 'other'];
+        if (!in_array($documentType, $validDocTypes, true)) {
+            $this->addFlash('error', 'Type de document invalide.');
+            return $this->redirectToRoute('loan_application_show', ['id' => $application->getId()]);
+        }
+
         try {
-            // Créer l'entité Media (simplifiée - à adapter selon votre système)
+            // Génération nom de fichier sécurisé
+            $extension = $uploadedFile->guessExtension();
+            $secureFilename = sprintf(
+                'doc_%s_%s_%s.%s',
+                $application->getId(),
+                date('Ymd_His'),
+                bin2hex(random_bytes(8)),
+                $extension
+            );
+
+            // Créer l'entité Media
             $media = new Media();
             $media->setOriginalName($uploadedFile->getClientOriginalName())
-                  ->setFilename(uniqid() . '.' . $uploadedFile->guessExtension())
+                  ->setFilename($secureFilename)
                   ->setMimeType($uploadedFile->getMimeType())
                   ->setSize($uploadedFile->getSize());
 
-            // Déplacer le fichier (adapté selon votre configuration)
+            // Déplacer le fichier de manière sécurisée
             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/documents';
-            $uploadedFile->move($uploadDir, $media->getFilename());
-            $media->setPath('/uploads/documents/' . $media->getFilename());
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $uploadedFile->move($uploadDir, $secureFilename);
+            $media->setPath('/uploads/documents/' . $secureFilename);
 
             $this->entityManager->persist($media);
 
@@ -146,12 +210,13 @@ class LoanController extends AbstractController
             $loanDocument->setLoanApplication($application)
                         ->setMedia($media)
                         ->setDocumentType($documentType)
-                        ->setDescription($description);
+                        ->setDescription($description ?: null);
 
             $this->entityManager->persist($loanDocument);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Document téléchargé avec succès.');
+            
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur lors du téléchargement: ' . $e->getMessage());
         }
@@ -181,23 +246,54 @@ class LoanController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $signature = $request->request->get('signature');
+        // Vérification CSRF pour les requêtes AJAX aussi
+        if (!$this->isCsrfTokenValid('sign_contract_' . $contract->getId(), $request->request->get('_token'))) {
+            return new JsonResponse(['success' => false, 'message' => 'Token de sécurité invalide']);
+        }
+
+        $signature = trim($request->request->get('signature', ''));
         
         if (empty($signature)) {
             return new JsonResponse(['success' => false, 'message' => 'Signature requise']);
         }
 
+        // Validation de la signature (longueur minimale, format, etc.)
+        if (strlen($signature) < 10) {
+            return new JsonResponse(['success' => false, 'message' => 'Signature trop courte']);
+        }
+
+        // Vérifier que le contrat peut être signé
+        if (!in_array($contract->getStatus(), ['sent', 'draft'], true)) {
+            return new JsonResponse(['success' => false, 'message' => 'Ce contrat ne peut pas être signé']);
+        }
+
         try {
-            $ipAddress = $request->getClientIp();
+            $ipAddress = $request->getClientIp() ?: 'unknown';
+            
+            // Log de la tentative de signature
+            $this->logger->info('Tentative de signature de contrat', [
+                'contract_id' => $contract->getId(),
+                'customer_id' => $this->getUser()->getId(),
+                'ip_address' => $ipAddress
+            ]);
+            
             $this->loanService->signContract($contract, $signature, $ipAddress);
             
             return new JsonResponse([
                 'success' => true, 
                 'message' => 'Contrat signé avec succès',
-                'redirect' => $this->generateUrl('loan_application_show', ['id' => $contract->getLoanApplication()->getId()])
+                'redirect' => $this->generateUrl('loan_application_show', [
+                    'id' => $contract->getLoanApplication()->getId()
+                ])
             ]);
+            
         } catch (\Exception $e) {
-            return new JsonResponse(['success' => false, 'message' => $e->getMessage()]);
+            $this->logger->error('Erreur lors de la signature', [
+                'contract_id' => $contract->getId(),
+                'error' => $e->getMessage()
+            ]);
+            
+            return new JsonResponse(['success' => false, 'message' => 'Erreur lors de la signature: ' . $e->getMessage()]);
         }
     }
 
