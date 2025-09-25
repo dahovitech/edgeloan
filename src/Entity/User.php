@@ -59,6 +59,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $lastLoginAt = null;
 
+    // Loan-specific fields
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $clientType = 'individual'; // 'individual' or 'business'
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?float $monthlyIncome = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?float $monthlyCharges = null;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $employmentStatus = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $employer = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $employmentStartDate = null;
+
+    // Business-specific fields
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $businessName = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $businessRegistration = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $businessYears = null;
+
+    #[ORM\Column(type: 'decimal', precision: 12, scale: 2, nullable: true)]
+    private ?float $annualRevenue = null;
+
+    // Account verification
+    #[ORM\Column(type: 'boolean')]
+    private bool $isAccountVerified = false;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $verifiedAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -215,6 +257,177 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
+    }
+
+    // Loan-specific getters and setters
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getClientType(): string
+    {
+        return $this->clientType;
+    }
+
+    public function setClientType(string $clientType): static
+    {
+        $this->clientType = $clientType;
+        return $this;
+    }
+
+    public function isIndividual(): bool
+    {
+        return $this->clientType === 'individual';
+    }
+
+    public function isBusiness(): bool
+    {
+        return $this->clientType === 'business';
+    }
+
+    public function getMonthlyIncome(): ?float
+    {
+        return $this->monthlyIncome;
+    }
+
+    public function setMonthlyIncome(?float $monthlyIncome): static
+    {
+        $this->monthlyIncome = $monthlyIncome;
+        return $this;
+    }
+
+    public function getMonthlyCharges(): ?float
+    {
+        return $this->monthlyCharges;
+    }
+
+    public function setMonthlyCharges(?float $monthlyCharges): static
+    {
+        $this->monthlyCharges = $monthlyCharges;
+        return $this;
+    }
+
+    public function getEmploymentStatus(): ?string
+    {
+        return $this->employmentStatus;
+    }
+
+    public function setEmploymentStatus(?string $employmentStatus): static
+    {
+        $this->employmentStatus = $employmentStatus;
+        return $this;
+    }
+
+    public function getEmployer(): ?string
+    {
+        return $this->employer;
+    }
+
+    public function setEmployer(?string $employer): static
+    {
+        $this->employer = $employer;
+        return $this;
+    }
+
+    public function getEmploymentStartDate(): ?\DateTimeInterface
+    {
+        return $this->employmentStartDate;
+    }
+
+    public function setEmploymentStartDate(?\DateTimeInterface $employmentStartDate): static
+    {
+        $this->employmentStartDate = $employmentStartDate;
+        return $this;
+    }
+
+    public function getBusinessName(): ?string
+    {
+        return $this->businessName;
+    }
+
+    public function setBusinessName(?string $businessName): static
+    {
+        $this->businessName = $businessName;
+        return $this;
+    }
+
+    public function getBusinessRegistration(): ?string
+    {
+        return $this->businessRegistration;
+    }
+
+    public function setBusinessRegistration(?string $businessRegistration): static
+    {
+        $this->businessRegistration = $businessRegistration;
+        return $this;
+    }
+
+    public function getBusinessYears(): ?int
+    {
+        return $this->businessYears;
+    }
+
+    public function setBusinessYears(?int $businessYears): static
+    {
+        $this->businessYears = $businessYears;
+        return $this;
+    }
+
+    public function getAnnualRevenue(): ?float
+    {
+        return $this->annualRevenue;
+    }
+
+    public function setAnnualRevenue(?float $annualRevenue): static
+    {
+        $this->annualRevenue = $annualRevenue;
+        return $this;
+    }
+
+    public function isAccountVerified(): bool
+    {
+        return $this->isAccountVerified;
+    }
+
+    public function setIsAccountVerified(bool $isAccountVerified): static
+    {
+        $this->isAccountVerified = $isAccountVerified;
+        return $this;
+    }
+
+    public function getVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->verifiedAt;
+    }
+
+    public function setVerifiedAt(?\DateTimeImmutable $verifiedAt): static
+    {
+        $this->verifiedAt = $verifiedAt;
+        return $this;
+    }
+
+    public function getNetIncome(): ?float
+    {
+        if ($this->monthlyIncome === null || $this->monthlyCharges === null) {
+            return null;
+        }
+        return max(0, $this->monthlyIncome - $this->monthlyCharges);
+    }
+
+    public function getDebtRatio(): ?float
+    {
+        if ($this->monthlyIncome === null || $this->monthlyIncome <= 0) {
+            return null;
+        }
+        $charges = $this->monthlyCharges ?? 0;
+        return ($charges / $this->monthlyIncome) * 100;
     }
 
     /**
