@@ -1,0 +1,358 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{% trans %}Mon Profil{% endtrans %} - EdgeLoan{% endblock %}
+
+{% block body %}
+<div class="container my-5 pt-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" 
+                     style="width: 60px; height: 60px;">
+                    <i class="fas fa-user fa-xl text-primary"></i>
+                </div>
+                <div>
+                    <h1 class="fw-bold mb-1">{% trans %}Mon Profil{% endtrans %}</h1>
+                    <p class="text-muted mb-0">{% trans %}Gérez vos informations personnelles{% endtrans %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Informations Personnelles -->
+        <div class="col-lg-8">
+            <div class="card-modern">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-edit me-2"></i>{% trans %}Informations Personnelles{% endtrans %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="profileForm">
+                        {{ csrf_token('user_profile') }}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">{% trans %}Prénom{% endtrans %}</label>
+                                <input type="text" class="form-control form-control-modern" id="firstName" name="firstName" 
+                                       value="{{ user.firstName ?? '' }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">{% trans %}Nom{% endtrans %}</label>
+                                <input type="text" class="form-control form-control-modern" id="lastName" name="lastName" 
+                                       value="{{ user.lastName ?? '' }}" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">{% trans %}Email{% endtrans %}</label>
+                                <input type="email" class="form-control form-control-modern" id="email" name="email" 
+                                       value="{{ user.email }}" required readonly>
+                                <small class="form-text text-muted">{% trans %}L'email ne peut pas être modifié{% endtrans %}</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">{% trans %}Téléphone{% endtrans %}</label>
+                                <input type="tel" class="form-control form-control-modern" id="phone" name="phone" 
+                                       value="{{ user.phone ?? '' }}">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="address" class="form-label">{% trans %}Adresse{% endtrans %}</label>
+                                <textarea class="form-control form-control-modern" id="address" name="address" rows="3">{{ user.address ?? '' }}</textarea>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="postalCode" class="form-label">{% trans %}Code Postal{% endtrans %}</label>
+                                <input type="text" class="form-control form-control-modern" id="postalCode" name="postalCode" 
+                                       value="{{ user.postalCode ?? '' }}">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="city" class="form-label">{% trans %}Ville{% endtrans %}</label>
+                                <input type="text" class="form-control form-control-modern" id="city" name="city" 
+                                       value="{{ user.city ?? '' }}">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="country" class="form-label">{% trans %}Pays{% endtrans %}</label>
+                                <select class="form-select form-control-modern" id="country" name="country">
+                                    <option value="FR" {{ (user.country ?? 'FR') == 'FR' ? 'selected' : '' }}>{% trans %}France{% endtrans %}</option>
+                                    <option value="BE" {{ (user.country ?? '') == 'BE' ? 'selected' : '' }}>{% trans %}Belgique{% endtrans %}</option>
+                                    <option value="CH" {{ (user.country ?? '') == 'CH' ? 'selected' : '' }}>{% trans %}Suisse{% endtrans %}</option>
+                                    <option value="CA" {{ (user.country ?? '') == 'CA' ? 'selected' : '' }}>{% trans %}Canada{% endtrans %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Informations Financières -->
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-chart-line me-2"></i>{% trans %}Informations Financières{% endtrans %}
+                        </h6>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="monthlyIncome" class="form-label">{% trans %}Revenus Mensuels{% endtrans %}</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control form-control-modern" id="monthlyIncome" 
+                                           name="monthlyIncome" value="{{ user.monthlyIncome ?? '' }}" min="0" step="100">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="profession" class="form-label">{% trans %}Profession{% endtrans %}</label>
+                                <input type="text" class="form-control form-control-modern" id="profession" name="profession" 
+                                       value="{{ user.profession ?? '' }}">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="employmentType" class="form-label">{% trans %}Type d'Emploi{% endtrans %}</label>
+                                <select class="form-select form-control-modern" id="employmentType" name="employmentType">
+                                    <option value="">{% trans %}Sélectionnez...{% endtrans %}</option>
+                                    <option value="employee" {{ (user.employmentType ?? '') == 'employee' ? 'selected' : '' }}>{% trans %}Salarié{% endtrans %}</option>
+                                    <option value="freelance" {{ (user.employmentType ?? '') == 'freelance' ? 'selected' : '' }}>{% trans %}Indépendant{% endtrans %}</option>
+                                    <option value="business_owner" {{ (user.employmentType ?? '') == 'business_owner' ? 'selected' : '' }}>{% trans %}Chef d'Entreprise{% endtrans %}</option>
+                                    <option value="retired" {{ (user.employmentType ?? '') == 'retired' ? 'selected' : '' }}>{% trans %}Retraité{% endtrans %}</option>
+                                    <option value="student" {{ (user.employmentType ?? '') == 'student' ? 'selected' : '' }}>{% trans %}Étudiant{% endtrans %}</option>
+                                    <option value="other" {{ (user.employmentType ?? '') == 'other' ? 'selected' : '' }}>{% trans %}Autre{% endtrans %}</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="yearsOfEmployment" class="form-label">{% trans %}Ancienneté{% endtrans %}</label>
+                                <select class="form-select form-control-modern" id="yearsOfEmployment" name="yearsOfEmployment">
+                                    <option value="">{% trans %}Sélectionnez...{% endtrans %}</option>
+                                    <option value="0-1" {{ (user.yearsOfEmployment ?? '') == '0-1' ? 'selected' : '' }}>{% trans %}Moins d'1 an{% endtrans %}</option>
+                                    <option value="1-3" {{ (user.yearsOfEmployment ?? '') == '1-3' ? 'selected' : '' }}>{% trans %}1 à 3 ans{% endtrans %}</option>
+                                    <option value="3-5" {{ (user.yearsOfEmployment ?? '') == '3-5' ? 'selected' : '' }}>{% trans %}3 à 5 ans{% endtrans %}</option>
+                                    <option value="5+" {{ (user.yearsOfEmployment ?? '') == '5+' ? 'selected' : '' }}>{% trans %}Plus de 5 ans{% endtrans %}</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary-modern" id="saveBtn">
+                                <i class="fas fa-save me-2"></i>{% trans %}Sauvegarder{% endtrans %}
+                            </button>
+                            <a href="{{ path('loan_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>{% trans %}Retour{% endtrans %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sécurité -->
+            <div class="card-modern mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>{% trans %}Sécurité{% endtrans %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-medium mb-1">{% trans %}Mot de Passe{% endtrans %}</h6>
+                            <p class="text-muted small mb-0">{% trans %}Dernière modification{% endtrans %}: {{ user.passwordChangedAt ? user.passwordChangedAt|date('d/m/Y') : 'N/A' }}</p>
+                        </div>
+                        <button class="btn btn-outline-warning" onclick="alert('{% trans %}Fonctionnalité à venir{% endtrans %}')">
+                            <i class="fas fa-key me-1"></i>{% trans %}Modifier{% endtrans %}
+                        </button>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-medium mb-1">{% trans %}Authentification à Deux Facteurs{% endtrans %}</h6>
+                            <p class="text-muted small mb-0">{% trans %}Sécurisez davantage votre compte{% endtrans %}</p>
+                        </div>
+                        <button class="btn btn-outline-info" onclick="alert('{% trans %}Fonctionnalité à venir{% endtrans %}')">
+                            <i class="fas fa-mobile-alt me-1"></i>{% trans %}Configurer{% endtrans %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Statut du Compte -->
+            <div class="card-modern">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-user-check me-2"></i>{% trans %}Statut du Compte{% endtrans %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px;">
+                            <i class="fas fa-check text-success"></i>
+                        </div>
+                        <div>
+                            <div class="fw-medium">{% trans %}Compte Vérifié{% endtrans %}</div>
+                            <small class="text-muted">{% trans %}Depuis{% endtrans %} {{ user.createdAt|date('d/m/Y') }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-3" style="height: 8px;">
+                        {% set completeness = 0 %}
+                        {% if user.firstName %}{% set completeness = completeness + 15 %}{% endif %}
+                        {% if user.lastName %}{% set completeness = completeness + 15 %}{% endif %}
+                        {% if user.phone %}{% set completeness = completeness + 10 %}{% endif %}
+                        {% if user.address %}{% set completeness = completeness + 15 %}{% endif %}
+                        {% if user.monthlyIncome %}{% set completeness = completeness + 20 %}{% endif %}
+                        {% if user.profession %}{% set completeness = completeness + 15 %}{% endif %}
+                        {% if user.employmentType %}{% set completeness = completeness + 10 %}{% endif %}
+                        
+                        <div class="progress-bar bg-success" style="width: {{ completeness }}%"></div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">{% trans %}Profil complété à{% endtrans %} {{ completeness }}%</small>
+                    </div>
+                    
+                    {% if completeness < 80 %}
+                        <div class="alert alert-warning-modern mt-3 p-2">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                {% trans %}Complétez votre profil pour de meilleures conditions de prêt{% endtrans %}
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions Rapides -->
+            <div class="card-modern mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>{% trans %}Actions Rapides{% endtrans %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('loan_apply') }}" class="btn btn-primary-modern btn-sm">
+                            <i class="fas fa-plus me-2"></i>{% trans %}Nouvelle Demande{% endtrans %}
+                        </a>
+                        <a href="{{ path('loan_dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-chart-line me-2"></i>{% trans %}Mes Prêts{% endtrans %}
+                        </a>
+                        <a href="{{ path('contact') }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-headset me-2"></i>{% trans %}Support{% endtrans %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Conseils -->
+            <div class="card-modern mt-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>{% trans %}Conseils{% endtrans %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="d-flex mb-3">
+                            <i class="fas fa-shield-alt text-primary me-2 mt-1"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Sécurisez votre compte{% endtrans %}</div>
+                                <div class="text-muted">{% trans %}Utilisez un mot de passe fort et unique{% endtrans %}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-3">
+                            <i class="fas fa-file-alt text-success me-2 mt-1"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Tenez vos documents à jour{% endtrans %}</div>
+                                <div class="text-muted">{% trans %}Préparez vos justificatifs pour vos demandes{% endtrans %}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <i class="fas fa-chart-pie text-info me-2 mt-1"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Gérez votre budget{% endtrans %}</div>
+                                <div class="text-muted">{% trans %}Évaluez votre capacité de remboursement{% endtrans %}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profileForm');
+    const saveBtn = document.getElementById('saveBtn');
+    
+    // Validation du formulaire
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            return false;
+        }
+        
+        setButtonLoading(saveBtn, true);
+    });
+    
+    function validateForm() {
+        let isValid = true;
+        
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        
+        if (!firstName || firstName.length < 2) {
+            showFieldError('firstName', '{% trans %}Le prénom doit contenir au moins 2 caractères{% endtrans %}');
+            isValid = false;
+        } else {
+            clearFieldError('firstName');
+        }
+        
+        if (!lastName || lastName.length < 2) {
+            showFieldError('lastName', '{% trans %}Le nom doit contenir au moins 2 caractères{% endtrans %}');
+            isValid = false;
+        } else {
+            clearFieldError('lastName');
+        }
+        
+        return isValid;
+    }
+    
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        field.classList.add('is-invalid');
+        
+        let feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (!feedback) {
+            feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            field.parentNode.appendChild(feedback);
+        }
+        feedback.textContent = message;
+    }
+    
+    function clearFieldError(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.classList.remove('is-invalid');
+        
+        const feedback = field.parentNode.querySelector('.invalid-feedback');
+        if (feedback) {
+            feedback.remove();
+        }
+    }
+});
+</script>
+{% endblock %}

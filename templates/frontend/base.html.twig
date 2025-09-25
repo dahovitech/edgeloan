@@ -1,619 +1,545 @@
-{% extends 'base.html.twig' %}
-
-{% block header %}
-    {# Frontend Header #}
-    <header class="frontend-header" role="banner">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" 
-             role="navigation" 
-             aria-label="{{ 'accessibility.main_navigation'|trans|default('Navigation principale') }}">
-            <div class="container">
-                {# Brand Logo #}
-                <a class="navbar-brand fw-bold d-flex align-items-center" 
-                   href="{{ path('frontend_homepage', {'_locale': app.request.locale}) }}"
-                   aria-label="{{ 'navigation.home'|trans }} - {{ 'site.name'|trans|default('Opencms') }}">
-                    <i class="bi bi-star-fill text-primary me-2" aria-hidden="true"></i>
-                    <span>Opencms</span>
-                </a>
-
-                {# Mobile Toggle Button #}
-                <button class="navbar-toggler" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#navbarMain"
-                        aria-controls="navbarMain"
-                        aria-expanded="false"
-                        aria-label="{{ 'accessibility.toggle_navigation'|trans|default('Basculer la navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                {# Main Navigation #}
-                <div class="collapse navbar-collapse" id="navbarMain">
-                    <ul class="navbar-nav me-auto" role="menubar">
-                        <li class="nav-item" role="none">
-                            <a class="nav-link{% if app.request.get('_route') == 'frontend_homepage' %} active{% endif %}" 
-                               href="{{ path('frontend_homepage', {'_locale': app.request.locale}) }}"
-                               role="menuitem"
-                               {% if app.request.get('_route') == 'frontend_homepage' %}aria-current="page"{% endif %}>
-                                <i class="bi bi-house me-1" aria-hidden="true"></i>
-                                <span>{{ 'navigation.home'|trans }}</span>
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ 'site.name'|trans }} - {{ 'homepage.title'|trans }}{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="{% block meta_description %}{{ 'site.meta_description'|trans }}{% endblock %}">
+    <meta name="keywords" content="{{ 'site.meta_keywords'|trans }}">
+    <meta name="author" content="EdgeLoan">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}{{ 'site.name'|trans }} - {{ 'homepage.title'|trans }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ 'site.og_description'|trans }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ app.request.uri }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    {% block stylesheets %}
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #ffffff;
+            margin: 0;
+        }
+        
+        /* Modern Navigation */
+        .navbar-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .navbar-modern.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+        }
+        
+        .navbar-brand-modern {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .navbar-brand-modern:hover {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        
+        .nav-link-modern {
+            font-weight: 500;
+            color: var(--secondary-color);
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .nav-link-modern:hover {
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        .nav-link-modern.active {
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Modern Buttons */
+        .btn-modern {
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 2rem;
+            border: none;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-lg);
+            color: white;
+        }
+        
+        .btn-outline-modern {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-outline-modern:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Modern Cards */
+        .card-modern {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            background: white;
+            overflow: hidden;
+        }
+        
+        .card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--box-shadow-lg);
+        }
+        
+        .card-modern .card-header {
+            background: linear-gradient(135deg, var(--light-color) 0%, #e2e8f0 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+        
+        /* Hero Section */
+        .hero-modern {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 50%, #1e40af 100%);
+            color: white;
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="1000" height="1000" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Modern Form Elements */
+        .form-control-modern {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            padding: 0.875rem 1rem;
+            font-weight: 400;
+            transition: var(--transition);
+        }
+        
+        .form-control-modern:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+        
+        /* Alerts */
+        .alert-modern {
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success-modern {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .alert-danger-modern {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .alert-info-modern {
+            background: rgba(6, 182, 212, 0.1);
+            color: #0c4a6e;
+            border-left: 4px solid var(--info-color);
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Language Selector */
+        .language-selector {
+            position: relative;
+        }
+        
+        .language-dropdown {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            min-width: 150px;
+        }
+        
+        .language-option {
+            padding: 0.5rem 1rem;
+            color: var(--dark-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .language-option:hover {
+            background: var(--light-color);
+            color: var(--primary-color);
+        }
+        
+        /* Footer */
+        .footer-modern {
+            background: var(--dark-color);
+            color: #e2e8f0;
+            padding: 3rem 0 2rem;
+            margin-top: auto;
+        }
+        
+        .footer-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-link:hover {
+            color: var(--primary-light);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-modern {
+                padding: 4rem 0;
+            }
+            
+            .navbar-nav {
+                background: white;
+                border-radius: var(--border-radius);
+                padding: 1rem;
+                margin-top: 1rem;
+                box-shadow: var(--box-shadow);
+            }
+        }
+        
+        /* Utility Classes */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-lift {
+            transition: var(--transition);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+    {% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-modern fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand-modern" href="{{ path('homepage') }}">
+                <i class="fas fa-coins me-2"></i>EdgeLoan
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link-modern {{ app.request.get('_route') == 'homepage' ? 'active' : '' }}" href="{{ path('homepage') }}">
+                            <i class="fas fa-home me-1"></i>{% trans %}Accueil{% endtrans %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-modern {{ app.request.get('_route') starts with 'frontend_service' ? 'active' : '' }}" href="{{ path('frontend_service_index') }}">
+                            <i class="fas fa-list me-1"></i>{% trans %}Services{% endtrans %}
+                        </a>
+                    </li>
+                    {% if is_granted('ROLE_USER') %}
+                        <li class="nav-item">
+                            <a class="nav-link-modern {{ app.request.get('_route') starts with 'loan' ? 'active' : '' }}" href="{{ path('loan_dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i>{% trans %}Mes Prêts{% endtrans %}
                             </a>
                         </li>
-                        <li class="nav-item" role="none">
-                            <a class="nav-link{% if app.request.get('_route') starts with 'frontend_services_' %} active{% endif %}" 
-                               href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}"
-                               role="menuitem"
-                               {% if app.request.get('_route') starts with 'frontend_services_' %}aria-current="page"{% endif %}>
-                                <i class="bi bi-grid-3x3-gap me-1" aria-hidden="true"></i>
-                                <span>{{ 'navigation.services'|trans }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="none">
-                            <a class="nav-link{% if app.request.get('_route') == 'frontend_contact' %} active{% endif %}" 
-                               href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}"
-                               role="menuitem"
-                               {% if app.request.get('_route') == 'frontend_contact' %}aria-current="page"{% endif %}>
-                                <i class="bi bi-envelope me-1" aria-hidden="true"></i>
-                                <span>{{ 'navigation.contact'|trans }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="none">
-                            <a class="nav-link{% if app.request.get('_route') == 'frontend_about' %} active{% endif %}" 
-                               href="{{ path('frontend_about', {'_locale': app.request.locale}) }}"
-                               role="menuitem"
-                               {% if app.request.get('_route') == 'frontend_about' %}aria-current="page"{% endif %}>
-                                <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                                <span>{{ 'navigation.about'|trans }}</span>
-                            </a>
-                        </li>
-                    </ul>
-
-                    {# Language Selector #}
-                    {% if languages is defined and languages|length > 1 %}
-                        <div class="dropdown language-selector">
-                            <button class="btn btn-outline-primary dropdown-toggle" 
-                                    type="button" 
-                                    id="languageDropdown" 
-                                    data-bs-toggle="dropdown" 
-                                    aria-expanded="false"
-                                    aria-haspopup="true"
-                                    aria-label="{{ 'language.change'|trans }} ({{ 'language.current'|trans }}: {{ app.request.locale|upper }})"
-                                    title="{{ 'language.change'|trans }}">
-                                <i class="bi bi-translate me-1" aria-hidden="true"></i>
-                                <span>{{ app.request.locale|upper }}</span>
-                                <span class="visually-hidden">{{ 'language.dropdown_label'|trans|default('Changer de langue') }}</span>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link-modern {{ app.request.get('_route') == 'about' ? 'active' : '' }}" href="{{ path('about') }}">
+                            <i class="fas fa-info-circle me-1"></i>{% trans %}À Propos{% endtrans %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-modern {{ app.request.get('_route') == 'contact' ? 'active' : '' }}" href="{{ path('contact') }}">
+                            <i class="fas fa-envelope me-1"></i>{% trans %}Contact{% endtrans %}
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        {{ include('components/language_selector.html.twig') }}
+                    </div>
+                    
+                    <!-- User Menu -->
+                    {% if is_granted('ROLE_USER') %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-modern dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ app.user.firstName ?? app.user.email }}
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end" 
-                                aria-labelledby="languageDropdown"
-                                role="menu">
-                                {% for language in languages %}
-                                    <li role="none">
-                                        <a class="dropdown-item{{ app.request.locale == language.code ? ' active' : '' }}" 
-                                           href="{{ path(app.request.get('_route'), app.request.get('_route_params')|merge({'_locale': language.code})) }}"
-                                           role="menuitem"
-                                           lang="{{ language.code }}"
-                                           hreflang="{{ language.code }}"
-                                           {% if app.request.locale == language.code %}aria-current="true"{% endif %}>
-                                            <span class="badge bg-primary me-2">{{ language.code|upper }}</span>
-                                            <span>{{ language.nativeName|e }}</span>
-                                            {% if language.isDefault() %}
-                                                <i class="bi bi-star-fill text-warning ms-1" 
-                                                   aria-label="{{ 'language.default'|trans }}" 
-                                                   title="{{ 'language.default'|trans }}"></i>
-                                            {% endif %}
-                                            {% if app.request.locale == language.code %}
-                                                <i class="bi bi-check ms-auto text-success" 
-                                                   aria-hidden="true"></i>
-                                            {% endif %}
-                                        </a>
-                                    </li>
-                                {% endfor %}
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ path('loan_dashboard') }}"><i class="fas fa-chart-line me-2"></i>{% trans %}Tableau de Bord{% endtrans %}</a></li>
+                                <li><a class="dropdown-item" href="{{ path('loan_profile') }}"><i class="fas fa-user-cog me-2"></i>{% trans %}Mon Profil{% endtrans %}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}"><i class="fas fa-cogs me-2"></i>{% trans %}Administration{% endtrans %}</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>{% trans %}Déconnexion{% endtrans %}</a></li>
                             </ul>
                         </div>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-modern">
+                            <i class="fas fa-sign-in-alt me-1"></i>{% trans %}Connexion{% endtrans %}
+                        </a>
+                        <a href="{{ path('app_register') }}" class="btn btn-primary-modern">
+                            <i class="fas fa-user-plus me-1"></i>{% trans %}S'inscrire{% endtrans %}
+                        </a>
                     {% endif %}
                 </div>
             </div>
-        </nav>
-    </header>
-{% endblock %}
+        </div>
+    </nav>
 
-{% block footer %}
-    {# Frontend Footer #}
-    <footer class="frontend-footer bg-dark text-light mt-auto" 
-            role="contentinfo"
-            aria-label="{{ 'accessibility.site_footer'|trans|default('Pied de page du site') }}">
-        <div class="container py-4">
+    <!-- Flash Messages -->
+    <div class="container mt-5 pt-4">
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ type == 'error' ? 'danger' : type }}-modern alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{{ type == 'success' ? 'check-circle' : type == 'error' or type == 'danger' ? 'exclamation-circle' : 'info-circle' }} me-2"></i>
+                    {{ message | trans }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-modern mt-5">
+        <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <h5 class="fw-bold mb-3">
-                        <i class="bi bi-star-fill text-primary me-2" aria-hidden="true"></i>
-                        <span>Opencms</span>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="text-white mb-3">
+                        <i class="fas fa-coins me-2"></i>EdgeLoan
                     </h5>
-                    <p class="text-muted">{{ 'footer.description'|trans|e }}</p>
+                    <p class="mb-3">{% trans %}Votre partenaire de confiance pour tous vos besoins de financement. Solution moderne, rapide et sécurisée.{% endtrans %}</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="footer-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold mb-3">{{ 'footer.quick_links'|trans }}</h6>
-                    <nav aria-label="{{ 'accessibility.footer_navigation'|trans|default('Navigation du pied de page') }}">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
-                                   class="text-muted text-decoration-none footer-link">
-                                    {{ 'navigation.services'|trans }}
-                                </a>
-                            </li>
-                            <li class="mb-2">
-                                <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
-                                   class="text-muted text-decoration-none footer-link">
-                                    {{ 'navigation.contact'|trans }}
-                                </a>
-                            </li>
-                            <li class="mb-2">
-                                <a href="{{ path('frontend_about', {'_locale': app.request.locale}) }}" 
-                                   class="text-muted text-decoration-none footer-link">
-                                    {{ 'navigation.about'|trans }}
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">{% trans %}Services{% endtrans %}</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ path('frontend_service_index') }}" class="footer-link">{% trans %}Prêt Personnel{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="{{ path('frontend_service_index') }}" class="footer-link">{% trans %}Prêt Entreprise{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="{{ path('frontend_service_index') }}" class="footer-link">{% trans %}Prêt Automobile{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="{{ path('frontend_service_index') }}" class="footer-link">{% trans %}Prêt Immobilier{% endtrans %}</a></li>
+                    </ul>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold mb-3">{{ 'footer.languages'|trans }}</h6>
-                    {% if languages is defined and languages|length > 0 %}
-                        <nav aria-label="{{ 'accessibility.language_links'|trans|default('Liens de langue') }}">
-                            <div class="d-flex flex-wrap gap-2">
-                                {% for language in languages %}
-                                    <a href="{{ path(app.request.get('_route'), app.request.get('_route_params')|merge({'_locale': language.code})) }}" 
-                                       class="badge {{ app.request.locale == language.code ? 'bg-primary' : 'bg-secondary' }} text-decoration-none footer-lang-link"
-                                       lang="{{ language.code }}"
-                                       hreflang="{{ language.code }}"
-                                       {% if app.request.locale == language.code %}aria-current="true"{% endif %}
-                                       aria-label="{{ 'language.switch_to'|trans({'%language%': language.nativeName}) }}">
-                                        {{ language.code|upper }}
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        </nav>
-                    {% endif %}
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">{% trans %}Société{% endtrans %}</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{{ path('about') }}" class="footer-link">{% trans %}À Propos{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="{{ path('contact') }}" class="footer-link">{% trans %}Contact{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Carrières{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Actualités{% endtrans %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">{% trans %}Support{% endtrans %}</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Centre d'Aide{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}FAQ{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="{{ path('contact') }}" class="footer-link">{% trans %}Support{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Status{% endtrans %}</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="text-white mb-3">{% trans %}Légal{% endtrans %}</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Confidentialité{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Conditions{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Mentions Légales{% endtrans %}</a></li>
+                        <li class="mb-2"><a href="#" class="footer-link">{% trans %}Cookies{% endtrans %}</a></li>
+                    </ul>
                 </div>
             </div>
-            
-            <hr class="my-4 border-light opacity-25">
-            
+            <hr class="my-4" style="border-color: rgba(255, 255, 255, 0.1);">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="text-muted small mb-0">
-                        <span>&copy; {{ 'now'|date('Y') }} Opencms.</span>
-                        <span>{{ 'footer.rights'|trans }}</span>
-                    </p>
+                    <p class="mb-0">&copy; {{ 'now'|date('Y') }} EdgeLoan. {% trans %}Tous droits réservés.{% endtrans %}</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <small class="text-muted">
-                        <span>{{ 'footer.powered_by'|trans }} </span>
-                        <a href="https://symfony.com" 
-                           target="_blank" 
-                           rel="noopener noreferrer"
-                           class="text-primary text-decoration-none"
-                           aria-label="{{ 'footer.symfony_link'|trans|default('Symfony - Ouvre dans un nouvel onglet') }}">
-                           Symfony
-                           <i class="bi bi-box-arrow-up-right ms-1" aria-hidden="true"></i>
-                        </a>
-                    </small>
+                    <p class="mb-0">{% trans %}Développé avec{% endtrans %} <i class="fas fa-heart text-danger"></i> {% trans %}par{% endtrans %} <strong>Prudence ASSOGBA</strong></p>
                 </div>
             </div>
         </div>
     </footer>
-{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    {# CSS optimisé pour la performance et l'accessibilité #}
-    <style>
-        /* ==========================================================================
-           Frontend Layout & Components - Optimized CSS
-           ========================================================================== */
-        
-        /* Body Layout */
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        /* Main content area */
-        main {
-            flex: 1;
-        }
-        
-        /* Header & Navigation */
-        .frontend-header {
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            transition: background-color 0.3s ease;
-        }
-        
-        .frontend-header .navbar-brand {
-            font-size: 1.5rem;
-            transition: transform 0.2s ease;
-        }
-        
-        .frontend-header .navbar-brand:hover {
-            transform: translateY(-2px);
-        }
-        
-        .frontend-header .nav-link {
-            position: relative;
-            transition: all 0.3s ease;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-        }
-        
-        .frontend-header .nav-link:hover {
-            background-color: rgba(13, 110, 253, 0.1);
-            transform: translateY(-1px);
-        }
-        
-        .frontend-header .nav-link.active {
-            color: var(--bs-primary) !important;
-            font-weight: 500;
-            background-color: rgba(13, 110, 253, 0.15);
-        }
-        
-        .frontend-header .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0.75rem;
-            right: 0.75rem;
-            height: 3px;
-            background: var(--bs-primary);
-            border-radius: 2px;
-        }
-        
-        /* Language Selector */
-        .language-selector .dropdown-toggle {
-            border-radius: 0.375rem;
-            transition: all 0.3s ease;
-        }
-        
-        .language-selector .dropdown-toggle:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .language-selector .dropdown-item {
-            transition: background-color 0.2s ease;
-        }
-        
-        .language-selector .dropdown-item.active {
-            background-color: rgba(13, 110, 253, 0.15);
-            color: var(--bs-primary);
-        }
-        
-        /* Footer */
-        .frontend-footer {
-            margin-top: auto;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        }
-        
-        .frontend-footer .footer-link:hover,
-        .frontend-footer .footer-lang-link:hover {
-            color: var(--bs-primary) !important;
-            transform: translateX(5px);
-            transition: all 0.3s ease;
-        }
-        
-        .footer-lang-link {
-            transition: all 0.3s ease;
-        }
-        
-        /* Focus States for Accessibility */
-        .nav-link:focus,
-        .navbar-brand:focus,
-        .btn:focus,
-        .dropdown-toggle:focus {
-            outline: 2px solid var(--bs-primary);
-            outline-offset: 2px;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-        }
-        
-        /* Skip Link */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--bs-primary);
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            border-radius: 0 0 4px 4px;
-            z-index: 9999;
-            font-weight: 500;
-        }
-        
-        .skip-link:focus {
-            top: 0;
-        }
-        
-        /* High Contrast Mode Support */
-        @media (prefers-contrast: high) {
-            .frontend-header {
-                background: #fff;
-                border-bottom: 2px solid #000;
-            }
-            
-            .nav-link:hover {
-                background-color: #000;
-                color: #fff !important;
-            }
-        }
-        
-        /* Reduced Motion Support */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            html {
-                scroll-behavior: auto;
-            }
-        }
-        
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bs-body-bg: #1a1a1a;
-                --bs-body-color: #e9ecef;
-            }
-            
-            .frontend-header {
-                background: rgba(26, 26, 26, 0.95);
-            }
-            
-            .navbar-light .nav-link {
-                color: #e9ecef;
-            }
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 991.98px) {
-            .frontend-header .navbar-brand {
-                font-size: 1.25rem;
-            }
-            
-            .navbar-collapse {
-                margin-top: 1rem;
-                padding-top: 1rem;
-                border-top: 1px solid rgba(0,0,0,.125);
-            }
-            
-            .language-selector {
-                margin-top: 1rem;
-            }
-        }
-        
-        @media (max-width: 767.98px) {
-            .frontend-header .navbar-brand {
-                font-size: 1.125rem;
-            }
-            
-            .frontend-footer .row > [class*="col-"] {
-                margin-bottom: 2rem;
-            }
-        }
-        
-        /* Print Styles */
-        @media print {
-            .frontend-header,
-            .frontend-footer,
-            #flash-messages,
-            #back-to-top {
-                display: none !important;
-            }
-            
-            body {
-                color: #000;
-                background: #fff;
-            }
-        }
-    </style>
-{% endblock %}
-
-{% block extra_javascripts %}
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block javascripts %}
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // ==========================================================================
-            // Enhanced Frontend JavaScript - Error Handling & Performance Optimized
-            // ==========================================================================
-            
-            try {
-                // Auto-hide alerts with improved UX
-                const alerts = document.querySelectorAll(".alert:not(.alert-permanent)");
-                alerts.forEach(function(alert, index) {
-                    // Stagger the timing for multiple alerts
-                    const delay = 5000 + (index * 500);
-                    
-                    setTimeout(function() {
-                        try {
-                            if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Alert) {
-                                const bsAlert = new window.bootstrap.Alert(alert);
-                                bsAlert.close();
-                            } else {
-                                // Graceful fallback with animation
-                                alert.style.transition = 'opacity 0.5s ease-out';
-                                alert.style.opacity = '0';
-                                setTimeout(() => alert.remove(), 500);
-                            }
-                        } catch (error) {
-                            console.warn('Alert auto-hide error:', error);
-                            // Ensure cleanup even on error
-                            if (alert && alert.parentNode) {
-                                alert.remove();
-                            }
-                        }
-                    }, delay);
-                });
-
-                // Enhanced Navbar scroll behavior
-                let lastScrollTop = 0;
-                const navbar = document.querySelector('.frontend-header');
-                let ticking = false;
-
-                function updateNavbar() {
-                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    
-                    if (scrollTop > lastScrollTop && scrollTop > 100) {
-                        // Scrolling down - hide navbar
-                        navbar.style.transform = 'translateY(-100%)';
-                    } else {
-                        // Scrolling up - show navbar
-                        navbar.style.transform = 'translateY(0)';
-                    }
-                    
-                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
-                    ticking = false;
-                }
-
-                window.addEventListener('scroll', function() {
-                    if (!ticking) {
-                        requestAnimationFrame(updateNavbar);
-                        ticking = true;
-                    }
-                }, { passive: true });
-
-                // Enhanced dropdown accessibility
-                const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-                dropdownToggles.forEach(function(toggle) {
-                    // Keyboard navigation
-                    toggle.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggle.click();
-                        }
-                    });
-
-                    // Close on Escape
-                    toggle.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape') {
-                            const dropdown = bootstrap.Dropdown.getInstance(toggle);
-                            if (dropdown) {
-                                dropdown.hide();
-                            }
-                        }
-                    });
-                });
-
-                // Mobile menu enhancements
-                const navbarToggle = document.querySelector('.navbar-toggler');
-                const navbarCollapse = document.querySelector('.navbar-collapse');
-
-                if (navbarToggle && navbarCollapse) {
-                    navbarToggle.addEventListener('click', function() {
-                        const isExpanded = navbarToggle.getAttribute('aria-expanded') === 'true';
-                        
-                        // Update ARIA attributes
-                        navbarToggle.setAttribute('aria-expanded', !isExpanded);
-                        
-                        // Trap focus in mobile menu when open
-                        if (!isExpanded) {
-                            setTimeout(() => {
-                                const firstLink = navbarCollapse.querySelector('a');
-                                if (firstLink) firstLink.focus();
-                            }, 150);
-                        }
-                    });
-
-                    // Close mobile menu when clicking outside
-                    document.addEventListener('click', function(e) {
-                        if (!navbar.contains(e.target) && navbarCollapse.classList.contains('show')) {
-                            navbarToggle.click();
-                        }
-                    });
-                }
-
-                // Smooth scroll for anchor links
-                const anchorLinks = document.querySelectorAll('a[href^="#"]:not([href="#"])');
-                anchorLinks.forEach(function(link) {
-                    link.addEventListener('click', function(e) {
-                        const targetId = this.getAttribute('href').slice(1);
-                        const targetElement = document.getElementById(targetId);
-                        
-                        if (targetElement) {
-                            e.preventDefault();
-                            
-                            // Account for sticky header
-                            const headerHeight = navbar ? navbar.offsetHeight : 0;
-                            const targetPosition = targetElement.offsetTop - headerHeight - 20;
-                            
-                            window.scrollTo({
-                                top: targetPosition,
-                                behavior: 'smooth'
-                            });
-                            
-                            // Update focus for accessibility
-                            setTimeout(() => {
-                                targetElement.setAttribute('tabindex', '-1');
-                                targetElement.focus({ preventScroll: true });
-                            }, 500);
-                        }
-                    });
-                });
-
-                // Enhanced error handling for external links
-                const externalLinks = document.querySelectorAll('a[target="_blank"]');
-                externalLinks.forEach(function(link) {
-                    if (!link.hasAttribute('rel')) {
-                        link.setAttribute('rel', 'noopener noreferrer');
-                    }
-                });
-
-                // Performance monitoring for development
-                if (window.location.hostname === 'localhost' || window.location.hostname.includes('dev')) {
-                    // Monitor render performance
-                    if ('performance' in window && 'getEntriesByType' in window.performance) {
-                        window.addEventListener('load', function() {
-                            setTimeout(function() {
-                                const paintEntries = performance.getEntriesByType('paint');
-                                paintEntries.forEach(function(entry) {
-                                    console.log(`${entry.name}: ${Math.round(entry.startTime)}ms`);
-                                });
-                            }, 100);
-                        });
-                    }
-                }
-
-            } catch (error) {
-                console.error('Frontend JavaScript initialization error:', error);
-                
-                // Ensure critical functionality still works
-                const basicAlerts = document.querySelectorAll(".alert:not(.alert-permanent)");
-                basicAlerts.forEach(function(alert) {
-                    setTimeout(() => {
-                        if (alert && alert.parentNode) {
-                            alert.remove();
-                        }
-                    }, 5000);
-                });
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNav');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
         });
 
-        // Global error handler for better debugging
-        window.addEventListener('error', function(e) {
-            console.error('JavaScript Error:', {
-                message: e.message,
-                filename: e.filename,
-                line: e.lineno,
-                column: e.colno,
-                error: e.error
-            });
-        });
+        // Loading button helper
+        function setButtonLoading(button, loading = true) {
+            if (loading) {
+                button.disabled = true;
+                button.innerHTML = button.innerHTML.replace(/<i[^>]*><\/i>/, '<span class="loading me-2"></span>');
+            } else {
+                button.disabled = false;
+                button.innerHTML = button.innerHTML.replace('<span class="loading me-2"></span>', '<i class="fas fa-check me-2"></i>');
+            }
+        }
 
-        // Unhandled promise rejection handler
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled Promise Rejection:', e.reason);
-        });
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-modern');
+            alerts.forEach(function(alert) {
+                if (alert.classList.contains('fade')) {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
+                }
+            });
+        }, 5000);
+
+        // Form validation helper
+        function validateForm(form) {
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            requiredFields.forEach(function(field) {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            return isValid;
+        }
     </script>
-{% endblock %}
+    {% endblock %}
+</body>
+</html>

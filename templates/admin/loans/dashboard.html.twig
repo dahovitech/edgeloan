@@ -1,0 +1,299 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{% trans %}Tableau de Bord Prêts{% endtrans %} - EdgeLoan Admin{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">{% trans %}Gestion des Prêts{% endtrans %}</h1>
+        <p class="text-muted">{% trans %}Vue d'ensemble de l'activité prêts{% endtrans %}</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-admin-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-download me-2"></i>{% trans %}Exporter{% endtrans %}
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ path('admin_loan_export', {'format': 'csv', 'type': 'applications'}) }}">
+                <i class="fas fa-file-csv me-2"></i>{% trans %}Demandes CSV{% endtrans %}
+            </a></li>
+            <li><a class="dropdown-item" href="{{ path('admin_loan_export', {'format': 'pdf', 'type': 'statistics'}) }}">
+                <i class="fas fa-file-pdf me-2"></i>{% trans %}Rapport PDF{% endtrans %}
+            </a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-xl-3 col-md-6">
+        <div class="stats-card primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stats-number text-primary">{{ statistics.applications.total }}</div>
+                    <div class="stats-label">{% trans %}Total Demandes{% endtrans %}</div>
+                    <div class="small text-muted mt-1">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        +{{ statistics.applications.pending }} {% trans %}en attente{% endtrans %}
+                    </div>
+                </div>
+                <i class="fas fa-file-alt stats-icon text-primary"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stats-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stats-number text-success">{{ statistics.contracts.active }}</div>
+                    <div class="stats-label">{% trans %}Prêts Actifs{% endtrans %}</div>
+                    <div class="small text-muted mt-1">
+                        <i class="fas fa-check text-success me-1"></i>
+                        {{ statistics.contracts.signed }} {% trans %}signés{% endtrans %}
+                    </div>
+                </div>
+                <i class="fas fa-handshake stats-icon text-success"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stats-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stats-number text-warning">{{ overdue_payments|length }}</div>
+                    <div class="stats-label">{% trans %}Paiements en Retard{% endtrans %}</div>
+                    <div class="small text-muted mt-1">
+                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                        {% trans %}À traiter{% endtrans %}
+                    </div>
+                </div>
+                <i class="fas fa-exclamation-circle stats-icon text-warning"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="stats-card danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stats-number text-info">{{ (statistics.applications.total_amount / 1000000)|number_format(1) }}M€</div>
+                    <div class="stats-label">{% trans %}Volume Total{% endtrans %}</div>
+                    <div class="small text-muted mt-1">
+                        <i class="fas fa-euro-sign text-info me-1"></i>
+                        {% trans %}Toutes demandes{% endtrans %}
+                    </div>
+                </div>
+                <i class="fas fa-chart-line stats-icon text-info"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Demandes Récentes -->
+    <div class="col-lg-8">
+        <div class="card-modern-admin">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>{% trans %}Demandes Récentes{% endtrans %}
+                </h5>
+                <a href="{{ path('admin_loan_applications') }}" class="btn btn-sm btn-admin-outline">
+                    {% trans %}Voir Toutes{% endtrans %} <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_applications|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans %}Client{% endtrans %}</th>
+                                    <th>{% trans %}Type{% endtrans %}</th>
+                                    <th>{% trans %}Montant{% endtrans %}</th>
+                                    <th>{% trans %}Statut{% endtrans %}</th>
+                                    <th>{% trans %}Actions{% endtrans %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in recent_applications %}
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <div class="fw-medium">{{ application.customer.firstName ?? 'N/A' }} {{ application.customer.lastName ?? 'N/A' }}</div>
+                                                <small class="text-muted">{{ application.customer.email }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% set typeLabels = {
+                                                'personal': 'Personnel',
+                                                'business': 'Entreprise',
+                                                'auto': 'Automobile',
+                                                'home': 'Immobilier',
+                                                'education': 'Éducation'
+                                            } %}
+                                            <span class="badge bg-secondary">{% trans %}{{ typeLabels[application.loanType] ?? application.loanType }}{% endtrans %}</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium">{{ application.requestedAmount|number_format(0, ',', ' ') }}€</span>
+                                        </td>
+                                        <td>
+                                            {% set statusClass = {
+                                                'pending': 'warning',
+                                                'approved': 'success',
+                                                'rejected': 'danger',
+                                                'active': 'info'
+                                            } %}
+                                            <span class="badge-admin badge-{{ statusClass[application.status] ?? 'secondary' }}">
+                                                {% set statusLabels = {
+                                                    'pending': 'En Attente',
+                                                    'approved': 'Approuvé',
+                                                    'rejected': 'Rejeté',
+                                                    'active': 'Actif'
+                                                } %}
+                                                {% trans %}{{ statusLabels[application.status] ?? application.status }}{% endtrans %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a href="{{ path('admin_loan_application_show', {'id': application.id}) }}" 
+                                                   class="btn btn-sm btn-outline-secondary" title="{% trans %}Voir{% endtrans %}">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if application.status == 'pending' %}
+                                                    <button class="btn btn-sm btn-outline-success" 
+                                                            onclick="approveApplication({{ application.id }})" 
+                                                            title="{% trans %}Approuver{% endtrans %}">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted opacity-50 mb-3"></i>
+                        <p class="text-muted">{% trans %}Aucune demande récente{% endtrans %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions Rapides -->
+    <div class="col-lg-4">
+        <div class="card-modern-admin">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>{% trans %}Actions Rapides{% endtrans %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ path('admin_loan_applications', {'status': 'pending'}) }}" class="btn btn-admin-outline text-start">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock text-warning fa-lg me-3"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Demandes en Attente{% endtrans %}</div>
+                                <small class="text-muted">{{ statistics.applications.pending }} {% trans %}à traiter{% endtrans %}</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ path('admin_loan_payments', {'status': 'overdue'}) }}" class="btn btn-admin-outline text-start">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle text-danger fa-lg me-3"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Paiements en Retard{% endtrans %}</div>
+                                <small class="text-muted">{{ overdue_payments|length }} {% trans %}impayés{% endtrans %}</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ path('admin_loan_contracts', {'status': 'sent'}) }}" class="btn btn-admin-outline text-start">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-signature text-info fa-lg me-3"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Contrats à Signer{% endtrans %}</div>
+                                <small class="text-muted">{{ statistics.contracts.pending_signature }} {% trans %}en attente{% endtrans %}</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ path('admin_loan_statistics') }}" class="btn btn-admin-outline text-start">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-chart-bar text-primary fa-lg me-3"></i>
+                            <div>
+                                <div class="fw-medium">{% trans %}Voir Statistiques{% endtrans %}</div>
+                                <small class="text-muted">{% trans %}Rapports détaillés{% endtrans %}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Paiements à Venir -->
+        <div class="card-modern-admin mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>{% trans %}Paiements à Venir{% endtrans %}
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if upcoming_payments|length > 0 %}
+                    {% for payment in upcoming_payments|slice(0, 5) %}
+                        <div class="d-flex justify-content-between align-items-center {% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                            <div>
+                                <div class="fw-medium small">{{ payment.loanApplication.customer.firstName ?? 'N/A' }} {{ payment.loanApplication.customer.lastName ?? 'N/A' }}</div>
+                                <div class="text-muted small">{{ payment.dueDate|date('d/m/Y') }}</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold small">{{ payment.amount|number_format(0, ',', ' ') }}€</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-calendar-check text-muted opacity-50"></i>
+                        <p class="text-muted small mb-0 mt-2">{% trans %}Aucun paiement prévu{% endtrans %}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+function approveApplication(applicationId) {
+    if (confirm('{% trans %}Êtes-vous sûr de vouloir approuver cette demande ?{% endtrans %}')) {
+        // Créer un formulaire temporaire pour la soumission POST
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/loans/applications/${applicationId}/approve`;
+        
+        // Token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token('approve_loan_' ~ application.id) }}';
+        form.appendChild(csrfToken);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Auto-refresh des statistiques toutes les 5 minutes
+setTimeout(() => {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

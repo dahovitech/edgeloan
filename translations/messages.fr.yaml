@@ -31,44 +31,295 @@ language:
 # Site général
 site:
   name: "EdgeLoan"
+  meta_description: "EdgeLoan - Solution moderne et sécurisée pour vos demandes de prêt en ligne"
+  meta_keywords: "prêt, crédit, financement, en ligne, rapide, sécurisé"
+  og_description: "Solution moderne et sécurisée pour vos demandes de prêt en ligne"
 
 # Commun (Common)
 common:
   loading: "Chargement..."
+  save: "Sauvegarder"
+  cancel: "Annuler"
+  edit: "Modifier"
+  delete: "Supprimer"
+  view: "Voir"
+  actions: "Actions"
+  confirm: "Confirmer"
+  back: "Retour"
+  next: "Suivant"
+  previous: "Précédent"
+  search: "Rechercher"
+  filter: "Filtrer"
+  export: "Exporter"
+  import: "Importer"
+  close: "Fermer"
+  yes: "Oui"
+  no: "Non"
+
+# Authentification (Authentication)
+auth:
+  email: "Email"
+  password: "Mot de passe"
+  logout: "Se déconnecter"
+  login:
+    title: "Connexion"
+    subtitle: "Accédez à votre espace personnel"
+    meta_description: "Connectez-vous à votre compte EdgeLoan pour gérer vos demandes de prêt"
+    sign_in: "Se connecter"
+    already_logged_in: "Vous êtes connecté en tant que %user%"
+    no_account: "Pas encore de compte ?"
+    create_account: "Créer un compte"
 
 # Page d'accueil (Homepage)
 homepage:
-  title: "Solution de prêts en ligne moderne"
-  meta_description: "EdgeLoan vous propose des solutions de prêts personnalisées, rapides et sécurisées. Obtenez votre crédit en ligne en quelques minutes."
+  title: "Votre Solution de Prêt Moderne"
+  meta_description: "EdgeLoan offre des solutions de prêt modernes, rapides et sécurisées. Demandez votre prêt en ligne facilement et obtenez une réponse rapide."
   hero:
-    title: "Votre solution de prêt personnalisée"
-    subtitle: "Obtenez rapidement les fonds dont vous avez besoin avec nos solutions de prêt flexibles et sécurisées."
-    actions: "Actions principales"
-    discover_services: "Découvrir nos services"
-    contact_us: "Nous contacter"
-    icon_description: "Icône représentant notre service"
-  features:
-    title: "Pourquoi choisir EdgeLoan ?"
-    subtitle: "Des solutions de prêt modernes adaptées à vos besoins"
-    fast:
-      title: "Rapide"
-      description: "Obtenez une réponse en quelques minutes et recevez vos fonds rapidement."
-    secure:
-      title: "Sécurisé"
-      description: "Vos données sont protégées par les plus hauts standards de sécurité."
-    support:
-      title: "Support 24/7"
-      description: "Notre équipe d'experts est disponible pour vous accompagner à tout moment."
+    title: "Votre Prêt,"
+    subtitle: "Notre Priorité"
+    description: "Obtenez un prêt adapté à vos besoins avec EdgeLoan. Solution rapide, sécurisée et transparente pour tous vos projets de financement."
+    cta_register: "Commencer Maintenant"
+    cta_login: "Se Connecter"
+    cta_new_loan: "Nouvelle Demande"
+    cta_dashboard: "Mes Prêts"
+    stats_clients: "Clients"
+    stats_loans: "Prêts Accordés"
+    stats_satisfaction: "Satisfaction"
+    badge_approved: "Approuvé Rapidement"
+    badge_secure: "100% Sécurisé"
   services:
-    title: "Nos solutions de prêt"
-    subtitle: "Choisissez la solution qui correspond le mieux à vos besoins"
-    loading_area: "Zone de chargement des services"
-    loading: "Chargement des services..."
-    view_all: "Voir tous nos services"
+    title: "Nos Services de Prêt"
+    subtitle: "Découvrez notre gamme complète de solutions de financement adaptées à tous vos besoins."
+    personal_loan: "Prêt Personnel"
+    personal_description: "Financez vos projets personnels avec des conditions avantageuses et flexibles."
+    personal_up_to: "Jusqu'à 75 000€"
+    personal_rates: "Taux attractifs"
+    personal_response: "Réponse rapide"
+    business_loan: "Prêt Entreprise"
+    business_description: "Développez votre activité avec des solutions de financement professionnel."
+    business_up_to: "Jusqu'à 500 000€"
+    business_support: "Accompagnement dédié"
+    business_flexible: "Flexible"
+    auto_loan: "Crédit Auto"
+    auto_description: "Achetez la voiture de vos rêves avec un financement sur mesure."
+    auto_new_used: "Neuf et occasion"
+    auto_rates: "Taux préférentiels"
+    auto_duration: "Jusqu'à 7 ans"
+    home_loan: "Prêt Immobilier"
+    home_description: "Concrétisez votre projet immobilier avec des conditions exceptionnelles."
+    home_all_projects: "Tous projets"
+    home_duration: "Jusqu'à 30 ans"
+    home_fees: "Frais négociés"
+  process:
+    title: "Comment Ça Marche"
+    subtitle: "Un processus simple et transparent pour obtenir votre prêt en quelques étapes seulement."
+    step1_title: "Demande en Ligne"
+    step1_description: "Remplissez notre formulaire sécurisé en quelques minutes avec vos informations personnelles et financières."
+    step2_title: "Analyse Rapide"
+    step2_description: "Notre équipe d'experts analyse votre dossier et vous propose les meilleures conditions adaptées à votre profil."
+    step3_title: "Déblocage"
+    step3_description: "Une fois votre dossier approuvé, les fonds sont débloqués rapidement sur votre compte bancaire."
+  features:
+    title: "Pourquoi Choisir EdgeLoan ?"
+    subtitle: "Nous nous engageons à vous offrir la meilleure expérience de prêt avec des avantages exclusifs."
+    fast:
+      title: "Réponse Ultra-Rapide"
+      description: "Obtenez une réponse de principe en moins de 24h"
+    secure:
+      title: "Sécurité Maximale"
+      description: "Vos données sont protégées par les dernières technologies"
+    support:
+      title: "Accompagnement Personnalisé"
+      description: "Une équipe dédiée vous conseille à chaque étape"
   cta:
-    title: "Prêt à commencer ?"
-    subtitle: "Contactez-nous dès maintenant pour une solution personnalisée"
-    button: "Demander un devis"
+    title: "Prêt à Commencer ?"
+    subtitle: "Rejoignez des milliers de clients satisfaits et obtenez le financement dont vous avez besoin aujourd'hui."
+    apply_loan: "Faire une Demande"
+    create_account: "Créer un Compte"
+    contact_us: "Nous Contacter"
+
+# Prêts (Loans)
+loans:
+  my_loans: "Mes Prêts"
+  dashboard_welcome: "Bienvenue"
+  manage_easily: "gérez vos prêts facilement"
+  new_application: "Nouvelle Demande"
+  total_applications: "Total Demandes"
+  active_loans: "Prêts Actifs"
+  pending: "En Attente"
+  total_amount: "Montant Total"
+  no_applications: "Aucune demande de prêt"
+  no_applications_desc: "Vous n'avez pas encore fait de demande de prêt. Commencez dès maintenant !"
+  first_application: "Ma Première Demande"
+  my_profile: "Mon Profil"
+  profile_description: "Gérez vos informations personnelles et vos préférences"
+  support: "Support Client"
+  support_description: "Besoin d'aide ? Notre équipe est là pour vous accompagner"
+  simulator: "Simulateur"
+  simulator_description: "Calculez vos mensualités et trouvez l'offre qui vous convient"
+  calculate: "Calculer"
+  coming_soon: "Simulateur à venir prochainement"
+  access: "Accéder"
+  contact_support: "Contacter"
+  
+  # Application details
+  application_details: "Détails de la Demande"
+  type: "Type"
+  amount: "Montant"
+  duration: "Durée"
+  status: "Statut"
+  date: "Date"
+  monthly_payment: "Mensualité"
+  view_details: "Voir Détails"
+  view_contract: "Voir Contrat"
+  months: "mois"
+  
+  # Statuses
+  status_pending: "En Attente"
+  status_approved: "Approuvé"
+  status_rejected: "Rejeté"
+  status_active: "Actif"
+  status_completed: "Terminé"
+  
+  # Types
+  type_personal: "Personnel"
+  type_business: "Entreprise"
+  type_auto: "Automobile"
+  type_home: "Immobilier"
+  type_education: "Éducation"
+
+# Demande de prêt (Loan Application)
+loan_application:
+  title: "Nouvelle Demande de Prêt"
+  subtitle: "Remplissez ce formulaire pour faire votre demande de prêt. Nous vous répondrons dans les plus brefs délais."
+  progress: "Progression"
+  
+  # Steps
+  step_loan_type: "Type de Prêt"
+  step_amount: "Montant Souhaité"
+  step_duration: "Durée de Remboursement"
+  step_purpose: "Objectif du Prêt"
+  
+  # Loan types
+  personal_loan_title: "Prêt Personnel"
+  personal_loan_desc: "Pour vos projets personnels"
+  business_loan_title: "Prêt Entreprise"
+  business_loan_desc: "Pour développer votre activité"
+  auto_loan_title: "Crédit Auto"
+  auto_loan_desc: "Financement véhicule"
+  home_loan_title: "Prêt Immobilier"
+  home_loan_desc: "Achat, construction, travaux"
+  education_loan_title: "Prêt Étudiant"
+  education_loan_desc: "Financement de vos études"
+  
+  # Amount
+  amount_label: "Montant (en euros)"
+  
+  # Duration
+  duration_label: "Durée (en mois)"
+  
+  # Purpose
+  purpose_label: "Décrivez votre projet"
+  purpose_optional: "(optionnel)"
+  purpose_placeholder: "Ex: Achat d'une voiture, travaux de rénovation, développement de mon entreprise..."
+  purpose_help: "Cette information nous aide à mieux adapter notre offre à vos besoins"
+  
+  # Submit
+  submit: "Soumettre ma Demande"
+  
+  # Calculator
+  estimation: "Estimation"
+  monthly_payment_estimate: "Mensualité estimée"
+  per_month: "par mois"
+  estimated_rate: "Taux estimé"
+  total_cost: "Coût total"
+  estimate_disclaimer: "Estimation indicative sous réserve d'étude"
+  response_time: "Réponse sous 24h"
+  secure: "100% sécurisé"
+  
+  # Help
+  need_help: "Besoin d'Aide ?"
+  help_description: "Notre équipe est disponible pour vous accompagner dans votre demande."
+  contact_us: "Nous Contacter"
+
+# Profil utilisateur (User Profile)
+profile:
+  title: "Mon Profil"
+  subtitle: "Gérez vos informations personnelles"
+  personal_info: "Informations Personnelles"
+  first_name: "Prénom"
+  last_name: "Nom"
+  email: "Email"
+  phone: "Téléphone"
+  address: "Adresse"
+  postal_code: "Code Postal"
+  city: "Ville"
+  country: "Pays"
+  email_readonly: "L'email ne peut pas être modifié"
+  
+  # Countries
+  france: "France"
+  belgium: "Belgique"
+  switzerland: "Suisse"
+  canada: "Canada"
+  
+  # Financial info
+  financial_info: "Informations Financières"
+  monthly_income: "Revenus Mensuels"
+  profession: "Profession"
+  employment_type: "Type d'Emploi"
+  years_employment: "Ancienneté"
+  select_option: "Sélectionnez..."
+  
+  # Employment types
+  employee: "Salarié"
+  freelance: "Indépendant"
+  business_owner: "Chef d'Entreprise"
+  retired: "Retraité"
+  student: "Étudiant"
+  other: "Autre"
+  
+  # Employment duration
+  less_1_year: "Moins d'1 an"
+  1_3_years: "1 à 3 ans"
+  3_5_years: "3 à 5 ans"
+  more_5_years: "Plus de 5 ans"
+  
+  # Security
+  security: "Sécurité"
+  password: "Mot de Passe"
+  last_modified: "Dernière modification"
+  two_factor: "Authentification à Deux Facteurs"
+  two_factor_desc: "Sécurisez davantage votre compte"
+  modify: "Modifier"
+  configure: "Configurer"
+  feature_coming: "Fonctionnalité à venir"
+  
+  # Account status
+  account_status: "Statut du Compte"
+  verified_account: "Compte Vérifié"
+  since: "Depuis"
+  profile_completed: "Profil complété à"
+  complete_profile: "Complétez votre profil pour de meilleures conditions de prêt"
+  
+  # Quick actions
+  quick_actions: "Actions Rapides"
+  new_application: "Nouvelle Demande"
+  my_loans: "Mes Prêts"
+  support: "Support"
+  
+  # Tips
+  tips: "Conseils"
+  secure_account: "Sécurisez votre compte"
+  secure_desc: "Utilisez un mot de passe fort et unique"
+  update_documents: "Tenez vos documents à jour"
+  documents_desc: "Préparez vos justificatifs pour vos demandes"
+  manage_budget: "Gérez votre budget"
+  budget_desc: "Évaluez votre capacité de remboursement"
+  
+  # Validation
+  first_name_min: "Le prénom doit contenir au moins 2 caractères"
+  last_name_min: "Le nom doit contenir au moins 2 caractères"
 
 # Page de contact (Contact page)
 contact:
@@ -104,12 +355,42 @@ contact:
 
 # Pied de page (Footer)
 footer:
-  description: "EdgeLoan, votre partenaire de confiance pour tous vos besoins de financement."
+  description: "Votre partenaire de confiance pour tous vos besoins de financement. Solution moderne, rapide et sécurisée."
   quick_links: "Liens rapides"
+  services_title: "Services"
+  company_title: "Société"
+  support_title: "Support"
+  legal_title: "Légal"
   languages: "Langues"
   rights: "Tous droits réservés."
+  developed_with: "Développé avec"
+  by: "par"
   powered_by: "Propulsé par"
   symfony_link: "Symfony - Ouvre dans un nouvel onglet"
+  
+  # Services links
+  personal_loan: "Prêt Personnel"
+  business_loan: "Prêt Entreprise"
+  auto_loan: "Prêt Automobile"
+  home_loan: "Prêt Immobilier"
+  
+  # Company links
+  about: "À Propos"
+  contact: "Contact"
+  careers: "Carrières"
+  news: "Actualités"
+  
+  # Support links
+  help_center: "Centre d'Aide"
+  faq: "FAQ"
+  support: "Support"
+  status: "Status"
+  
+  # Legal links
+  privacy: "Confidentialité"
+  terms: "Conditions"
+  legal_notices: "Mentions Légales"
+  cookies: "Cookies"
 
 # Services (continuité de l'ancien contenu)
 services:
@@ -135,44 +416,48 @@ service:
 
 # About page translations
 about:
-  title: "À propos d'Opencms"
+  title: "À propos d'EdgeLoan"
   subtitle: "Découvrez notre histoire, notre mission et notre équipe passionnée"
-  meta_description: "Découvrez l'équipe Opencms, notre mission et nos valeurs. Experts en solutions digitales depuis 2020."
+  meta_description: "Découvrez l'équipe EdgeLoan, notre mission et nos valeurs. Experts en solutions de financement depuis 2020."
   mission:
     title: "Notre Mission"
-    description: "Chez Opencms, nous nous efforçons de créer des solutions digitales innovantes qui transforment les entreprises et améliorent la vie des utilisateurs."
-    details: "Depuis notre création, nous avons aidé plus de 100 entreprises à digitaliser leurs processus et à atteindre leurs objectifs commerciaux grâce à nos solutions sur mesure."
+    description: "Chez EdgeLoan, nous nous efforçons de créer des solutions de financement innovantes qui transforment la façon dont les gens accèdent au crédit."
+    details: "Depuis notre création, nous avons aidé plus de 10 000 clients à réaliser leurs projets grâce à nos solutions de prêt personnalisées et notre approche technologique moderne."
   values:
     title: "Nos Valeurs"
     subtitle: "Les principes qui guident notre travail au quotidien"
     innovation:
       title: "Innovation"
-      description: "Nous restons à la pointe de la technologie pour offrir les meilleures solutions."
-    passion:
-      title: "Passion"
-      description: "Nous aimons ce que nous faisons et cela se ressent dans chaque projet."
+      description: "Nous utilisons les dernières technologies pour simplifier l'accès au crédit."
+    trust:
+      title: "Confiance"
+      description: "La transparence et la sécurité sont au cœur de nos relations clients."
     excellence:
       title: "Excellence"
-      description: "Nous visons l'excellence dans chaque détail de nos réalisations."
+      description: "Nous visons l'excellence dans chaque interaction avec nos clients."
   team:
     title: "Notre Équipe"
-    subtitle: "Les talents qui donnent vie à vos projets"
-    ceo:
-      name: "Marie Dupont"
-      title: "Directrice Générale"
-    cto:
-      name: "Pierre Martin"
-      title: "Directeur Technique"
-    designer:
-      name: "Sophie Leroy"
-      title: "Directrice Créative"
-    developer:
-      name: "Antoine Moreau"
-      title: "Développeur Senior"
+    subtitle: "Les experts qui vous accompagnent dans vos projets de financement"
   history:
     title: "Notre Histoire"
-    description: "Fondée en 2020, Opencms est née de la volonté de créer des solutions digitales qui font vraiment la différence."
-    details: "Aujourd'hui, nous sommes fiers d'avoir accompagné des centaines d'entreprises dans leur transformation digitale, de la startup à la grande entreprise."
+    description: "Fondée en 2020, EdgeLoan est née de la volonté de démocratiser l'accès au crédit grâce à la technologie."
+    details: "Aujourd'hui, nous sommes fiers d'être devenus un acteur de référence du financement en ligne, avec des milliers de clients satisfaits."
   contact_us: "Contactez-nous"
 
+# Navigation utilisateur (User Navigation)
+user_nav:
+  dashboard: "Tableau de Bord"
+  profile: "Mon Profil"
+  logout: "Déconnexion"
+  login: "Connexion"
+  register: "S'inscrire"
+  administration: "Administration"
 
+# Messages de validation (Validation messages)
+validation:
+  required: "Ce champ est requis"
+  email_invalid: "Format d'email invalide"
+  min_length: "Minimum %min% caractères"
+  max_length: "Maximum %max% caractères"
+  min_value: "Valeur minimale : %min%"
+  max_value: "Valeur maximale : %max%"

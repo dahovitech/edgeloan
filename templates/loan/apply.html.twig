@@ -1,0 +1,419 @@
+{% extends 'frontend/base.html.twig' %}
+
+{% block title %}{% trans %}Nouvelle Demande de Prêt{% endtrans %} - EdgeLoan{% endblock %}
+
+{% block meta_description %}{% trans %}Faites votre demande de prêt en ligne facilement et rapidement. Formulaire sécurisé et réponse rapide garantie.{% endtrans %}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .loan-calculator {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        border-radius: var(--border-radius);
+        color: white;
+    }
+    
+    .form-section {
+        border-left: 4px solid var(--primary-color);
+        background: var(--light-color);
+        border-radius: var(--border-radius);
+    }
+    
+    .progress-bar-custom {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        transition: width 0.5s ease;
+    }
+    
+    .input-group-modern .input-group-text {
+        background: var(--light-color);
+        border-color: rgba(0, 0, 0, 0.1);
+        border-width: 2px;
+    }
+    
+    .range-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 8px;
+        border-radius: 5px;
+        background: #e2e8f0;
+        outline: none;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .range-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .calculator-result {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--border-radius);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5 pt-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-5 fw-bold mb-3">{% trans %}Nouvelle Demande de Prêt{% endtrans %}</h1>
+            <p class="lead text-muted">{% trans %}Remplissez ce formulaire pour faire votre demande de prêt. Nous vous répondrons dans les plus brefs délais.{% endtrans %}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulaire -->
+        <div class="col-lg-8">
+            <form method="post" id="loanApplicationForm">
+                {{ csrf_token('loan_application') }}
+                
+                <!-- Progress Bar -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <small class="text-muted">{% trans %}Progression{% endtrans %}</small>
+                        <small class="text-muted"><span id="progressPercent">25</span>%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar progress-bar-custom" id="progressBar" role="progressbar" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <!-- Étape 1: Type de prêt -->
+                <div class="form-section p-4 mb-4" id="step1">
+                    <h4 class="fw-bold mb-4">
+                        <i class="fas fa-list-alt text-primary me-2"></i>{% trans %}Type de Prêt{% endtrans %}
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="loan_type" id="personal" value="personal" checked>
+                            <label class="btn btn-outline-primary w-100 p-3" for="personal">
+                                <i class="fas fa-user fa-2x d-block mb-2"></i>
+                                <strong>{% trans %}Prêt Personnel{% endtrans %}</strong>
+                                <div class="small text-muted">{% trans %}Pour vos projets personnels{% endtrans %}</div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="loan_type" id="business" value="business">
+                            <label class="btn btn-outline-primary w-100 p-3" for="business">
+                                <i class="fas fa-building fa-2x d-block mb-2"></i>
+                                <strong>{% trans %}Prêt Entreprise{% endtrans %}</strong>
+                                <div class="small text-muted">{% trans %}Pour développer votre activité{% endtrans %}</div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="loan_type" id="auto" value="auto">
+                            <label class="btn btn-outline-primary w-100 p-3" for="auto">
+                                <i class="fas fa-car fa-2x d-block mb-2"></i>
+                                <strong>{% trans %}Crédit Auto{% endtrans %}</strong>
+                                <div class="small text-muted">{% trans %}Financement véhicule{% endtrans %}</div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="radio" class="btn-check" name="loan_type" id="home" value="home">
+                            <label class="btn btn-outline-primary w-100 p-3" for="home">
+                                <i class="fas fa-home fa-2x d-block mb-2"></i>
+                                <strong>{% trans %}Prêt Immobilier{% endtrans %}</strong>
+                                <div class="small text-muted">{% trans %}Achat, construction, travaux{% endtrans %}</div>
+                            </label>
+                        </div>
+                        <div class="col-md-12">
+                            <input type="radio" class="btn-check" name="loan_type" id="education" value="education">
+                            <label class="btn btn-outline-primary w-100 p-3" for="education">
+                                <i class="fas fa-graduation-cap fa-2x d-block mb-2"></i>
+                                <strong>{% trans %}Prêt Étudiant{% endtrans %}</strong>
+                                <div class="small text-muted">{% trans %}Financement de vos études{% endtrans %}</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 2: Montant -->
+                <div class="form-section p-4 mb-4" id="step2">
+                    <h4 class="fw-bold mb-4">
+                        <i class="fas fa-euro-sign text-primary me-2"></i>{% trans %}Montant Souhaité{% endtrans %}
+                    </h4>
+                    <div class="mb-4">
+                        <label for="requested_amount" class="form-label fw-medium">{% trans %}Montant (en euros){% endtrans %}</label>
+                        <div class="input-group input-group-modern">
+                            <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
+                            <input type="number" class="form-control form-control-modern" id="requested_amount" name="requested_amount" 
+                                   min="1000" max="500000" step="1000" value="10000" required>
+                        </div>
+                        <div class="mt-3">
+                            <input type="range" class="form-range range-slider w-100" id="amountSlider" 
+                                   min="1000" max="500000" step="1000" value="10000">
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-2">
+                            <span>1 000€</span>
+                            <span>500 000€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 3: Durée -->
+                <div class="form-section p-4 mb-4" id="step3">
+                    <h4 class="fw-bold mb-4">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>{% trans %}Durée de Remboursement{% endtrans %}
+                    </h4>
+                    <div class="mb-4">
+                        <label for="requested_duration" class="form-label fw-medium">{% trans %}Durée (en mois){% endtrans %}</label>
+                        <div class="input-group input-group-modern">
+                            <input type="number" class="form-control form-control-modern" id="requested_duration" name="requested_duration" 
+                                   min="6" max="360" value="24" required>
+                            <span class="input-group-text">{% trans %}mois{% endtrans %}</span>
+                        </div>
+                        <div class="mt-3">
+                            <input type="range" class="form-range range-slider w-100" id="durationSlider" 
+                                   min="6" max="360" step="6" value="24">
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mt-2">
+                            <span>6 {% trans %}mois{% endtrans %}</span>
+                            <span>30 {% trans %}ans{% endtrans %}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 4: Objectif -->
+                <div class="form-section p-4 mb-4" id="step4">
+                    <h4 class="fw-bold mb-4">
+                        <i class="fas fa-target text-primary me-2"></i>{% trans %}Objectif du Prêt{% endtrans %}
+                    </h4>
+                    <div class="mb-4">
+                        <label for="purpose" class="form-label fw-medium">
+                            {% trans %}Décrivez votre projet{% endtrans %} <span class="text-muted">({% trans %}optionnel{% endtrans %})</span>
+                        </label>
+                        <textarea class="form-control form-control-modern" id="purpose" name="purpose" rows="4" 
+                                  placeholder="{% trans %}Ex: Achat d'une voiture, travaux de rénovation, développement de mon entreprise...{% endtrans %}"></textarea>
+                        <div class="form-text">{% trans %}Cette information nous aide à mieux adapter notre offre à vos besoins{% endtrans %}</div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-primary-modern btn-lg" id="submitBtn">
+                        <i class="fas fa-paper-plane me-2"></i>{% trans %}Soumettre ma Demande{% endtrans %}
+                    </button>
+                    <a href="{{ path('loan_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>{% trans %}Retour{% endtrans %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Calculateur en temps réel -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 120px;">
+                <div class="loan-calculator p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-calculator me-2"></i>{% trans %}Estimation{% endtrans %}
+                    </h5>
+                    
+                    <div class="calculator-result p-3 mb-3">
+                        <div class="text-center">
+                            <h6 class="mb-2">{% trans %}Mensualité estimée{% endtrans %}</h6>
+                            <div class="fs-2 fw-bold" id="monthlyPayment">-</div>
+                            <small class="opacity-75">{% trans %}par mois{% endtrans %}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="calculator-result p-3 mb-3">
+                        <div class="row text-center g-0">
+                            <div class="col-6">
+                                <h6 class="mb-1 fs-6">{% trans %}Taux estimé{% endtrans %}</h6>
+                                <div class="fw-bold" id="estimatedRate">8.5%</div>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-1 fs-6">{% trans %}Coût total{% endtrans %}</h6>
+                                <div class="fw-bold" id="totalCost">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="border-white border-opacity-25">
+                    
+                    <div class="small">
+                        <p class="mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% trans %}Estimation indicative sous réserve d'étude{% endtrans %}
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-clock me-2"></i>
+                            {% trans %}Réponse sous 24h{% endtrans %}
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            {% trans %}100% sécurisé{% endtrans %}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Aide -->
+                <div class="card-modern mt-4 p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle text-info me-2"></i>{% trans %}Besoin d'Aide ?{% endtrans %}
+                    </h6>
+                    <p class="small text-muted mb-3">{% trans %}Notre équipe est disponible pour vous accompagner dans votre demande.{% endtrans %}</p>
+                    <a href="{{ path('contact') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-headset me-1"></i>{% trans %}Nous Contacter{% endtrans %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Éléments
+    const amountInput = document.getElementById('requested_amount');
+    const amountSlider = document.getElementById('amountSlider');
+    const durationInput = document.getElementById('requested_duration');
+    const durationSlider = document.getElementById('durationSlider');
+    const monthlyPaymentEl = document.getElementById('monthlyPayment');
+    const totalCostEl = document.getElementById('totalCost');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const form = document.getElementById('loanApplicationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Synchronisation des sliders et inputs
+    amountSlider.addEventListener('input', function() {
+        amountInput.value = this.value;
+        updateCalculation();
+    });
+    
+    amountInput.addEventListener('input', function() {
+        amountSlider.value = this.value;
+        updateCalculation();
+    });
+    
+    durationSlider.addEventListener('input', function() {
+        durationInput.value = this.value;
+        updateCalculation();
+    });
+    
+    durationInput.addEventListener('input', function() {
+        durationSlider.value = this.value;
+        updateCalculation();
+    });
+    
+    // Calcul des mensualités
+    function updateCalculation() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const duration = parseInt(durationInput.value) || 1;
+        const annualRate = 8.5; // Taux indicatif
+        const monthlyRate = annualRate / 100 / 12;
+        
+        if (amount > 0 && duration > 0) {
+            const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, duration)) / 
+                                 (Math.pow(1 + monthlyRate, duration) - 1);
+            const totalCost = monthlyPayment * duration;
+            
+            monthlyPaymentEl.textContent = monthlyPayment.toLocaleString('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                maximumFractionDigits: 0
+            });
+            
+            totalCostEl.textContent = totalCost.toLocaleString('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                maximumFractionDigits: 0
+            });
+        }
+        
+        updateProgress();
+    }
+    
+    // Mise à jour de la barre de progression
+    function updateProgress() {
+        let progress = 25; // Base pour le type de prêt
+        
+        if (amountInput.value && parseFloat(amountInput.value) >= 1000) {
+            progress += 25;
+        }
+        
+        if (durationInput.value && parseInt(durationInput.value) >= 6) {
+            progress += 25;
+        }
+        
+        const purpose = document.getElementById('purpose').value;
+        if (purpose && purpose.length > 10) {
+            progress += 25;
+        }
+        
+        progressBar.style.width = progress + '%';
+        progressPercent.textContent = progress;
+    }
+    
+    // Validation du formulaire
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            return false;
+        }
+        
+        setButtonLoading(submitBtn, true);
+    });
+    
+    function validateForm() {
+        let isValid = true;
+        
+        const amount = parseFloat(amountInput.value);
+        if (!amount || amount < 1000 || amount > 500000) {
+            showError(amountInput, 'Le montant doit être entre 1 000€ et 500 000€');
+            isValid = false;
+        }
+        
+        const duration = parseInt(durationInput.value);
+        if (!duration || duration < 6 || duration > 360) {
+            showError(durationInput, 'La durée doit être entre 6 et 360 mois');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+    
+    function showError(element, message) {
+        element.classList.add('is-invalid');
+        let feedback = element.parentNode.querySelector('.invalid-feedback');
+        if (!feedback) {
+            feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            element.parentNode.appendChild(feedback);
+        }
+        feedback.textContent = message;
+    }
+    
+    // Initialisation
+    updateCalculation();
+    
+    // Écoute des changements pour la progression
+    document.getElementById('purpose').addEventListener('input', updateProgress);
+    document.querySelectorAll('input[name="loan_type"]').forEach(input => {
+        input.addEventListener('change', updateProgress);
+    });
+});
+</script>
+{% endblock %}

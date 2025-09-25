@@ -1,28 +1,62 @@
-{% extends 'base.html.twig' %}
+{% extends 'frontend/base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}{{ 'auth.login.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'auth.login.meta_description'|trans }}{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h1 class="h3 fw-bold">{{ 'auth.login.title'|trans }}</h1>
+                        <p class="text-muted">{{ 'auth.login.subtitle'|trans }}</p>
+                    </div>
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                    <form method="post">
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endif %}
+
+                        {% if app.user %}
+                            <div class="alert alert-info mb-3">
+                                {{ 'auth.login.already_logged_in'|trans({'%user%': app.user.userIdentifier}) }} 
+                                <a href="{{ path('app_logout') }}" class="alert-link">{{ 'auth.logout'|trans }}</a>
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">{{ 'auth.email'|trans }}</label>
+                            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" 
+                                   class="form-control" autocomplete="email" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">{{ 'auth.password'|trans }}</label>
+                            <input type="password" name="password" id="inputPassword" 
+                                   class="form-control" autocomplete="current-password" required>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="d-grid mb-3">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="fas fa-sign-in-alt me-2"></i>{{ 'auth.login.sign_in'|trans }}
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="text-muted small">
+                                {{ 'auth.login.no_account'|trans }} 
+                                <a href="{{ path('app_register') }}" class="text-primary">{{ 'auth.login.create_account'|trans }}</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    {% endif %}
-
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+    </div>
+</div>
 {% endblock %}

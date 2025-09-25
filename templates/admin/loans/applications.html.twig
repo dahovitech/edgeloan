@@ -1,0 +1,352 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{% trans %}Demandes de Prêt{% endtrans %} - EdgeLoan Admin{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">{% trans %}Demandes de Prêt{% endtrans %}</h1>
+        <p class="text-muted">{% trans %}Gérez toutes les demandes de prêt{% endtrans %}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-admin-outline" onclick="exportApplications()">
+            <i class="fas fa-download me-2"></i>{% trans %}Exporter{% endtrans %}
+        </button>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card-modern-admin mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="status" class="form-select form-control-admin">
+                    <option value="">{% trans %}Tous les statuts{% endtrans %}</option>
+                    <option value="pending" {{ current_status == 'pending' ? 'selected' : '' }}>{% trans %}En Attente{% endtrans %}</option>
+                    <option value="approved" {{ current_status == 'approved' ? 'selected' : '' }}>{% trans %}Approuvé{% endtrans %}</option>
+                    <option value="rejected" {{ current_status == 'rejected' ? 'selected' : '' }}>{% trans %}Rejeté{% endtrans %}</option>
+                    <option value="active" {{ current_status == 'active' ? 'selected' : '' }}>{% trans %}Actif{% endtrans %}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control form-control-admin" 
+                       placeholder="{% trans %}Rechercher par nom de client...{% endtrans %}" 
+                       value="{{ search_term }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-admin-primary w-100">
+                    <i class="fas fa-search me-2"></i>{% trans %}Filtrer{% endtrans %}
+                </button>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ path('admin_loan_applications') }}" class="btn btn-admin-outline w-100">
+                    <i class="fas fa-times me-2"></i>{% trans %}Réinitialiser{% endtrans %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Statistiques rapides -->
+{% if current_status == 'pending' %}
+<div class="alert alert-info-admin mb-4">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>{{ applications|length }}</strong> {% trans %}demande(s) en attente de traitement{% endtrans %}
+</div>
+{% endif %}
+
+<!-- Liste des demandes -->
+<div class="card-modern-admin">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-file-alt me-2"></i>{% trans %}Liste des Demandes{% endtrans %}
+            <span class="badge bg-primary ms-2">{{ total_count }}</span>
+        </h5>
+        <div class="small text-muted">
+            {% trans %}Page{% endtrans %} {{ current_page }} {% trans %}sur{% endtrans %} {{ total_pages }}
+        </div>
+    </div>
+    
+    {% if applications|length > 0 %}
+        <div class="table-responsive">
+            <table class="table table-modern mb-0">
+                <thead>
+                    <tr>
+                        <th>{% trans %}Client{% endtrans %}</th>
+                        <th>{% trans %}Type{% endtrans %}</th>
+                        <th>{% trans %}Montant{% endtrans %}</th>
+                        <th>{% trans %}Durée{% endtrans %}</th>
+                        <th>{% trans %}Statut{% endtrans %}</th>
+                        <th>{% trans %}Date{% endtrans %}</th>
+                        <th>{% trans %}Mensualité{% endtrans %}</th>
+                        <th>{% trans %}Actions{% endtrans %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium">{{ application.customer.firstName ?? 'N/A' }} {{ application.customer.lastName ?? 'N/A' }}</div>
+                                        <small class="text-muted">{{ application.customer.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% set typeIcons = {
+                                    'personal': 'fa-user',
+                                    'business': 'fa-building', 
+                                    'auto': 'fa-car',
+                                    'home': 'fa-home',
+                                    'education': 'fa-graduation-cap'
+                                } %}
+                                {% set typeLabels = {
+                                    'personal': 'Personnel',
+                                    'business': 'Entreprise',
+                                    'auto': 'Automobile', 
+                                    'home': 'Immobilier',
+                                    'education': 'Éducation'
+                                } %}
+                                <div class="d-flex align-items-center">
+                                    <i class="fas {{ typeIcons[application.loanType] ?? 'fa-file-alt' }} text-muted me-2"></i>
+                                    <span>{% trans %}{{ typeLabels[application.loanType] ?? application.loanType }}{% endtrans %}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold">{{ application.requestedAmount|number_format(0, ',', ' ') }}€</span>
+                            </td>
+                            <td>{{ application.requestedDuration }} {% trans %}mois{% endtrans %}</td>
+                            <td>
+                                {% set statusClass = {
+                                    'pending': 'warning',
+                                    'approved': 'success', 
+                                    'rejected': 'danger',
+                                    'active': 'info',
+                                    'completed': 'secondary'
+                                } %}
+                                {% set statusLabels = {
+                                    'pending': 'En Attente',
+                                    'approved': 'Approuvé',
+                                    'rejected': 'Rejeté',
+                                    'active': 'Actif',
+                                    'completed': 'Terminé'
+                                } %}
+                                <span class="badge-admin badge-{{ statusClass[application.status] ?? 'secondary' }}">
+                                    {% trans %}{{ statusLabels[application.status] ?? application.status }}{% endtrans %}
+                                </span>
+                            </td>
+                            <td>
+                                <div>{{ application.createdAt|date('d/m/Y') }}</div>
+                                <small class="text-muted">{{ application.createdAt|date('H:i') }}</small>
+                            </td>
+                            <td>
+                                {% if application.monthlyPayment %}
+                                    <span class="fw-medium">{{ application.monthlyPayment|number_format(2, ',', ' ') }}€</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ path('admin_loan_application_show', {'id': application.id}) }}">
+                                                <i class="fas fa-eye me-2"></i>{% trans %}Voir Détails{% endtrans %}
+                                            </a>
+                                        </li>
+                                        {% if application.status == 'pending' %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <button class="dropdown-item text-success" onclick="approveApplication({{ application.id }})">
+                                                    <i class="fas fa-check me-2"></i>{% trans %}Approuver{% endtrans %}
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item text-danger" onclick="rejectApplication({{ application.id }})">
+                                                    <i class="fas fa-times me-2"></i>{% trans %}Rejeter{% endtrans %}
+                                                </button>
+                                            </li>
+                                        {% endif %}
+                                        {% if application.contract %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ path('admin_loan_contract_show', {'id': application.contract.id}) }}">
+                                                    <i class="fas fa-file-contract me-2"></i>{% trans %}Voir Contrat{% endtrans %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+            <div class="card-body">
+                <nav aria-label="{% trans %}Navigation des pages{% endtrans %}">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if current_page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ path('admin_loan_applications', {'status': current_status, 'search': search_term, 'page': current_page - 1}) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page in range(max(1, current_page - 2), min(total_pages, current_page + 2)) %}
+                            <li class="page-item {{ page == current_page ? 'active' : '' }}">
+                                <a class="page-link" href="{{ path('admin_loan_applications', {'status': current_status, 'search': search_term, 'page': page}) }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        
+                        {% if current_page < total_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ path('admin_loan_applications', {'status': current_status, 'search': search_term, 'page': current_page + 1}) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="card-body text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted opacity-50 mb-4"></i>
+            <h4 class="fw-bold mb-3">{% trans %}Aucune demande trouvée{% endtrans %}</h4>
+            <p class="text-muted">
+                {% if search_term or current_status %}
+                    {% trans %}Aucune demande ne correspond à vos critères de recherche.{% endtrans %}
+                {% else %}
+                    {% trans %}Aucune demande de prêt n'a été soumise pour le moment.{% endtrans %}
+                {% endif %}
+            </p>
+            {% if search_term or current_status %}
+                <a href="{{ path('admin_loan_applications') }}" class="btn btn-admin-outline">
+                    <i class="fas fa-times me-2"></i>{% trans %}Effacer les Filtres{% endtrans %}
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modales -->
+<!-- Modal d'approbation -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle text-success me-2"></i>{% trans %}Approuver la Demande{% endtrans %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="approveForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="approveNotes" class="form-label">{% trans %}Notes d'approbation{% endtrans %} <span class="text-muted">({% trans %}optionnel{% endtrans %})</span></label>
+                        <textarea class="form-control form-control-admin" id="approveNotes" name="notes" rows="3" 
+                                  placeholder="{% trans %}Conditions particulières, commentaires...{% endtrans %}"></textarea>
+                    </div>
+                    <div class="alert alert-info-admin">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% trans %}L'approbation génèrera automatiquement le contrat et enverra un email au client.{% endtrans %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans %}Annuler{% endtrans %}</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>{% trans %}Approuver{% endtrans %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de rejet -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-times-circle text-danger me-2"></i>{% trans %}Rejeter la Demande{% endtrans %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="rejectForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="rejectReason" class="form-label">{% trans %}Raison du rejet{% endtrans %} <span class="text-danger">*</span></label>
+                        <textarea class="form-control form-control-admin" id="rejectReason" name="reason" rows="4" 
+                                  placeholder="{% trans %}Expliquez la raison du rejet (minimum 10 caractères)...{% endtrans %}" required></textarea>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% trans %}Le client recevra un email avec la raison du rejet. Cette action est irréversible.{% endtrans %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans %}Annuler{% endtrans %}</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-2"></i>{% trans %}Rejeter{% endtrans %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+let currentApplicationId = null;
+
+function approveApplication(applicationId) {
+    currentApplicationId = applicationId;
+    document.getElementById('approveForm').action = `/admin/loans/applications/${applicationId}/approve`;
+    document.getElementById('approveForm').innerHTML += `<input type="hidden" name="_token" value="{{ csrf_token('approve_loan_') }}" />`;
+    new bootstrap.Modal(document.getElementById('approveModal')).show();
+}
+
+function rejectApplication(applicationId) {
+    currentApplicationId = applicationId;
+    document.getElementById('rejectForm').action = `/admin/loans/applications/${applicationId}/reject`;
+    document.getElementById('rejectForm').innerHTML += `<input type="hidden" name="_token" value="{{ csrf_token('reject_loan_') }}" />`;
+    new bootstrap.Modal(document.getElementById('rejectModal')).show();
+}
+
+function exportApplications() {
+    const status = new URLSearchParams(window.location.search).get('status') || 'all';
+    const search = new URLSearchParams(window.location.search).get('search') || '';
+    
+    const url = `{{ path('admin_loan_export') }}?format=csv&type=applications&status=${status}&search=${encodeURIComponent(search)}`;
+    window.open(url, '_blank');
+}
+
+// Validation du formulaire de rejet
+document.getElementById('rejectForm').addEventListener('submit', function(e) {
+    const reason = document.getElementById('rejectReason').value.trim();
+    if (reason.length < 10) {
+        e.preventDefault();
+        alert('{% trans %}La raison doit contenir au moins 10 caractères.{% endtrans %}');
+        return false;
+    }
+});
+</script>
+{% endblock %}

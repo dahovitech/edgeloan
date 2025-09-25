@@ -30,44 +30,112 @@ language:
 # Site general
 site:
   name: "EdgeLoan"
+  meta_description: "EdgeLoan - Modern and secure solution for your online loan applications"
+  meta_keywords: "loan, credit, financing, online, fast, secure"
+  og_description: "Modern and secure solution for your online loan applications"
 
 # Common
 common:
   loading: "Loading..."
+  save: "Save"
+  cancel: "Cancel"
+  edit: "Edit"
+  delete: "Delete"
+  view: "View"
+  actions: "Actions"
+  confirm: "Confirm"
+  back: "Back"
+  next: "Next"
+  previous: "Previous"
+  search: "Search"
+  filter: "Filter"
+  export: "Export"
+  import: "Import"
+  close: "Close"
+  yes: "Yes"
+  no: "No"
+
+# Authentication
+auth:
+  email: "Email"
+  password: "Password"
+  logout: "Logout"
+  login:
+    title: "Login"
+    subtitle: "Access your personal space"
+    meta_description: "Log in to your EdgeLoan account to manage your loan applications"
+    sign_in: "Sign In"
+    already_logged_in: "You are logged in as %user%"
+    no_account: "Don't have an account yet?"
+    create_account: "Create an account"
 
 # Homepage
 homepage:
-  title: "Modern Online Loan Solution"
-  meta_description: "EdgeLoan offers personalized, fast and secure loan solutions. Get your credit online in minutes."
+  title: "Modern Loan Solution"
+  meta_description: "EdgeLoan offers modern, fast and secure loan solutions. Apply for your loan online easily and get a quick response."
   hero:
-    title: "Your personalized loan solution"
-    subtitle: "Quickly get the funds you need with our flexible and secure loan solutions."
-    actions: "Main actions"
-    discover_services: "Discover our services"
-    contact_us: "Contact us"
-    icon_description: "Icon representing our service"
-  features:
-    title: "Why choose EdgeLoan?"
-    subtitle: "Modern loan solutions adapted to your needs"
-    fast:
-      title: "Fast"
-      description: "Get an answer in minutes and receive your funds quickly."
-    secure:
-      title: "Secure"
-      description: "Your data is protected by the highest security standards."
-    support:
-      title: "24/7 Support"
-      description: "Our team of experts is available to assist you at any time."
+    title: "Your Loan,"
+    subtitle: "Our Priority"
+    description: "Get a loan tailored to your needs with EdgeLoan. Fast, secure and transparent solution for all your financing projects."
+    cta_register: "Get Started Now"
+    cta_login: "Sign In"
+    cta_new_loan: "New Application"
+    cta_dashboard: "My Loans"
+    stats_clients: "Clients"
+    stats_loans: "Loans Granted"
+    stats_satisfaction: "Satisfaction"
+    badge_approved: "Quickly Approved"
+    badge_secure: "100% Secure"
   services:
-    title: "Our loan solutions"
-    subtitle: "Choose the solution that best fits your needs"
-    loading_area: "Services loading area"
-    loading: "Loading services..."
-    view_all: "View all our services"
+    title: "Our Loan Services"
+    subtitle: "Discover our complete range of financing solutions adapted to all your needs."
+    personal_loan: "Personal Loan"
+    personal_description: "Finance your personal projects with advantageous and flexible conditions."
+    personal_up_to: "Up to €75,000"
+    personal_rates: "Attractive rates"
+    personal_response: "Quick response"
+    business_loan: "Business Loan"
+    business_description: "Develop your business with professional financing solutions."
+    business_up_to: "Up to €500,000"
+    business_support: "Dedicated support"
+    business_flexible: "Flexible"
+    auto_loan: "Auto Credit"
+    auto_description: "Buy the car of your dreams with tailor-made financing."
+    auto_new_used: "New and used"
+    auto_rates: "Preferential rates"
+    auto_duration: "Up to 7 years"
+    home_loan: "Home Loan"
+    home_description: "Make your real estate project a reality with exceptional conditions."
+    home_all_projects: "All projects"
+    home_duration: "Up to 30 years"
+    home_fees: "Negotiated fees"
+  process:
+    title: "How It Works"
+    subtitle: "A simple and transparent process to get your loan in just a few steps."
+    step1_title: "Online Application"
+    step1_description: "Fill out our secure form in just a few minutes with your personal and financial information."
+    step2_title: "Quick Analysis"
+    step2_description: "Our team of experts analyzes your file and offers you the best conditions adapted to your profile."
+    step3_title: "Disbursement"
+    step3_description: "Once your file is approved, funds are quickly disbursed to your bank account."
+  features:
+    title: "Why Choose EdgeLoan?"
+    subtitle: "We are committed to providing you with the best loan experience with exclusive benefits."
+    fast:
+      title: "Ultra-Fast Response"
+      description: "Get a response in principle in less than 24 hours"
+    secure:
+      title: "Maximum Security"
+      description: "Your data is protected by the latest technologies"
+    support:
+      title: "Personalized Support"
+      description: "A dedicated team advises you at every step"
   cta:
-    title: "Ready to start?"
-    subtitle: "Contact us now for a personalized solution"
-    button: "Request a quote"
+    title: "Ready to Start?"
+    subtitle: "Join thousands of satisfied customers and get the financing you need today."
+    apply_loan: "Apply for a Loan"
+    create_account: "Create Account"
+    contact_us: "Contact Us"
 
 # Contact page
 contact:
