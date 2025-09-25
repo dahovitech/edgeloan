@@ -10,14 +10,9 @@ navigation:
   settings: "Settings"
   logout: "Logout"
 
-# Language management for administration
-language:
-  change_interface: "Change interface language"
+# Language management for administration (merged with language section below)
 
-# Common actions
-common:
-  actions:
-    view_site: "View site"
+# Common actions (merged with common section below)
 
 # Dashboard
 dashboard:
@@ -109,27 +104,51 @@ language:
 forms:
   language:
     code:
-      label: Language code
-      help: "ISO language code (eg: fr, en, es, de)"
-      placeholder: en
+      label: Language Code
+      help: "2-letter ISO code (e.g: fr, en, es)"
+      placeholder: Choose language code
     name:
-      label: Language name
-      help: Language name in English
-      placeholder: English
+      label: Language Name
+      help: "Full name of the language in the target language"
+      placeholder: Choose language
     native_name:
-      label: Native name
-      help: Language name in its native language
-      placeholder: English
+      label: Native Name
+      help: "Name of the language in its own writing (e.g: Français, English)"
+      placeholder: "E.g: English"
     is_active:
-      label: Active language
-      help: Uncheck to disable this language
+      label: Active Language
+      help: "Uncheck to disable this language on the site"
     is_default:
-      label: Default language
-      help: Check to set this language as default
+      label: Default Language
+      help: "Check to make this language the default site language"
     sort_order:
-      label: Display order
+      label: Display Order
       help: "Display order of languages (smaller = displayed first)"
-
+  user:
+    email:
+      label: Email Address
+      placeholder: "E.g: user@example.com"
+    first_name:
+      label: First Name
+      placeholder: "User's first name"
+    last_name:
+      label: Last Name
+      placeholder: "User's last name"
+    roles:
+      label: User Roles
+      choices:
+        user: User
+        admin: Administrator
+        super_admin: Super Administrator
+    is_active:
+      label: Active Account
+      help: "Uncheck to disable the user account"
+    password:
+      label: Password
+      confirm_label: Confirm Password
+      mismatch: "Passwords must match."
+      required: "Please enter a password"
+      min_length: "Your password must contain at least {{ limit }} characters"
 common:
   actions:
     title: Actions

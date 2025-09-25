@@ -10,14 +10,9 @@ navigation:
   settings: "Paramètres"
   logout: "Déconnexion"
 
-# Gestion des langues pour l'administration
-language:
-  change_interface: "Changer la langue de l'interface"
+# Gestion des langues pour l'administration (fusionné avec section language plus bas)
 
-# Actions communes
-common:
-  actions:
-    view_site: "Voir le site"
+# Actions communes (fusionné avec section common plus bas)
 
 # Tableau de bord
 dashboard:
@@ -171,26 +166,50 @@ forms:
   language:
     code:
       label: Code de la langue
-      help: "Code ISO de la langue (ex: fr, en, es, de)"
-      placeholder: fr
+      help: "Code ISO à 2 lettres (ex: fr, en, es)"
+      placeholder: Choisir le code de langue
     name:
       label: Nom de la langue
-      help: Nom de la langue en français
-      placeholder: Français
+      help: "Nom complet de la langue dans la langue cible"
+      placeholder: Choisir la langue
     native_name:
       label: Nom natif
-      help: Nom de la langue dans sa langue native
-      placeholder: Français
+      help: "Nom de la langue dans sa propre écriture (ex: Français, English)"
+      placeholder: "Ex: Français"
     is_active:
       label: Langue active
-      help: Décochez pour désactiver cette langue
+      help: "Décochez pour désactiver cette langue sur le site"
     is_default:
       label: Langue par défaut
-      help: Cochez pour définir cette langue comme langue par défaut
+      help: "Cochez pour faire de cette langue la langue par défaut du site"
     sort_order:
       label: Ordre d'affichage
       help: "Ordre d'affichage des langues (plus petit = affiché en premier)"
-
+  user:
+    email:
+      label: Adresse email
+      placeholder: "Ex: utilisateur@example.com"
+    first_name:
+      label: Prénom
+      placeholder: "Prénom de l'utilisateur"
+    last_name:
+      label: Nom de famille
+      placeholder: "Nom de famille de l'utilisateur"
+    roles:
+      label: Rôles utilisateur
+      choices:
+        user: Utilisateur
+        admin: Administrateur
+        super_admin: Super Administrateur
+    is_active:
+      label: Compte actif
+      help: "Décochez pour désactiver le compte utilisateur"
+    password:
+      label: Mot de passe
+      confirm_label: Confirmer le mot de passe
+      mismatch: "Les mots de passe doivent correspondre."
+      required: "Veuillez entrer un mot de passe"
+      min_length: "Votre mot de passe doit contenir au moins {{ limit }} caractères"
 common:
   actions:
     title: Actions

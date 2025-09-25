@@ -21,32 +21,36 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'forms.user.email.label',
+                'translation_domain' => 'admin',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'ex: utilisateur@example.com'
+                    'placeholder' => 'forms.user.email.placeholder'
                 ]
             ])
             ->add('firstName', TextType::class, [
-                'label' => 'Prénom',
+                'label' => 'forms.user.first_name.label',
+                'translation_domain' => 'admin',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Prénom de l\'utilisateur'
+                    'placeholder' => 'forms.user.first_name.placeholder'
                 ]
             ])
             ->add('lastName', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'forms.user.last_name.label',
+                'translation_domain' => 'admin',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Nom de famille de l\'utilisateur'
+                    'placeholder' => 'forms.user.last_name.placeholder'
                 ]
             ])
             ->add('roles', ChoiceType::class, [
-                'label' => 'Rôles',
+                'label' => 'forms.user.roles.label',
+                'translation_domain' => 'admin',
                 'choices' => [
-                    'Utilisateur' => 'ROLE_USER',
-                    'Administrateur' => 'ROLE_ADMIN',
-                    'Super Administrateur' => 'ROLE_SUPER_ADMIN',
+                    'forms.user.roles.choices.user' => 'ROLE_USER',
+                    'forms.user.roles.choices.admin' => 'ROLE_ADMIN',
+                    'forms.user.roles.choices.super_admin' => 'ROLE_SUPER_ADMIN',
                 ],
                 'multiple' => true,
                 'expanded' => true,
@@ -56,12 +60,13 @@ class UserType extends AbstractType
                 ]
             ])
             ->add('isActive', CheckboxType::class, [
-                'label' => 'Actif',
+                'label' => 'forms.user.is_active.label',
+                'translation_domain' => 'admin',
                 'required' => false,
                 'attr' => [
                     'class' => 'form-check-input'
                 ],
-                'help' => 'Décochez pour désactiver le compte utilisateur'
+                'help' => 'forms.user.is_active.help'
             ]);
 
         // Add password fields only for new users or when explicitly requested
@@ -70,28 +75,29 @@ class UserType extends AbstractType
                 'type' => PasswordType::class,
                 'mapped' => false,
                 'required' => $options['password_required'],
+                'translation_domain' => 'admin',
                 'first_options' => [
-                    'label' => 'Mot de passe',
+                    'label' => 'forms.user.password.label',
                     'attr' => [
                         'class' => 'form-control',
                         'autocomplete' => 'new-password'
                     ]
                 ],
                 'second_options' => [
-                    'label' => 'Confirmer le mot de passe',
+                    'label' => 'forms.user.password.confirm_label',
                     'attr' => [
                         'class' => 'form-control',
                         'autocomplete' => 'new-password'
                     ]
                 ],
-                'invalid_message' => 'Les mots de passe doivent correspondre.',
+                'invalid_message' => 'forms.user.password.mismatch',
                 'constraints' => $options['password_required'] ? [
                     new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
+                        'message' => 'forms.user.password.required',
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
+                        'minMessage' => 'forms.user.password.min_length',
                         'max' => 4096,
                     ]),
                 ] : [],

@@ -10,14 +10,9 @@ navigation:
   settings: "Configuración"
   logout: "Cerrar Sesión"
 
-# Gestión de idiomas para administración
-language:
-  change_interface: "Cambiar idioma de la interfaz"
+# Gestión de idiomas para administración (fusionado con sección idioma más abajo)
 
-# Acciones comunes
-common:
-  actions:
-    view_site: "Ver sitio"
+# Acciones comunes (fusionado con sección común más abajo)
 
 # Panel de control
 dashboard:
@@ -109,26 +104,51 @@ language:
 forms:
   language:
     code:
-      label: Código del idioma
-      help: "Código ISO del idioma (ej: fr, en, es, de)"
-      placeholder: es
+      label: Código de Idioma
+      help: "Código ISO de 2 letras (ej: fr, en, es)"
+      placeholder: Elegir código de idioma
     name:
-      label: Nombre del idioma
-      help: Nombre del idioma en español
-      placeholder: Español
+      label: Nombre del Idioma
+      help: "Nombre completo del idioma en el idioma de destino"
+      placeholder: Elegir idioma
     native_name:
-      label: Nombre nativo
-      help: Nombre del idioma en su idioma nativo
-      placeholder: Español
+      label: Nombre Nativo
+      help: "Nombre del idioma en su propia escritura (ej: Français, English)"
+      placeholder: "Ej: Español"
     is_active:
-      label: Idioma activo
-      help: Desmarque para desactivar este idioma
+      label: Idioma Activo
+      help: "Desmarque para desactivar este idioma en el sitio"
     is_default:
-      label: Idioma por defecto
-      help: Marque para establecer este idioma como predeterminado
+      label: Idioma Predeterminado
+      help: "Marque para hacer de este idioma el idioma predeterminado del sitio"
     sort_order:
-      label: Orden de visualización
+      label: Orden de Visualización
       help: "Orden de visualización de idiomas (menor = mostrado primero)"
+  user:
+    email:
+      label: Dirección de Email
+      placeholder: "Ej: usuario@ejemplo.com"
+    first_name:
+      label: Nombre
+      placeholder: "Nombre del usuario"
+    last_name:
+      label: Apellido
+      placeholder: "Apellido del usuario"
+    roles:
+      label: Roles del Usuario
+      choices:
+        user: Usuario
+        admin: Administrador
+        super_admin: Super Administrador
+    is_active:
+      label: Cuenta Activa
+      help: "Desmarque para desactivar la cuenta de usuario"
+    password:
+      label: Contraseña
+      confirm_label: Confirmar Contraseña
+      mismatch: "Las contraseñas deben coincidir."
+      required: "Por favor ingrese una contraseña"
+      min_length: "Su contraseña debe contener al menos {{ limit }} caracteres"
   service:
     slug:
       label: Slug

@@ -10,14 +10,9 @@ navigation:
   settings: "Einstellungen"
   logout: "Abmelden"
 
-# Sprachverwaltung für Administration
-language:
-  change_interface: "Interface-Sprache ändern"
+# Sprachverwaltung für Administration (mit Sprachbereich unten zusammengeführt)
 
-# Gemeinsame Aktionen
-common:
-  actions:
-    view_site: "Website anzeigen"
+# Gemeinsame Aktionen (mit gemeinsamer Sektion unten zusammengeführt)
 
 # Dashboard
 dashboard:
@@ -104,25 +99,50 @@ forms:
   language:
     code:
       label: Sprachcode
-      help: 'ISO-Sprachcode (z.B.: fr, en, es, de)'
-      placeholder: de
+      help: "2-Buchstaben-ISO-Code (z.B: fr, en, es)"
+      placeholder: Sprachcode wählen
     name:
       label: Sprachname
-      help: 'Sprachname auf Deutsch'
-      placeholder: Deutsch
+      help: "Vollständiger Name der Sprache in der Zielsprache"
+      placeholder: Sprache wählen
     native_name:
-      label: 'Nativer Name'
-      help: 'Sprachname in der Muttersprache'
-      placeholder: Deutsch
+      label: Eigenname
+      help: "Name der Sprache in ihrer eigenen Schrift (z.B: Français, English)"
+      placeholder: "Z.B: Deutsch"
     is_active:
-      label: 'Aktive Sprache'
-      help: 'Deaktivieren Sie diese Sprache'
+      label: Aktive Sprache
+      help: "Deaktivieren Sie diese Sprache auf der Website"
     is_default:
       label: Standardsprache
-      help: 'Aktivieren Sie diese Sprache als Standard'
+      help: "Aktivieren Sie diese Sprache als Standardsprache der Website"
     sort_order:
       label: Anzeigereihenfolge
-      help: 'Anzeigereihenfolge der Sprachen (kleiner = zuerst angezeigt)'
+      help: "Anzeigereihenfolge der Sprachen (kleiner = zuerst angezeigt)"
+  user:
+    email:
+      label: E-Mail-Adresse
+      placeholder: "Z.B: benutzer@beispiel.com"
+    first_name:
+      label: Vorname
+      placeholder: "Vorname des Benutzers"
+    last_name:
+      label: Nachname
+      placeholder: "Nachname des Benutzers"
+    roles:
+      label: Benutzerrollen
+      choices:
+        user: Benutzer
+        admin: Administrator
+        super_admin: Super-Administrator
+    is_active:
+      label: Aktives Konto
+      help: "Deaktivieren Sie das Benutzerkonto"
+    password:
+      label: Passwort
+      confirm_label: Passwort Bestätigen
+      mismatch: "Passwörter müssen übereinstimmen."
+      required: "Bitte geben Sie ein Passwort ein"
+      min_length: "Ihr Passwort muss mindestens {{ limit }} Zeichen enthalten"
   service:
     slug:
       label: Slug
