@@ -1,0 +1,118 @@
+{#
+    Loading Button Component
+    
+    Usage:
+    {% include 'components/loading_button.html.twig' with {
+        'id': 'submit-btn',
+        'type': 'submit|button',
+        'variant': 'primary|secondary|success|danger|warning|info|light|dark',
+        'size': 'sm|lg',
+        'text': 'Button text',
+        'loading_text': 'Loading...',
+        'icon': 'bi-send',
+        'loading_icon': 'spinner-border',
+        'disabled': false,
+        'classes': 'additional-classes'
+    } %}
+#}
+
+{%- set button_id = id|default('btn-' ~ random()) -%}
+{%- set button_type = type|default('button') -%}
+{%- set variant = variant|default('primary') -%}
+{%- set size = size ?? '' -%}
+{%- set text = text|default('Submit'|trans) -%}
+{%- set loading_text = loading_text|default('Loading...'|trans) -%}
+{%- set icon = icon ?? '' -%}
+{%- set loading_icon = loading_icon|default('spinner-border spinner-border-sm') -%}
+{%- set disabled = disabled ?? false -%}
+{%- set extra_classes = classes ?? '' -%}
+
+<button type="{{ button_type }}"
+        id="{{ button_id }}"
+        class="btn btn-{{ variant }}{% if size %} btn-{{ size }}{% endif %} loading-btn {{ extra_classes }}"
+        {% if disabled %}disabled{% endif %}
+        data-loading-text="{{ loading_text }}"
+        data-original-text="{{ text }}"
+        {% if icon %}data-icon="{{ icon }}"{% endif %}
+        data-loading-icon="{{ loading_icon }}">
+    
+    <span class="btn-content">
+        {% if icon %}
+            <i class="bi {{ icon }} me-2 btn-icon" aria-hidden="true"></i>
+        {% endif %}
+        <span class="btn-text">{{ text }}</span>
+    </span>
+    
+    <span class="btn-loading d-none">
+        <span class="{{ loading_icon }} me-2" role="status" aria-hidden="true"></span>
+        <span class="loading-text">{{ loading_text }}</span>
+    </span>
+</button>
+
+<script>
+// Loading button functionality
+(function() {
+    const button = document.getElementById('{{ button_id }}');
+    if (!button) return;
+    
+    // Set loading state
+    button.setLoading = function(loading = true) {
+        const content = this.querySelector('.btn-content');
+        const loadingEl = this.querySelector('.btn-loading');
+        
+        if (loading) {
+            this.disabled = true;
+            content.classList.add('d-none');
+            loadingEl.classList.remove('d-none');
+            this.setAttribute('aria-busy', 'true');
+        } else {
+            this.disabled = false;
+            content.classList.remove('d-none');
+            loadingEl.classList.add('d-none');
+            this.removeAttribute('aria-busy');
+        }
+        
+        return this;
+    };
+    
+    // Auto-reset after form submission (if applicable)
+    {% if button_type == 'submit' %}
+    const form = button.closest('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Only set loading if form is valid
+            if (form.checkValidity()) {
+                button.setLoading(true);
+            }
+        });
+        
+        // Reset on form reset
+        form.addEventListener('reset', function() {
+            button.setLoading(false);
+        });
+    }
+    {% endif %}
+})();
+</script>
+
+<style>
+.loading-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.loading-btn:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.loading-btn .btn-content,
+.loading-btn .btn-loading {
+    transition: opacity 0.2s ease;
+}
+
+.loading-btn[aria-busy="true"] {
+    pointer-events: none;
+}
+</style>

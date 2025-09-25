@@ -1,38 +1,87 @@
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}">
+<html lang="{{ app.request.locale|e('html_attr') }}">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Opencms{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🌟</text></svg>">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="format-detection" content="telephone=no">
+        
+        {# Security headers #}
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
         
         {% block meta %}
             {% if block('meta_description') is defined %}
                 <meta name="description" content="{% block meta_description %}{% endblock %}">
             {% endif %}
             <meta name="author" content="Opencms">
-            <meta property="og:title" content="{% block og_title %}{{ block('title') }}{% endblock %}">
+            <meta name="generator" content="Opencms CMS">
+            
+            {# Open Graph / Social Media #}
             <meta property="og:type" content="website">
+            <meta property="og:site_name" content="Opencms">
+            <meta property="og:title" content="{% block og_title %}{{ block('title')|e }}{% endblock %}">
             {% if block('meta_description') is defined %}
-                <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
+                <meta property="og:description" content="{% block og_description %}{{ block('meta_description')|e }}{% endblock %}">
+            {% endif %}
+            <meta property="og:url" content="{{ app.request.uri|e }}">
+            <meta property="og:locale" content="{{ app.request.locale|e }}">
+            
+            {# Twitter Card #}
+            <meta name="twitter:card" content="summary">
+            <meta name="twitter:title" content="{% block twitter_title %}{{ block('title')|e }}{% endblock %}">
+            {% if block('meta_description') is defined %}
+                <meta name="twitter:description" content="{% block twitter_description %}{{ block('meta_description')|e }}{% endblock %}">
             {% endif %}
         {% endblock %}
         
+        {# Preload critical resources #}
+        {% block preload %}
+            <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+        {% endblock %}
+
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
+            {# Critical CSS inline for above-the-fold content #}
+            <style>
+                /* Critical CSS */
+                html { 
+                    scroll-behavior: smooth; 
+                }
+                body { 
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    line-height: 1.6;
+                    color: #212529;
+                    background-color: #fff;
+                }
+                * { 
+                    box-sizing: border-box; 
+                }
+                .visually-hidden {
+                    position: absolute !important;
+                    clip: rect(1px, 1px, 1px, 1px) !important;
+                    padding: 0 !important;
+                    border: 0 !important;
+                    height: 1px !important;
+                    width: 1px !important;
+                    overflow: hidden !important;
+                }
+            </style>
         {% endblock %}
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
+        {% block head_extra %}{% endblock %}
     </head>
 
-    <body>
+    <body{% block body_attributes %} id="top"{% endblock %}>
+        {# Skip to main content for accessibility #}
+        <a class="visually-hidden skip-link" href="#main-content">{{ 'accessibility.skip_to_content'|trans|default('Aller au contenu principal') }}</a>
+        
         {% block body_wrapper %}
             {% block header %}{% endblock %}
             
             {% block main %}
-                <main>
+                <main id="main-content" role="main" tabindex="-1">
                     {% block body %}{% endblock %}
                 </main>
             {% endblock %}
@@ -40,18 +89,76 @@
             {% block footer %}{% endblock %}
         {% endblock %}
 
-        {# Flash messages #}
-        {% for type, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show position-fixed" 
-                     style="top: 20px; right: 20px; z-index: 1040; max-width: 400px;" role="alert">
-                    <i class="bi bi-{% if type == 'success' %}check-circle{% elseif type == 'error' or type == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+        {# Flash messages with improved accessibility #}
+        <div id="flash-messages" role="region" aria-live="polite" aria-label="{{ 'accessibility.notifications'|trans|default('Notifications') }}">
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type|e('html_attr') }} alert-dismissible fade show position-fixed" 
+                         style="top: 20px; right: 20px; z-index: 1040; max-width: 400px;" 
+                         role="alert" 
+                         aria-live="assertive"
+                         data-bs-auto-hide="true"
+                         data-bs-delay="5000">
+                        <i class="bi bi-{% if type == 'success' %}check-circle{% elseif type == 'error' or type == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2" aria-hidden="true"></i>
+                        {{ message|e }}
+                        <button type="button" 
+                                class="btn-close" 
+                                data-bs-dismiss="alert" 
+                                aria-label="{{ 'accessibility.close_alert'|trans|default('Fermer la notification') }}">
+                        </button>
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+        </div>
+
+        {# JavaScript - loaded asynchronously #}
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
 
         {% block extra_javascripts %}{% endblock %}
+
+        {# Performance monitoring #}
+        <script>
+            // Performance monitoring
+            if ('performance' in window && 'measure' in window.performance) {
+                window.addEventListener('load', function() {
+                    setTimeout(function() {
+                        const navigationTiming = window.performance.getEntriesByType('navigation')[0];
+                        if (navigationTiming && navigationTiming.loadEventEnd) {
+                            console.log('Page Load Time:', Math.round(navigationTiming.loadEventEnd) + 'ms');
+                        }
+                    }, 100);
+                });
+            }
+        </script>
+
+        {# Back to top button #}
+        <button id="back-to-top" 
+                class="btn btn-primary position-fixed" 
+                style="bottom: 20px; right: 20px; z-index: 1020; display: none; border-radius: 50%; width: 50px; height: 50px;"
+                onclick="scrollToTop()"
+                aria-label="{{ 'accessibility.back_to_top'|trans|default('Retour en haut de la page') }}"
+                title="{{ 'accessibility.back_to_top'|trans|default('Retour en haut de la page') }}">
+            <i class="bi bi-arrow-up" aria-hidden="true"></i>
+        </button>
+
+        <script>
+            // Back to top functionality
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.getElementById('top').focus();
+            }
+
+            // Show/hide back to top button
+            window.addEventListener('scroll', function() {
+                const backToTop = document.getElementById('back-to-top');
+                if (window.scrollY > 300) {
+                    backToTop.style.display = 'block';
+                } else {
+                    backToTop.style.display = 'none';
+                }
+            });
+        </script>
     </body>
 </html>

@@ -1,0 +1,52 @@
+{#
+    Reusable Alert Component
+    
+    Usage:
+    {% include 'components/alert.html.twig' with {
+        'type': 'success|danger|warning|info',
+        'message': 'Alert message',
+        'dismissible': true|false,
+        'icon': true|false,
+        'persistent': false|true
+    } %}
+#}
+
+{%- set alert_types = {
+    'success': 'check-circle',
+    'danger': 'exclamation-triangle', 
+    'warning': 'exclamation-triangle',
+    'info': 'info-circle',
+    'error': 'exclamation-triangle'
+} -%}
+
+{%- set type = type|default('info') -%}
+{%- set dismissible = dismissible ?? true -%}
+{%- set show_icon = icon ?? true -%}
+{%- set persistent = persistent ?? false -%}
+{%- set icon_class = alert_types[type] ?? 'info-circle' -%}
+
+<div class="alert alert-{{ type }}{% if dismissible %} alert-dismissible{% endif %}{% if not persistent %} alert-auto-hide{% endif %} fade show"
+     role="alert"
+     {% if not persistent %}data-bs-auto-hide="true" data-bs-delay="5000"{% endif %}
+     aria-live="{% if type in ['danger', 'error'] %}assertive{% else %}polite{% endif %}">
+    
+    {% if show_icon %}
+        <i class="bi bi-{{ icon_class }} me-2" aria-hidden="true"></i>
+    {% endif %}
+    
+    <span class="alert-message">
+        {% if message is defined %}
+            {{ message|raw }}
+        {% else %}
+            {% block alert_content %}{% endblock %}
+        {% endif %}
+    </span>
+    
+    {% if dismissible %}
+        <button type="button" 
+                class="btn-close" 
+                data-bs-dismiss="alert" 
+                aria-label="{{ 'accessibility.close_alert'|trans|default('Fermer la notification') }}">
+        </button>
+    {% endif %}
+</div>

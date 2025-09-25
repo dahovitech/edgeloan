@@ -104,14 +104,121 @@
 {% block extra_javascripts %}
     {{ parent() }}
     <script>
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
             
-            // Here you would typically send the form data to your server
-            alert('{{ 'contact.form.success_message'|trans }}');
-            
-            // Reset form
-            this.reset();
+            if (contactForm) {
+                // Form validation and submission
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        // Get form data
+                        const formData = new FormData(contactForm);
+                        const data = {
+                            firstName: formData.get('firstName')?.trim() || '',
+                            lastName: formData.get('lastName')?.trim() || '',
+                            email: formData.get('email')?.trim() || '',
+                            subject: formData.get('subject')?.trim() || '',
+                            message: formData.get('message')?.trim() || ''
+                        };
+                        
+                        // Basic validation
+                        const errors = [];
+                        if (!data.firstName) errors.push('{{ "contact.form.errors.first_name_required"|trans|default("Le prénom est requis") }}');
+                        if (!data.lastName) errors.push('{{ "contact.form.errors.last_name_required"|trans|default("Le nom est requis") }}');
+                        if (!data.email || !isValidEmail(data.email)) errors.push('{{ "contact.form.errors.email_invalid"|trans|default("Email invalide") }}');
+                        if (!data.subject) errors.push('{{ "contact.form.errors.subject_required"|trans|default("Le sujet est requis") }}');
+                        if (!data.message) errors.push('{{ "contact.form.errors.message_required"|trans|default("Le message est requis") }}');
+                        
+                        if (errors.length > 0) {
+                            showFormErrors(errors);
+                            return;
+                        }
+                        
+                        // Show loading state
+                        showFormLoading(true);
+                        
+                        // Here you would send the data to your server
+                        // For now, we'll simulate a successful submission
+                        setTimeout(() => {
+                            showFormLoading(false);
+                            showSuccessMessage();
+                            contactForm.reset();
+                        }, 1500);
+                        
+                    } catch (error) {
+                        console.error('Form submission error:', error);
+                        showFormLoading(false);
+                        showErrorMessage('{{ "contact.form.errors.submission_failed"|trans|default("Erreur lors de l\'envoi") }}');
+                    }
+                });
+                
+                // Email validation
+                function isValidEmail(email) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return emailRegex.test(email);
+                }
+                
+                // Show form errors
+                function showFormErrors(errors) {
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <ul class="mb-0">
+                                ${errors.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    contactForm.insertAdjacentHTML('beforebegin', alertHtml);
+                }
+                
+                // Show loading state
+                function showFormLoading(loading) {
+                    const submitButton = contactForm.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        if (loading) {
+                            submitButton.disabled = true;
+                            submitButton.innerHTML = `
+                                <span class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">{{ 'common.loading'|trans|default('Chargement...') }}</span>
+                                </span>
+                                {{ 'contact.form.sending'|trans|default('Envoi en cours...') }}
+                            `;
+                        } else {
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = `
+                                <i class="bi bi-send me-2"></i>{{ 'contact.form.send'|trans }}
+                            `;
+                        }
+                    }
+                }
+                
+                // Show success message
+                function showSuccessMessage() {
+                    const alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ 'contact.form.success_message'|trans|default('Votre message a été envoyé avec succès !') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    contactForm.insertAdjacentHTML('beforebegin', alertHtml);
+                }
+                
+                // Show error message
+                function showErrorMessage(message) {
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    contactForm.insertAdjacentHTML('beforebegin', alertHtml);
+                }
+            }
         });
     </script>
 {% endblock %}

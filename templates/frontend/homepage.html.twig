@@ -1,108 +1,156 @@
 {% extends 'frontend/base.html.twig' %}
 
-{% block title %}{{ 'homepage.title'|trans }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'homepage.title'|trans|e }} - {{ parent() }}{% endblock %}
 
-{% block meta_description %}{{ 'homepage.meta_description'|trans }}{% endblock %}
+{% block meta_description %}{{ 'homepage.meta_description'|trans|e }}{% endblock %}
+
+{% block robots %}index, follow{% endblock %}
+
+{% block head_extra %}
+    {# Structured Data for SEO #}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Opencms",
+        "url": "{{ app.request.schemeAndHttpHost }}",
+        "description": "{{ 'homepage.meta_description'|trans|e }}",
+        "sameAs": []
+    }
+    </script>
+    
+    {# Preconnect to external resources #}
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+{% endblock %}
 
 {% block body %}
-    {# Hero Section #}
-    <section class="hero-section bg-primary text-white py-5">
+    {# Hero Section - Enhanced for accessibility and performance #}
+    <section class="hero-section bg-primary text-white py-5" 
+             aria-labelledby="hero-title"
+             role="banner">
         <div class="container">
             <div class="row align-items-center min-vh-50">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">{{ 'homepage.hero.title'|trans }}</h1>
-                    <p class="lead mb-4">{{ 'homepage.hero.subtitle'|trans }}</p>
-                    <div class="d-flex flex-column flex-sm-row gap-3">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    <h1 id="hero-title" class="display-4 fw-bold mb-4">
+                        {{ 'homepage.hero.title'|trans|e }}
+                    </h1>
+                    <p class="lead mb-4">{{ 'homepage.hero.subtitle'|trans|e }}</p>
+                    <div class="d-flex flex-column flex-sm-row gap-3" role="group" aria-label="{{ 'homepage.hero.actions'|trans|default('Actions principales') }}">
                         <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
-                           class="btn btn-light btn-lg">
-                            <i class="bi bi-grid-3x3-gap me-2"></i>{{ 'homepage.hero.discover_services'|trans }}
+                           class="btn btn-light btn-lg hero-cta"
+                           aria-describedby="hero-title">
+                            <i class="bi bi-grid-3x3-gap me-2" aria-hidden="true"></i>
+                            <span>{{ 'homepage.hero.discover_services'|trans }}</span>
                         </a>
                         <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
-                           class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-envelope me-2"></i>{{ 'homepage.hero.contact_us'|trans }}
+                           class="btn btn-outline-light btn-lg hero-cta">
+                            <i class="bi bi-envelope me-2" aria-hidden="true"></i>
+                            <span>{{ 'homepage.hero.contact_us'|trans }}</span>
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <div class="hero-icon">
-                        <i class="bi bi-star-fill" style="font-size: 8rem; opacity: 0.8;"></i>
+                <div class="col-lg-6 text-center order-1 order-lg-2">
+                    <div class="hero-icon" 
+                         role="img" 
+                         aria-label="{{ 'homepage.hero.icon_description'|trans|default('Icône représentant notre service') }}">
+                        <i class="bi bi-star-fill hero-star" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {# Features Section #}
-    <section class="features-section py-5">
+    {# Features Section - Enhanced structure and accessibility #}
+    <section class="features-section py-5" 
+             aria-labelledby="features-title">
         <div class="container">
-            <div class="row text-center mb-5">
+            <header class="row text-center mb-5">
                 <div class="col-12">
-                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.features.title'|trans }}</h2>
-                    <p class="lead text-muted">{{ 'homepage.features.subtitle'|trans }}</p>
+                    <h2 id="features-title" class="display-5 fw-bold mb-3">
+                        {{ 'homepage.features.title'|trans|e }}
+                    </h2>
+                    <p class="lead text-muted">{{ 'homepage.features.subtitle'|trans|e }}</p>
                 </div>
-            </div>
+            </header>
             
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-lightning-charge text-primary" style="font-size: 3rem;"></i>
+            <div class="row g-4" role="list">
+                <div class="col-md-4" role="listitem">
+                    <article class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3" 
+                             role="img" 
+                             aria-label="{{ 'homepage.features.fast.title'|trans }}">
+                            <i class="bi bi-lightning-charge text-primary feature-icon-svg" aria-hidden="true"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">{{ 'homepage.features.fast.title'|trans }}</h4>
-                        <p class="text-muted">{{ 'homepage.features.fast.description'|trans }}</p>
-                    </div>
+                        <h3 class="h4 fw-bold mb-3">{{ 'homepage.features.fast.title'|trans|e }}</h3>
+                        <p class="text-muted">{{ 'homepage.features.fast.description'|trans|e }}</p>
+                    </article>
                 </div>
                 
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-shield-check text-primary" style="font-size: 3rem;"></i>
+                <div class="col-md-4" role="listitem">
+                    <article class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3" 
+                             role="img" 
+                             aria-label="{{ 'homepage.features.secure.title'|trans }}">
+                            <i class="bi bi-shield-check text-primary feature-icon-svg" aria-hidden="true"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">{{ 'homepage.features.secure.title'|trans }}</h4>
-                        <p class="text-muted">{{ 'homepage.features.secure.description'|trans }}</p>
-                    </div>
+                        <h3 class="h4 fw-bold mb-3">{{ 'homepage.features.secure.title'|trans|e }}</h3>
+                        <p class="text-muted">{{ 'homepage.features.secure.description'|trans|e }}</p>
+                    </article>
                 </div>
                 
-                <div class="col-md-4">
-                    <div class="feature-card text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                <div class="col-md-4" role="listitem">
+                    <article class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3" 
+                             role="img" 
+                             aria-label="{{ 'homepage.features.support.title'|trans }}">
+                            <i class="bi bi-people text-primary feature-icon-svg" aria-hidden="true"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">{{ 'homepage.features.support.title'|trans }}</h4>
-                        <p class="text-muted">{{ 'homepage.features.support.description'|trans }}</p>
-                    </div>
+                        <h3 class="h4 fw-bold mb-3">{{ 'homepage.features.support.title'|trans|e }}</h3>
+                        <p class="text-muted">{{ 'homepage.features.support.description'|trans|e }}</p>
+                    </article>
                 </div>
             </div>
         </div>
     </section>
 
-    {# Services Preview Section #}
-    <section class="services-preview-section bg-light py-5">
+    {# Services Preview Section - Enhanced with better error handling #}
+    <section class="services-preview-section bg-light py-5" 
+             aria-labelledby="services-title">
         <div class="container">
-            <div class="row text-center mb-5">
+            <header class="row text-center mb-5">
                 <div class="col-12">
-                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.services.title'|trans }}</h2>
-                    <p class="lead text-muted">{{ 'homepage.services.subtitle'|trans }}</p>
+                    <h2 id="services-title" class="display-5 fw-bold mb-3">
+                        {{ 'homepage.services.title'|trans|e }}
+                    </h2>
+                    <p class="lead text-muted">{{ 'homepage.services.subtitle'|trans|e }}</p>
                 </div>
-            </div>
+            </header>
             
             <div class="row">
                 <div class="col-12 text-center">
-                    <div id="servicesPreview" class="row g-4">
-                        {# Services will be loaded via AJAX #}
-                        <div class="col-12">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">{{ 'homepage.services.loading'|trans }}</span>
+                    <div id="servicesPreview" 
+                         class="row g-4" 
+                         aria-live="polite" 
+                         aria-label="{{ 'homepage.services.loading_area'|trans|default('Zone de chargement des services') }}">
+                        {# Loading state with better accessibility #}
+                        <div class="col-12 services-loading">
+                            <div class="d-flex flex-column align-items-center py-5">
+                                <div class="spinner-border text-primary" 
+                                     role="status" 
+                                     aria-label="{{ 'homepage.services.loading'|trans }}">
+                                    <span class="visually-hidden">{{ 'homepage.services.loading'|trans }}</span>
+                                </div>
+                                <p class="text-muted mt-3 mb-0">{{ 'homepage.services.loading'|trans }}</p>
                             </div>
-                            <p class="text-muted mt-3">{{ 'homepage.services.loading'|trans }}</p>
                         </div>
                     </div>
                     
                     <div class="mt-4">
                         <a href="{{ path('frontend_services_index', {'_locale': app.request.locale}) }}" 
-                           class="btn btn-primary btn-lg">
-                            {{ 'homepage.services.view_all'|trans }}
-                            <i class="bi bi-arrow-right ms-2"></i>
+                           class="btn btn-primary btn-lg services-view-all">
+                            <span>{{ 'homepage.services.view_all'|trans }}</span>
+                            <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -110,16 +158,21 @@
         </div>
     </section>
 
-    {# CTA Section #}
-    <section class="cta-section bg-primary text-white py-5">
+    {# CTA Section - Enhanced accessibility and semantics #}
+    <section class="cta-section bg-primary text-white py-5" 
+             aria-labelledby="cta-title">
         <div class="container">
             <div class="row text-center">
                 <div class="col-lg-8 mx-auto">
-                    <h2 class="display-5 fw-bold mb-3">{{ 'homepage.cta.title'|trans }}</h2>
-                    <p class="lead mb-4">{{ 'homepage.cta.subtitle'|trans }}</p>
+                    <h2 id="cta-title" class="display-5 fw-bold mb-3">
+                        {{ 'homepage.cta.title'|trans|e }}
+                    </h2>
+                    <p class="lead mb-4">{{ 'homepage.cta.subtitle'|trans|e }}</p>
                     <a href="{{ path('frontend_contact', {'_locale': app.request.locale}) }}" 
-                       class="btn btn-light btn-lg">
-                        <i class="bi bi-envelope me-2"></i>{{ 'homepage.cta.button'|trans }}
+                       class="btn btn-light btn-lg cta-button"
+                       aria-describedby="cta-title">
+                        <i class="bi bi-envelope me-2" aria-hidden="true"></i>
+                        <span>{{ 'homepage.cta.button'|trans }}</span>
                     </a>
                 </div>
             </div>
@@ -130,25 +183,196 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
+        /* ==========================================================================
+           Homepage Styles - Performance & Accessibility Optimized
+           ========================================================================== */
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #0d47a1 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.6;
+        }
+        
+        .hero-section .container {
+            position: relative;
+            z-index: 2;
+        }
+        
         .min-vh-50 {
             min-height: 50vh;
         }
         
-        .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-radius: 1rem;
-            height: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        .hero-star {
+            font-size: 8rem;
+            opacity: 0.8;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
         
         .hero-icon {
             animation: float 3s ease-in-out infinite;
+            will-change: transform;
         }
         
+        .hero-cta {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.5rem;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+        }
+        
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .hero-cta:focus {
+            outline: 3px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+        
+        /* Feature Cards */
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--bs-primary) 0%, #0d47a1 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon-svg {
+            font-size: 3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon-svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 4px 8px rgba(13, 110, 253, 0.3));
+        }
+        
+        /* Services Section */
+        .services-preview-section {
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #fff;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+        
+        .service-card img {
+            border-radius: 1rem 1rem 0 0;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .service-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .services-view-all {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            padding: 0.75rem 2rem;
+        }
+        
+        .services-view-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #0d47a1 100%);
+            position: relative;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50l25-25v50z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E") repeat;
+        }
+        
+        .cta-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.5rem;
+            font-weight: 500;
+            padding: 0.75rem 2rem;
+            background: #fff;
+            color: var(--bs-primary);
+            border: 2px solid #fff;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.3);
+            background: transparent;
+            color: #fff;
+        }
+        
+        .cta-button:focus {
+            outline: 3px solid rgba(255, 255, 255, 0.5);
+            outline-offset: 2px;
+        }
+        
+        /* Loading State */
+        .services-loading {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Animations */
         @keyframes float {
             0%, 100% {
                 transform: translateY(0px);
@@ -158,25 +382,66 @@
             }
         }
         
-        .service-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 1rem;
+        /* High Contrast Support */
+        @media (prefers-contrast: high) {
+            .hero-section,
+            .cta-section {
+                background: #000;
+            }
+            
+            .feature-card {
+                border: 2px solid #000;
+            }
+            
+            .service-card {
+                border: 2px solid #000;
+            }
         }
         
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            .hero-icon,
+            .feature-card,
+            .service-card,
+            .hero-cta,
+            .services-view-all,
+            .cta-button {
+                animation: none !important;
+                transition: none !important;
+            }
+            
+            .feature-card:hover,
+            .service-card:hover,
+            .hero-cta:hover,
+            .services-view-all:hover,
+            .cta-button:hover {
+                transform: none !important;
+            }
         }
         
-        .service-card img {
-            border-radius: 1rem 1rem 0 0;
-            height: 200px;
-            object-fit: cover;
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .feature-card,
+            .service-card {
+                background: #2d3748;
+                border-color: #4a5568;
+                color: #e2e8f0;
+            }
         }
         
-        @media (max-width: 768px) {
+        /* Responsive Design */
+        @media (max-width: 991.98px) {
+            .hero-star {
+                font-size: 6rem;
+            }
+            
+            .min-vh-50 {
+                min-height: auto;
+                padding: 2rem 0;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
             .display-4 {
                 font-size: 2rem;
             }
@@ -185,8 +450,45 @@
                 font-size: 1.8rem;
             }
             
-            .hero-icon i {
-                font-size: 4rem !important;
+            .hero-star {
+                font-size: 4rem;
+            }
+            
+            .feature-icon-svg {
+                font-size: 2.5rem;
+            }
+            
+            .hero-cta,
+            .services-view-all,
+            .cta-button {
+                font-size: 0.9rem;
+                padding: 0.6rem 1.5rem;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .hero-section .container,
+            .features-section .container,
+            .services-preview-section .container,
+            .cta-section .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .hero-section,
+            .cta-section {
+                background: #fff !important;
+                color: #000 !important;
+            }
+            
+            .feature-card,
+            .service-card {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                break-inside: avoid;
             }
         }
     </style>
@@ -195,55 +497,283 @@
 {% block extra_javascripts %}
     {{ parent() }}
     <script>
-        // Load services preview via AJAX
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('{{ path('frontend_api_services', {'_locale': app.request.locale}) }}')
-                .then(response => response.json())
-                .then(services => {
-                    const container = document.getElementById('servicesPreview');
+            // ==========================================================================
+            // Homepage Services Loader - Enhanced with Error Handling & Performance
+            // ==========================================================================
+            
+            const servicesContainer = document.getElementById('servicesPreview');
+            const servicesApiUrl = '{{ path('frontend_api_services', {'_locale': app.request.locale}) }}';
+            let servicesLoaded = false;
+            
+            // Configuration
+            const config = {
+                maxRetries: 3,
+                retryDelay: 1000,
+                requestTimeout: 10000,
+                maxServicesToShow: 3
+            };
+            
+            // Enhanced fetch with timeout and retry logic
+            async function fetchWithRetry(url, options = {}, retries = config.maxRetries) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), config.requestTimeout);
+                
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        }
+                    });
                     
-                    if (services.length > 0) {
-                        // Show first 3 services
-                        const previewServices = services.slice(0, 3);
-                        
-                        container.innerHTML = previewServices.map(service => `
-                            <div class="col-md-4">
-                                <div class="card service-card h-100">
-                                    ${service.image ? `<img src="${service.image.url}" class="card-img-top" alt="${service.title}">` : ''}
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title">${service.title}</h5>
-                                        <p class="card-text flex-grow-1">${service.description.length > 100 ? service.description.substring(0, 100) + '...' : service.description}</p>
-                                        <a href="${service.url}" class="btn btn-primary mt-auto">
-                                            {{ 'homepage.services.learn_more'|trans }}
-                                            <i class="bi bi-arrow-right ms-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        container.innerHTML = `
-                            <div class="col-12">
-                                <div class="text-center py-5">
-                                    <i class="bi bi-box text-muted" style="font-size: 3rem;"></i>
-                                    <h5 class="text-muted mt-3">{{ 'homepage.services.no_services'|trans }}</h5>
-                                    <p class="text-muted">{{ 'homepage.services.no_services_description'|trans }}</p>
-                                </div>
-                            </div>
-                        `;
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                })
-                .catch(error => {
-                    console.error('Error loading services:', error);
-                    document.getElementById('servicesPreview').innerHTML = `
-                        <div class="col-12">
-                            <div class="text-center py-5">
-                                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
-                                <h5 class="text-muted mt-3">{{ 'homepage.services.error_loading'|trans }}</h5>
+                    
+                    return response;
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    
+                    if (retries > 0 && error.name !== 'AbortError') {
+                        console.warn(`Retry attempt ${config.maxRetries - retries + 1} for services API`);
+                        await new Promise(resolve => setTimeout(resolve, config.retryDelay));
+                        return fetchWithRetry(url, options, retries - 1);
+                    }
+                    
+                    throw error;
+                }
+            }
+            
+            // Safe HTML escaping function
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Truncate text safely
+            function truncateText(text, maxLength) {
+                if (!text) return '';
+                text = String(text);
+                return text.length <= maxLength ? text : text.substring(0, maxLength).trim() + '...';
+            }
+            
+            // Generate service card HTML
+            function createServiceCard(service, index) {
+                const title = escapeHtml(service.title || '');
+                const description = escapeHtml(truncateText(service.description || '', 100));
+                const imageHtml = service.image && service.image.url 
+                    ? `<img src="${escapeHtml(service.image.url)}" 
+                           class="card-img-top" 
+                           alt="${title}"
+                           loading="lazy"
+                           onerror="this.style.display='none'">`
+                    : '<div class="card-img-placeholder bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="bi bi-image text-muted" style="font-size: 3rem;"></i></div>';
+                
+                return `
+                    <div class="col-md-4" data-service-index="${index}">
+                        <article class="card service-card h-100" role="article">
+                            ${imageHtml}
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="card-title h5">${title}</h3>
+                                ${description ? `<p class="card-text flex-grow-1 text-muted">${description}</p>` : ''}
+                                <div class="mt-auto">
+                                    <a href="${escapeHtml(service.url || '#')}" 
+                                       class="btn btn-primary"
+                                       aria-label="{{ 'homepage.services.learn_more'|trans }} - ${title}">
+                                        <span>{{ 'homepage.services.learn_more'|trans }}</span>
+                                        <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                `;
+            }
+            
+            // Display loading state
+            function showLoadingState() {
+                if (servicesContainer) {
+                    servicesContainer.innerHTML = `
+                        <div class="col-12 services-loading">
+                            <div class="d-flex flex-column align-items-center py-5">
+                                <div class="spinner-border text-primary" 
+                                     role="status" 
+                                     aria-label="{{ 'homepage.services.loading'|trans }}">
+                                    <span class="visually-hidden">{{ 'homepage.services.loading'|trans }}</span>
+                                </div>
+                                <p class="text-muted mt-3 mb-0">{{ 'homepage.services.loading'|trans }}</p>
                             </div>
                         </div>
                     `;
+                }
+            }
+            
+            // Display services
+            function displayServices(services) {
+                if (!servicesContainer) return;
+                
+                try {
+                    if (Array.isArray(services) && services.length > 0) {
+                        const previewServices = services.slice(0, config.maxServicesToShow);
+                        const servicesHtml = previewServices.map(createServiceCard).join('');
+                        
+                        servicesContainer.innerHTML = servicesHtml;
+                        
+                        // Announce to screen readers
+                        const announcement = document.createElement('div');
+                        announcement.setAttribute('aria-live', 'polite');
+                        announcement.className = 'visually-hidden';
+                        announcement.textContent = `${previewServices.length} services chargés avec succès`;
+                        document.body.appendChild(announcement);
+                        setTimeout(() => document.body.removeChild(announcement), 1000);
+                        
+                    } else {
+                        displayEmptyState();
+                    }
+                } catch (error) {
+                    console.error('Error displaying services:', error);
+                    displayErrorState('display_error');
+                }
+            }
+            
+            // Display empty state
+            function displayEmptyState() {
+                if (servicesContainer) {
+                    servicesContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="bi bi-box text-muted" style="font-size: 3rem;" aria-hidden="true"></i>
+                                <h3 class="text-muted mt-3">{{ 'homepage.services.no_services'|trans }}</h3>
+                                <p class="text-muted">{{ 'homepage.services.no_services_description'|trans }}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Display error state
+            function displayErrorState(errorType = 'network_error') {
+                if (servicesContainer) {
+                    const errorMessages = {
+                        'network_error': {
+                            icon: 'bi-wifi-off',
+                            title: '{{ "homepage.services.error_loading"|trans }}',
+                            message: '{{ "homepage.services.network_error"|trans|default("Erreur de connexion. Veuillez réessayer plus tard.") }}'
+                        },
+                        'timeout_error': {
+                            icon: 'bi-clock',
+                            title: '{{ "homepage.services.timeout_error"|trans|default("Délai d\'attente dépassé") }}',
+                            message: '{{ "homepage.services.timeout_message"|trans|default("Le chargement prend plus de temps que prévu.") }}'
+                        },
+                        'display_error': {
+                            icon: 'bi-exclamation-triangle',
+                            title: '{{ "homepage.services.display_error"|trans|default("Erreur d\'affichage") }}',
+                            message: '{{ "homepage.services.display_message"|trans|default("Impossible d\'afficher les services.") }}'
+                        }
+                    };
+                    
+                    const error = errorMessages[errorType] || errorMessages['network_error'];
+                    
+                    servicesContainer.innerHTML = `
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="bi ${error.icon} text-warning" style="font-size: 3rem;" aria-hidden="true"></i>
+                                <h3 class="text-muted mt-3">${error.title}</h3>
+                                <p class="text-muted mb-3">${error.message}</p>
+                                <button type="button" 
+                                        class="btn btn-outline-primary btn-sm" 
+                                        onclick="location.reload()"
+                                        aria-label="{{ 'common.retry'|trans|default('Réessayer') }}">
+                                    <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
+                                    {{ 'common.retry'|trans|default('Réessayer') }}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Main function to load services
+            async function loadServices() {
+                if (servicesLoaded) return;
+                
+                showLoadingState();
+                
+                try {
+                    const response = await fetchWithRetry(servicesApiUrl);
+                    const services = await response.json();
+                    
+                    if (response.ok) {
+                        displayServices(services);
+                        servicesLoaded = true;
+                    } else {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Services loading error:', error);
+                    
+                    let errorType = 'network_error';
+                    if (error.name === 'AbortError') {
+                        errorType = 'timeout_error';
+                    }
+                    
+                    displayErrorState(errorType);
+                    
+                    // Report error for monitoring
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'exception', {
+                            'description': `Services API Error: ${error.message}`,
+                            'fatal': false
+                        });
+                    }
+                }
+            }
+            
+            // Intersection Observer for lazy loading
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !servicesLoaded) {
+                            loadServices();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    rootMargin: '100px 0px'
                 });
+                
+                if (servicesContainer) {
+                    observer.observe(servicesContainer);
+                }
+            } else {
+                // Fallback for browsers without Intersection Observer
+                setTimeout(loadServices, 1000);
+            }
+            
+            // Performance monitoring
+            if (window.performance && window.performance.mark) {
+                window.performance.mark('services-load-start');
+                
+                const originalLoadServices = loadServices;
+                loadServices = async function() {
+                    try {
+                        await originalLoadServices();
+                        window.performance.mark('services-load-end');
+                        window.performance.measure('services-load-duration', 'services-load-start', 'services-load-end');
+                    } catch (error) {
+                        console.error('Performance monitoring error:', error);
+                        throw error;
+                    }
+                };
+            }
         });
     </script>
 {% endblock %}
