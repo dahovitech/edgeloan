@@ -4,3 +4,12 @@ framework:
         default_path: '%kernel.project_dir%/translations'
         fallbacks: ['fr', 'en']
         providers:
+        # Performance improvements
+        cache_vary:
+            - 'locale'
+        logging: false              # Disable logs in production for performance
+
+when@prod:
+    framework:
+        translator:
+            cache_dir: '%kernel.cache_dir%/translations'

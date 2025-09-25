@@ -61,10 +61,10 @@
                                         <tr>
                                             <td>{{ user.id }}</td>
                                             <td>
-                                                <strong>{{ user.fullName }}</strong>
+                                                <strong>{{ user.fullName|e }}</strong>
                                             </td>
                                             <td>
-                                                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                <a href="mailto:{{ user.email|e }}">{{ user.email|e }}</a>
                                             </td>
                                             <td>
                                                 {% for role in user.roles %}

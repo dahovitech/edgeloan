@@ -3,6 +3,10 @@ twig:
     form_themes: ['bootstrap_5_layout.html.twig']
     paths:
         '%kernel.project_dir%/templates/admin': admin
+    # Security improvements
+    autoescape: 'html'          # Force HTML escaping by default
+    strict_variables: true       # Enable strict variables in all environments
+
 when@test:
     twig:
         strict_variables: true

@@ -12,7 +12,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h1 class="fw-bold mb-2">{{ 'loans.my_loans'|trans }}</h1>
-                    <p class="text-muted">{{ 'loans.dashboard_welcome'|trans }} {{ user.firstName ?? user.email }}, {{ 'loans.manage_easily'|trans }}</p>
+                    <p class="text-muted">{{ 'loans.dashboard_welcome'|trans }} {{ (user.firstName ?? user.email)|e }}, {{ 'loans.manage_easily'|trans }}</p>
                 </div>
                 <a href="{{ path('loan_apply') }}" class="btn btn-primary-modern">
                     <i class="fas fa-plus me-2"></i>{{ 'loans.new_application'|trans }}

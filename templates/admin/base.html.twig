@@ -516,7 +516,7 @@
                         <!-- User Menu -->
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>{{ app.user.firstName ?? app.user.email }}
+                                <i class="fas fa-user me-1"></i>{{ (app.user.firstName ?? app.user.email)|e }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{{ path('admin_user_profile') }}"><i class="fas fa-user-cog me-2"></i>{% trans %}Mon Profil{% endtrans %}</a></li>
