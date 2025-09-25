@@ -168,15 +168,20 @@ forms:
     code:
       label: Code de la langue
       help: "Code ISO à 2 lettres (ex: fr, en, es)"
-      placeholder: Choisir le code de langue
+      required: "Le code de langue est requis"
+      invalid: "Code de langue invalide"
     name:
       label: Nom de la langue
       help: "Nom complet de la langue dans la langue cible"
-      placeholder: Choisir la langue
+      required: "Le nom de la langue est requis"
+      invalid: "Nom de langue invalide"
     native_name:
       label: Nom natif
       help: "Nom de la langue dans sa propre écriture (ex: Français, English)"
-      placeholder: "Ex: Français"
+      required: "Le nom natif est requis"
+      min_length: "Le nom natif doit contenir au moins {{ limit }} caractères"
+      max_length: "Le nom natif ne peut dépasser {{ limit }} caractères"
+      invalid_characters: "Le nom natif contient des caractères non autorisés"
     is_active:
       label: Langue active
       help: "Décochez pour désactiver cette langue sur le site"
@@ -186,31 +191,50 @@ forms:
     sort_order:
       label: Ordre d'affichage
       help: "Ordre d'affichage des langues (plus petit = affiché en premier)"
+      required: "L'ordre d'affichage est requis"
+      min: "L'ordre doit être supérieur ou égal à {{ limit }}"
+      max: "L'ordre ne peut dépasser {{ limit }}"
+    validation:
+      default_must_be_active: "Une langue par défaut doit être active"
   user:
     email:
       label: Adresse email
-      placeholder: "Ex: utilisateur@example.com"
+      help: "Adresse email valide requise"
+      required: "L'adresse email est requise"
+      invalid: "Adresse email invalide"
     first_name:
       label: Prénom
-      placeholder: "Prénom de l'utilisateur"
+      help: "Prénom de l'utilisateur"
+      required: "Le prénom est requis"
+      min_length: "Le prénom doit contenir au moins {{ limit }} caractères"
+      max_length: "Le prénom ne peut dépasser {{ limit }} caractères"
     last_name:
       label: Nom de famille
-      placeholder: "Nom de famille de l'utilisateur"
+      help: "Nom de famille de l'utilisateur"
+      required: "Le nom de famille est requis"
+      min_length: "Le nom de famille doit contenir au moins {{ limit }} caractères"
+      max_length: "Le nom de famille ne peut dépasser {{ limit }} caractères"
     roles:
       label: Rôles utilisateur
+      help: "Sélectionnez un ou plusieurs rôles pour cet utilisateur"
       choices:
         user: Utilisateur
         admin: Administrateur
         super_admin: Super Administrateur
+      min_required: "Au moins un rôle doit être sélectionné"
     is_active:
       label: Compte actif
       help: "Décochez pour désactiver le compte utilisateur"
     password:
       label: Mot de passe
+      help: "Minimum 8 caractères avec majuscules, minuscules, chiffres et caractères spéciaux"
       confirm_label: Confirmer le mot de passe
-      mismatch: "Les mots de passe doivent correspondre."
+      confirm_help: "Répétez le mot de passe pour confirmation"
+      mismatch: "Les mots de passe doivent correspondre"
       required: "Veuillez entrer un mot de passe"
       min_length: "Votre mot de passe doit contenir au moins {{ limit }} caractères"
+      max_length: "Votre mot de passe ne peut dépasser {{ limit }} caractères"
+      strength_required: "Le mot de passe doit contenir au moins : 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial"
 common:
   actions:
     title: Actions
