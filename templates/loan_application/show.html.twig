@@ -1,0 +1,352 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page_title }} - {{ application.applicationNumber }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('loan_application_index') }}">{{ 'loan.breadcrumb.applications'|trans }}</a></li>
+                    <li class="breadcrumb-item active">{{ application.applicationNumber }}</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1 class="h2 mb-2">
+                        <i class="bi bi-file-text me-2"></i>
+                        {{ 'loan.page.application'|trans }} #{{ application.applicationNumber }}
+                    </h1>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge {{ application.statusBadgeClass }} fs-6">
+                            <i class="bi bi-circle-fill me-1" style="font-size: 0.6rem;"></i>
+                            {{ ('loan.status.' ~ application.status)|trans }}
+                        </span>
+                        <small class="text-muted">
+                            {{ 'loan.field.created'|trans }}: {{ application.createdAt|date('d/m/Y H:i') }}
+                        </small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if application.status in ['draft', 'additional_info_required'] %}
+                        <a href="{{ path('loan_application_edit', {id: application.uuid}) }}" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i>
+                            {{ 'loan.action.edit'|trans }}
+                        </a>
+                    {% endif %}
+                    
+                    {% if application.status in ['draft', 'submitted', 'under_review', 'additional_info_required'] %}
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="bi bi-x-circle me-2"></i>
+                            {{ 'loan.action.cancel'|trans }}
+                        </button>
+                    {% endif %}
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form action="{{ path('loan_application_duplicate', {id: application.uuid}) }}" method="post" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('duplicate_application_' ~ application.uuid) }}">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-files me-2"></i>
+                                        {{ 'loan.action.duplicate'|trans }}
+                                    </button>
+                                </form>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="window.print()"><i class="bi bi-printer me-2"></i>{{ 'loan.action.print'|trans }}</a></li>
+                        </ul>
+                    </div>
+                    
+                    <a href="{{ path('loan_application_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        {{ 'loan.action.back_to_list'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Progress Indicator -->
+                    {% if application.status not in ['cancelled', 'rejected'] %}
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="mb-3">{{ 'loan.section.progress'|trans }}</h6>
+                                <div class="progress mb-2" style="height: 8px;">
+                                    {% set progressPercent = 20 %}
+                                    {% if application.status == 'submitted' %}{% set progressPercent = 40 %}
+                                    {% elseif application.status == 'under_review' %}{% set progressPercent = 60 %}
+                                    {% elseif application.status == 'approved' %}{% set progressPercent = 80 %}
+                                    {% elseif application.status in ['active', 'completed'] %}{% set progressPercent = 100 %}
+                                    {% endif %}
+                                    <div class="progress-bar" role="progressbar" style="width: {{ progressPercent }}%" aria-valuenow="{{ progressPercent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm text-muted">
+                                    <span>{{ 'loan.progress.submitted'|trans }}</span>
+                                    <span>{{ 'loan.progress.reviewed'|trans }}</span>
+                                    <span>{{ 'loan.progress.approved'|trans }}</span>
+                                    <span>{{ 'loan.progress.active'|trans }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Application Details -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-text me-2"></i>
+                                {{ 'loan.section.application_details'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.basic_information'|trans }}</h6>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">{{ 'loan.field.type'|trans }}</span>
+                                                <span class="fw-semibold">{{ ('loan.type.' ~ application.loanType)|trans }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">{{ 'loan.field.amount'|trans }}</span>
+                                                <span class="fw-semibold text-primary">{{ application.amount|number_format(2, '.', ',') }} €</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">{{ 'loan.field.duration'|trans }}</span>
+                                                <span class="fw-semibold">{{ application.requestedDuration }} {{ 'loan.unit.months'|trans }}</span>
+                                            </div>
+                                        </div>
+                                        {% if application.interestRateFloat %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.interest_rate'|trans }}</span>
+                                                    <span class="fw-semibold">{{ application.interestRateFloat }}%</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if application.monthlyPaymentFloat %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.monthly_payment'|trans }}</span>
+                                                    <span class="fw-semibold text-success">{{ application.monthlyPaymentFloat|number_format(2, '.', ',') }} €</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if application.creditScore %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.credit_score'|trans }}</span>
+                                                    <span class="fw-semibold">{{ application.creditScore }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.timeline'|trans }}</h6>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted">{{ 'loan.field.created'|trans }}</span>
+                                                <span>{{ application.createdAt|date('d/m/Y H:i') }}</span>
+                                            </div>
+                                        </div>
+                                        {% if application.submittedAt %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.submitted'|trans }}</span>
+                                                    <span>{{ application.submittedAt|date('d/m/Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if application.reviewedAt %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.reviewed'|trans }}</span>
+                                                    <span>{{ application.reviewedAt|date('d/m/Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if application.approvedAt %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.approved'|trans }}</span>
+                                                    <span>{{ application.approvedAt|date('d/m/Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if application.activatedAt %}
+                                            <div class="col-12">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted">{{ 'loan.field.activated'|trans }}</span>
+                                                    <span>{{ application.activatedAt|date('d/m/Y H:i') }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if application.purpose %}
+                                    <div class="col-12">
+                                        <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.field.purpose'|trans }}</h6>
+                                        <p class="mb-0">{{ application.purpose }}</p>
+                                    </div>
+                                {% endif %}
+
+                                {% if application.notes %}
+                                    <div class="col-12">
+                                        <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.field.notes'|trans }}</h6>
+                                        <p class="mb-0">{{ application.notes|nl2br }}</p>
+                                    </div>
+                                {% endif %}
+
+                                {% if application.reviewNotes and is_granted('ROLE_ADMIN') %}
+                                    <div class="col-12">
+                                        <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.field.review_notes'|trans }}</h6>
+                                        <div class="alert alert-info">
+                                            {{ application.reviewNotes|nl2br }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents Section -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-folder me-2"></i>
+                                    {{ 'loan.section.documents'|trans }}
+                                </h5>
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-plus me-2"></i>
+                                    {{ 'loan.action.upload_document'|trans }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-folder-x display-4 mb-3"></i>
+                                <p class="mb-0">{{ 'loan.message.no_documents'|trans }}</p>
+                                <small>{{ 'loan.message.upload_documents_help'|trans }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Quick Actions -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightning me-2"></i>
+                                {{ 'loan.section.quick_actions'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                {% if application.status in ['draft', 'additional_info_required'] %}
+                                    <a href="{{ path('loan_application_edit', {id: application.uuid}) }}" class="btn btn-primary">
+                                        <i class="bi bi-pencil me-2"></i>
+                                        {{ 'loan.action.edit_application'|trans }}
+                                    </a>
+                                {% endif %}
+                                
+                                {% if application.status == 'draft' %}
+                                    <form action="{{ path('loan_application_edit', {id: application.uuid}) }}" method="post" class="d-inline">
+                                        <input type="hidden" name="loan_application[status]" value="submitted">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="bi bi-send me-2"></i>
+                                            {{ 'loan.action.submit_application'|trans }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                
+                                <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                                    <i class="bi bi-printer me-2"></i>
+                                    {{ 'loan.action.print'|trans }}
+                                </button>
+                                
+                                <form action="{{ path('loan_application_duplicate', {id: application.uuid}) }}" method="post" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('duplicate_application_' ~ application.uuid) }}">
+                                    <button type="submit" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-files me-2"></i>
+                                        {{ 'loan.action.duplicate'|trans }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-headset me-2"></i>
+                                {{ 'loan.section.need_help'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">{{ 'loan.help.contact_description'|trans }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="tel:+33123456789" class="btn btn-outline-success">
+                                    <i class="bi bi-telephone me-2"></i>
+                                    {{ 'contact.phone'|trans }}
+                                </a>
+                                <a href="mailto:support@edgeloan.com" class="btn btn-outline-primary">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    {{ 'contact.email'|trans }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'loan.modal.cancel_title'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'loan.modal.cancel_message'|trans }}</p>
+                <p class="text-muted">{{ 'loan.modal.cancel_warning'|trans }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    {{ 'form.action.cancel'|trans }}
+                </button>
+                <form action="{{ path('loan_application_cancel', {id: application.uuid}) }}" method="post" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cancel_application_' ~ application.uuid) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle me-2"></i>
+                        {{ 'loan.action.confirm_cancel'|trans }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

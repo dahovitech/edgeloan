@@ -130,3 +130,253 @@ service:
   available_languages: "This service is available in the following languages:"
   loading_other_services: "Loading other services..."
   no_other_services: "No other services available"
+
+# Loan Applications
+loan:
+  # Pages
+  page:
+    my_applications: "My Loan Applications"
+    new_application: "New Loan Application"
+    edit_application: "Edit Application"
+    application_details: "Application Details"
+    application: "Loan Application"
+
+  # Breadcrumb
+  breadcrumb:
+    applications: "Loan Applications"
+    new: "New Application"
+    edit: "Edit"
+
+  # Sections
+  section:
+    applications_list: "Applications List"
+    application_details: "Application Details"
+    loan_type: "Loan Type"
+    financial_details: "Financial Details"
+    additional_information: "Additional Information"
+    payment_calculator: "Payment Calculator"
+    help: "Help & Information"
+    progress: "Progress"
+    timeline: "Timeline"
+    basic_information: "Basic Information"
+    documents: "Documents"
+    quick_actions: "Quick Actions"
+    need_help: "Need Help?"
+    application_info: "Application Information"
+
+  # Loan Types
+  type:
+    personal: "Personal Loan"
+    business: "Business Loan"
+    auto: "Auto Loan"
+    home: "Home Loan"
+    education: "Education Loan"
+    investment: "Investment Loan"
+
+  # Status
+  status:
+    draft: "Draft"
+    submitted: "Submitted"
+    under_review: "Under Review"
+    additional_info_required: "Additional Info Required"
+    approved: "Approved"
+    rejected: "Rejected"
+    cancelled: "Cancelled"
+    active: "Active"
+    completed: "Completed"
+    defaulted: "Defaulted"
+
+  # Progress
+  progress:
+    submitted: "Submitted"
+    reviewed: "Reviewed"
+    approved: "Approved"
+    active: "Active"
+
+  # Form
+  form:
+    loan_type: "Loan Type"
+    choose_type: "Choose loan type"
+    loan_type.help: "Select the loan type that best fits your needs"
+    amount: "Requested Amount"
+    amount.help: "Amount between €1,000 and €1,000,000"
+    duration: "Duration (months)"
+    duration.help: "Repayment duration between 6 and 360 months"
+    purpose: "Loan Purpose"
+    purpose.placeholder: "Briefly describe the intended use of funds..."
+    purpose.help: "Optional description of intended loan use"
+    credit_score: "Credit Score"
+    credit_score.help: "Your credit score if you know it (300-850)"
+    notes: "Personal Notes"
+    notes.placeholder: "Additional information you'd like to share..."
+    notes.help: "Optional additional information"
+    status: "Status"
+    interest_rate: "Interest Rate"
+    interest_rate.help: "Annual interest rate percentage"
+    monthly_payment: "Monthly Payment"
+    monthly_payment.help: "Monthly payment amount calculated automatically"
+    review_notes: "Review Notes"
+    review_notes.placeholder: "Internal notes for review team..."
+    save_draft: "Save Draft"
+    submit_application: "Submit Application"
+    resubmit_application: "Resubmit Application"
+
+  # Fields
+  field:
+    reference: "Reference"
+    type: "Type"
+    amount: "Amount"
+    duration: "Duration"
+    purpose: "Purpose"
+    notes: "Notes"
+    status: "Status"
+    created: "Created"
+    submitted: "Submitted"
+    reviewed: "Reviewed"
+    approved: "Approved"
+    activated: "Activated"
+    interest_rate: "Interest Rate"
+    monthly_payment: "Monthly Payment"
+    credit_score: "Credit Score"
+    review_notes: "Review Notes"
+
+  # Table
+  table:
+    reference: "Reference"
+    amount: "Amount"
+    type: "Type"
+    status: "Status"
+    created: "Created"
+    actions: "Actions"
+
+  # Actions
+  action:
+    new_application: "New Application"
+    create_first_application: "Create My First Application"
+    view: "View"
+    edit: "Edit"
+    edit_application: "Edit Application"
+    submit_application: "Submit Application"
+    cancel: "Cancel"
+    confirm_cancel: "Confirm Cancellation"
+    duplicate: "Duplicate"
+    print: "Print"
+    back_to_list: "Back to List"
+    upload_document: "Upload Document"
+
+  # Statistics
+  statistics:
+    total: "Total"
+    draft: "Drafts"
+    pending: "Pending"
+    approved: "Approved"
+
+  # Messages
+  message:
+    no_applications: "No loan applications"
+    no_applications_description: "You haven't created any loan applications yet. Get started now!"
+    draft_saved: "Draft saved successfully"
+    application_submitted: "Application submitted successfully"
+    changes_saved: "Changes saved successfully"
+    application_cancelled: "Application cancelled successfully"
+    application_duplicated: "Application duplicated successfully"
+    no_documents: "No documents"
+    upload_documents_help: "Upload your documents to speed up processing"
+    cannot_edit_submitted_application: "This application can no longer be edited as it has been submitted"
+
+  # Errors
+  error:
+    application_not_found: "Loan application not found"
+    access_denied: "Access denied"
+    cannot_edit_submitted: "Cannot edit submitted application"
+    cannot_cancel: "Cannot cancel this application"
+
+  # Validation
+  validation:
+    loan_type_required: "Loan type is required"
+    loan_type_invalid: "Invalid loan type"
+    amount_required: "Amount is required"
+    amount_min: "Minimum amount is €1,000"
+    amount_max: "Maximum amount is €1,000,000"
+    duration_required: "Duration is required"
+    duration_min: "Minimum duration is 6 months"
+    duration_max: "Maximum duration is 360 months"
+    purpose_max_length: "Purpose cannot exceed 500 characters"
+    credit_score_min: "Minimum credit score is 300"
+    credit_score_max: "Maximum credit score is 850"
+    status_required: "Status is required"
+    status_invalid: "Invalid status"
+
+  # Calculator
+  calculator:
+    estimated_rate: "Estimated Rate"
+    rate_help: "Indicative interest rate for calculation"
+    results: "Estimation"
+    monthly: "Monthly"
+    total: "Total"
+    interest: "Interest"
+
+  # Units
+  unit:
+    months: "months"
+
+  # Alerts
+  alert:
+    additional_info_required: "Additional Information Required"
+    additional_info_description: "Your application requires additional information. Please update your application."
+
+  # Modals
+  modal:
+    cancel_title: "Cancel Application"
+    cancel_message: "Are you sure you want to cancel this loan application?"
+    cancel_warning: "This action is irreversible."
+
+  # Help
+  help:
+    required_documents: "Required Documents"
+    application_process: "Application Process"
+    step1: "Fill out the application form"
+    step2: "Upload your supporting documents"
+    step3: "Wait for your application to be validated"
+    contact_description: "Our team is here to help you with your loan application."
+
+# Document Types
+document:
+  type:
+    identity: "Identity Document"
+    income_proof: "Proof of Income"
+    bank_statement: "Bank Statement"
+    employment_verification: "Employment Verification"
+    property_document: "Property Document"
+    business_document: "Business Document"
+    tax_return: "Tax Return"
+    collateral_document: "Collateral Document"
+    other: "Other"
+
+  description:
+    identity: "ID card, passport, or driver's license"
+    income_proof: "Pay stubs, tax statements"
+    bank_statement: "Bank statements from the last 3 months"
+    employment_verification: "Employment certificate or work contract"
+    property_document: "Property deed, sales agreement"
+    business_document: "Business registration, bylaws, financial statements"
+    tax_return: "Income tax return"
+    collateral_document: "Guarantee or collateral documents"
+    other: "Any other relevant document"
+
+# Priorities
+priority:
+  low: "Low"
+  normal: "Normal"
+  high: "High"
+  urgent: "Urgent"
+
+# Contact
+contact:
+  phone: "Phone"
+  email: "Email"
+
+# Forms
+form:
+  action:
+    cancel: "Cancel"

@@ -175,4 +175,254 @@ about:
     details: "Aujourd'hui, nous sommes fiers d'avoir accompagné des centaines d'entreprises dans leur transformation digitale, de la startup à la grande entreprise."
   contact_us: "Contactez-nous"
 
+# Demandes de prêt (Loan Applications)
+loan:
+  # Pages
+  page:
+    my_applications: "Mes demandes de prêt"
+    new_application: "Nouvelle demande de prêt"
+    edit_application: "Modifier la demande"
+    application_details: "Détails de la demande"
+    application: "Demande de prêt"
+
+  # Breadcrumb
+  breadcrumb:
+    applications: "Demandes de prêt"
+    new: "Nouvelle demande"
+    edit: "Modifier"
+
+  # Sections
+  section:
+    applications_list: "Liste des demandes"
+    application_details: "Détails de la demande"
+    loan_type: "Type de prêt"
+    financial_details: "Détails financiers"
+    additional_information: "Informations complémentaires"
+    payment_calculator: "Calculateur de mensualités"
+    help: "Aide et informations"
+    progress: "Progression"
+    timeline: "Chronologie"
+    basic_information: "Informations de base"
+    documents: "Documents"
+    quick_actions: "Actions rapides"
+    need_help: "Besoin d'aide ?"
+    application_info: "Informations sur la demande"
+
+  # Types de prêt
+  type:
+    personal: "Prêt personnel"
+    business: "Prêt professionnel"
+    auto: "Crédit auto"
+    home: "Crédit immobilier"
+    education: "Prêt étudiant"
+    investment: "Prêt d'investissement"
+
+  # Statuts
+  status:
+    draft: "Brouillon"
+    submitted: "Soumise"
+    under_review: "En cours d'examen"
+    additional_info_required: "Informations requises"
+    approved: "Approuvée"
+    rejected: "Rejetée"
+    cancelled: "Annulée"
+    active: "Active"
+    completed: "Terminée"
+    defaulted: "En défaut"
+
+  # Progression
+  progress:
+    submitted: "Soumise"
+    reviewed: "Examinée"
+    approved: "Approuvée"
+    active: "Active"
+
+  # Formulaire
+  form:
+    loan_type: "Type de prêt"
+    choose_type: "Choisissez le type de prêt"
+    loan_type.help: "Sélectionnez le type de prêt qui correspond le mieux à vos besoins"
+    amount: "Montant demandé"
+    amount.help: "Montant entre 1 000 € et 1 000 000 €"
+    duration: "Durée (en mois)"
+    duration.help: "Durée de remboursement entre 6 et 360 mois"
+    purpose: "Objet du prêt"
+    purpose.placeholder: "Décrivez brièvement l'utilisation prévue des fonds..."
+    purpose.help: "Description facultative de l'utilisation prévue du prêt"
+    credit_score: "Score de crédit"
+    credit_score.help: "Votre score de crédit si vous le connaissez (300-850)"
+    notes: "Notes personnelles"
+    notes.placeholder: "Informations complémentaires que vous souhaitez partager..."
+    notes.help: "Informations complémentaires facultatives"
+    status: "Statut"
+    interest_rate: "Taux d'intérêt"
+    interest_rate.help: "Taux d'intérêt annuel en pourcentage"
+    monthly_payment: "Mensualité"
+    monthly_payment.help: "Montant de la mensualité calculée automatiquement"
+    review_notes: "Notes de révision"
+    review_notes.placeholder: "Notes internes pour l'équipe de révision..."
+    save_draft: "Sauvegarder le brouillon"
+    submit_application: "Soumettre la demande"
+    resubmit_application: "Soumettre à nouveau"
+
+  # Champs
+  field:
+    reference: "Référence"
+    type: "Type"
+    amount: "Montant"
+    duration: "Durée"
+    purpose: "Objet"
+    notes: "Notes"
+    status: "Statut"
+    created: "Créée le"
+    submitted: "Soumise le"
+    reviewed: "Examinée le"
+    approved: "Approuvée le"
+    activated: "Activée le"
+    interest_rate: "Taux d'intérêt"
+    monthly_payment: "Mensualité"
+    credit_score: "Score de crédit"
+    review_notes: "Notes de révision"
+
+  # Tableau
+  table:
+    reference: "Référence"
+    amount: "Montant"
+    type: "Type"
+    status: "Statut"
+    created: "Créée le"
+    actions: "Actions"
+
+  # Actions
+  action:
+    new_application: "Nouvelle demande"
+    create_first_application: "Créer ma première demande"
+    view: "Voir"
+    edit: "Modifier"
+    edit_application: "Modifier la demande"
+    submit_application: "Soumettre la demande"
+    cancel: "Annuler"
+    confirm_cancel: "Confirmer l'annulation"
+    duplicate: "Dupliquer"
+    print: "Imprimer"
+    back_to_list: "Retour à la liste"
+    upload_document: "Télécharger un document"
+
+  # Statistiques
+  statistics:
+    total: "Total"
+    draft: "Brouillons"
+    pending: "En attente"
+    approved: "Approuvées"
+
+  # Messages
+  message:
+    no_applications: "Aucune demande de prêt"
+    no_applications_description: "Vous n'avez pas encore créé de demande de prêt. Commencez dès maintenant !"
+    draft_saved: "Brouillon sauvegardé avec succès"
+    application_submitted: "Demande soumise avec succès"
+    changes_saved: "Modifications sauvegardées avec succès"
+    application_cancelled: "Demande annulée avec succès"
+    application_duplicated: "Demande dupliquée avec succès"
+    no_documents: "Aucun document"
+    upload_documents_help: "Téléchargez vos documents pour accélérer le traitement"
+    cannot_edit_submitted_application: "Cette demande ne peut plus être modifiée car elle a été soumise"
+
+  # Erreurs
+  error:
+    application_not_found: "Demande de prêt introuvable"
+    access_denied: "Accès refusé"
+    cannot_edit_submitted: "Impossible de modifier une demande soumise"
+    cannot_cancel: "Impossible d'annuler cette demande"
+
+  # Validation
+  validation:
+    loan_type_required: "Le type de prêt est obligatoire"
+    loan_type_invalid: "Type de prêt invalide"
+    amount_required: "Le montant est obligatoire"
+    amount_min: "Le montant minimum est de 1 000 €"
+    amount_max: "Le montant maximum est de 1 000 000 €"
+    duration_required: "La durée est obligatoire"
+    duration_min: "La durée minimum est de 6 mois"
+    duration_max: "La durée maximum est de 360 mois"
+    purpose_max_length: "L'objet ne peut pas dépasser 500 caractères"
+    credit_score_min: "Le score de crédit minimum est 300"
+    credit_score_max: "Le score de crédit maximum est 850"
+    status_required: "Le statut est obligatoire"
+    status_invalid: "Statut invalide"
+
+  # Calculateur
+  calculator:
+    estimated_rate: "Taux estimé"
+    rate_help: "Taux d'intérêt indicatif pour le calcul"
+    results: "Estimation"
+    monthly: "Mensualité"
+    total: "Total"
+    interest: "Intérêts"
+
+  # Unités
+  unit:
+    months: "mois"
+
+  # Alertes
+  alert:
+    additional_info_required: "Informations complémentaires requises"
+    additional_info_description: "Votre demande nécessite des informations supplémentaires. Veuillez mettre à jour votre demande."
+
+  # Modales
+  modal:
+    cancel_title: "Annuler la demande"
+    cancel_message: "Êtes-vous sûr de vouloir annuler cette demande de prêt ?"
+    cancel_warning: "Cette action est irréversible."
+
+  # Aide
+  help:
+    required_documents: "Documents requis"
+    application_process: "Processus de demande"
+    step1: "Remplissez le formulaire de demande"
+    step2: "Téléchargez vos documents justificatifs"
+    step3: "Attendez la validation de votre dossier"
+    contact_description: "Notre équipe est là pour vous accompagner dans votre demande de prêt."
+
+# Types de documents (Document Types)
+document:
+  type:
+    identity: "Pièce d'identité"
+    income_proof: "Justificatif de revenus"
+    bank_statement: "Relevé bancaire"
+    employment_verification: "Attestation d'emploi"
+    property_document: "Document immobilier"
+    business_document: "Document d'entreprise"
+    tax_return: "Déclaration fiscale"
+    collateral_document: "Document de garantie"
+    other: "Autre"
+
+  description:
+    identity: "Carte d'identité, passeport ou permis de conduire"
+    income_proof: "Bulletins de salaire, avis d'imposition"
+    bank_statement: "Relevés bancaires des 3 derniers mois"
+    employment_verification: "Attestation employeur ou contrat de travail"
+    property_document: "Acte de propriété, compromis de vente"
+    business_document: "Kbis, statuts, bilans comptables"
+    tax_return: "Déclaration d'impôts sur le revenu"
+    collateral_document: "Documents de garantie ou caution"
+    other: "Tout autre document pertinent"
+
+# Priorités (Priorities)
+priority:
+  low: "Faible"
+  normal: "Normale"
+  high: "Élevée"
+  urgent: "Urgente"
+
+# Contact
+contact:
+  phone: "Téléphone"
+  email: "Email"
+
+# Formulaires (Forms)
+form:
+  action:
+    cancel: "Annuler"
+
 

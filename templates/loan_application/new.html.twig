@@ -1,0 +1,293 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('loan_application_index') }}">{{ 'loan.breadcrumb.applications'|trans }}</a></li>
+                    <li class="breadcrumb-item active">{{ 'loan.breadcrumb.new'|trans }}</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    {{ page_title }}
+                </h1>
+                <a href="{{ path('loan_application_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    {{ 'loan.action.back_to_list'|trans }}
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Application Form -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-file-text me-2"></i>
+                                {{ 'loan.section.application_details'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form, {'attr': {'class': 'loan-application-form', 'novalidate': 'novalidate'}}) }}
+                            
+                            <!-- Loan Type -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.loan_type'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.loanType) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amount and Duration -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.financial_details'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.amount, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'data-calculation-trigger': true
+                                            }
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form_row(form.requestedDuration, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'data-calculation-trigger': true
+                                            }
+                                        }) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Purpose and Notes -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.additional_information'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-12">
+                                        {{ form_row(form.purpose) }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.creditScore) }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        {{ form_row(form.notes) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 pt-3 border-top">
+                                {{ form_row(form.save, {
+                                    'attr': {
+                                        'class': 'btn btn-outline-primary'
+                                    }
+                                }) }}
+                                {{ form_row(form.submit, {
+                                    'attr': {
+                                        'class': 'btn btn-primary'
+                                    }
+                                }) }}
+                                <a href="{{ path('loan_application_index') }}" class="btn btn-outline-secondary ms-auto">
+                                    {{ 'form.action.cancel'|trans }}
+                                </a>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Loan Calculator -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calculator me-2"></i>
+                                {{ 'loan.section.payment_calculator'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="loan-calculator">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">{{ 'loan.calculator.estimated_rate'|trans }}</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="interest-rate" value="5.5" min="0" max="50" step="0.1">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <small class="text-muted">{{ 'loan.calculator.rate_help'|trans }}</small>
+                                </div>
+
+                                <div class="calculation-results">
+                                    <div class="alert alert-light border-0" role="alert">
+                                        <h6 class="alert-heading">{{ 'loan.calculator.results'|trans }}</h6>
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="h4 text-primary mb-1" id="monthly-payment">--</div>
+                                                <small class="text-muted">{{ 'loan.calculator.monthly'|trans }}</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="h5 text-secondary mb-1" id="total-amount">--</div>
+                                                <small class="text-muted">{{ 'loan.calculator.total'|trans }}</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="h5 text-warning mb-1" id="total-interest">--</div>
+                                                <small class="text-muted">{{ 'loan.calculator.interest'|trans }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Information -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                {{ 'loan.section.help'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion accordion-flush" id="helpAccordion">
+                                <div class="accordion-item">
+                                    <h6 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help-documents">
+                                            {{ 'loan.help.required_documents'|trans }}
+                                        </button>
+                                    </h6>
+                                    <div id="help-documents" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                        <div class="accordion-body">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                                    {{ 'document.type.identity'|trans }}
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                                    {{ 'document.type.income_proof'|trans }}
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                                    {{ 'document.type.bank_statement'|trans }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h6 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#help-process">
+                                            {{ 'loan.help.application_process'|trans }}
+                                        </button>
+                                    </h6>
+                                    <div id="help-process" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                                        <div class="accordion-body">
+                                            <ol class="list-group list-group-flush">
+                                                <li class="list-group-item d-flex align-items-center px-0">
+                                                    <span class="badge bg-primary rounded-circle me-3">1</span>
+                                                    {{ 'loan.help.step1'|trans }}
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center px-0">
+                                                    <span class="badge bg-primary rounded-circle me-3">2</span>
+                                                    {{ 'loan.help.step2'|trans }}
+                                                </li>
+                                                <li class="list-group-item d-flex align-items-center px-0">
+                                                    <span class="badge bg-primary rounded-circle me-3">3</span>
+                                                    {{ 'loan.help.step3'|trans }}
+                                                </li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loan calculator functionality
+            const amountInput = document.querySelector('[name="loan_application[amount]"]');
+            const durationInput = document.querySelector('[name="loan_application[requestedDuration]"]');
+            const interestRateInput = document.getElementById('interest-rate');
+            
+            const monthlyPaymentDisplay = document.getElementById('monthly-payment');
+            const totalAmountDisplay = document.getElementById('total-amount');
+            const totalInterestDisplay = document.getElementById('total-interest');
+
+            function calculateLoan() {
+                const amount = parseFloat(amountInput.value.replace(',', '')) || 0;
+                const duration = parseInt(durationInput.value) || 0;
+                const annualRate = parseFloat(interestRateInput.value) || 0;
+                
+                if (amount > 0 && duration > 0) {
+                    let monthlyPayment;
+                    
+                    if (annualRate > 0) {
+                        const monthlyRate = annualRate / 100 / 12;
+                        const factor = Math.pow(1 + monthlyRate, duration);
+                        monthlyPayment = amount * (monthlyRate * factor) / (factor - 1);
+                    } else {
+                        monthlyPayment = amount / duration;
+                    }
+                    
+                    const totalAmount = monthlyPayment * duration;
+                    const totalInterest = totalAmount - amount;
+                    
+                    monthlyPaymentDisplay.textContent = monthlyPayment.toLocaleString('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR'
+                    });
+                    
+                    totalAmountDisplay.textContent = totalAmount.toLocaleString('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR'
+                    });
+                    
+                    totalInterestDisplay.textContent = totalInterest.toLocaleString('fr-FR', {
+                        style: 'currency',
+                        currency: 'EUR'
+                    });
+                } else {
+                    monthlyPaymentDisplay.textContent = '--';
+                    totalAmountDisplay.textContent = '--';
+                    totalInterestDisplay.textContent = '--';
+                }
+            }
+
+            // Bind calculation triggers
+            if (amountInput) amountInput.addEventListener('input', calculateLoan);
+            if (durationInput) durationInput.addEventListener('input', calculateLoan);
+            if (interestRateInput) interestRateInput.addEventListener('input', calculateLoan);
+
+            // Initial calculation
+            calculateLoan();
+        });
+    </script>
+{% endblock %}

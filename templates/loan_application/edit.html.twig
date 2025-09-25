@@ -1,0 +1,236 @@
+{% extends 'loan_application/new.html.twig' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('loan_application_index') }}">{{ 'loan.breadcrumb.applications'|trans }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('loan_application_show', {id: application.uuid}) }}">{{ application.applicationNumber }}</a></li>
+                    <li class="breadcrumb-item active">{{ 'loan.breadcrumb.edit'|trans }}</li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 mb-0">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    {{ page_title }}
+                </h1>
+                <div>
+                    <a href="{{ path('loan_application_show', {id: application.uuid}) }}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-eye me-2"></i>
+                        {{ 'loan.action.view'|trans }}
+                    </a>
+                    <a href="{{ path('loan_application_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        {{ 'loan.action.back_to_list'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Status Alert -->
+                    {% if application.status == 'additional_info_required' %}
+                        <div class="alert alert-warning mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-1">{{ 'loan.alert.additional_info_required'|trans }}</h6>
+                                    <p class="mb-0">{{ 'loan.alert.additional_info_description'|trans }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Application Form -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-file-text me-2"></i>
+                                    {{ 'loan.section.application_details'|trans }}
+                                </h5>
+                                <div>
+                                    <span class="badge {{ application.statusBadgeClass }} me-2">
+                                        {{ ('loan.status.' ~ application.status)|trans }}
+                                    </span>
+                                    <small class="text-muted">{{ application.applicationNumber }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form, {'attr': {'class': 'loan-application-form', 'novalidate': 'novalidate'}}) }}
+                            
+                            <!-- Loan Type -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.loan_type'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.loanType) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amount and Duration -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.financial_details'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.amount, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'data-calculation-trigger': true
+                                            }
+                                        }) }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form_row(form.requestedDuration, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'data-calculation-trigger': true
+                                            }
+                                        }) }}
+                                    </div>
+                                </div>
+                                
+                                {% if form.interestRate is defined %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {{ form_row(form.interestRate) }}
+                                        </div>
+                                        {% if form.monthlyPayment is defined %}
+                                            <div class="col-md-6">
+                                                {{ form_row(form.monthlyPayment) }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Purpose and Notes -->
+                            <div class="mb-4">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3">{{ 'loan.section.additional_information'|trans }}</h6>
+                                <div class="row">
+                                    <div class="col-12">
+                                        {{ form_row(form.purpose) }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form_row(form.creditScore) }}
+                                    </div>
+                                    {% if form.status is defined %}
+                                        <div class="col-md-6">
+                                            {{ form_row(form.status) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        {{ form_row(form.notes) }}
+                                    </div>
+                                </div>
+                                {% if form.reviewNotes is defined %}
+                                    <div class="row">
+                                        <div class="col-12">
+                                            {{ form_row(form.reviewNotes) }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 pt-3 border-top">
+                                {% if application.status in ['draft', 'additional_info_required'] %}
+                                    {{ form_row(form.save, {
+                                        'attr': {
+                                            'class': 'btn btn-outline-primary'
+                                        }
+                                    }) }}
+                                    {% if application.status == 'additional_info_required' %}
+                                        {{ form_row(form.submit, {
+                                            'label': 'loan.form.resubmit_application',
+                                            'attr': {
+                                                'class': 'btn btn-primary'
+                                            }
+                                        }) }}
+                                    {% else %}
+                                        {{ form_row(form.submit, {
+                                            'attr': {
+                                                'class': 'btn btn-primary'
+                                            }
+                                        }) }}
+                                    {% endif %}
+                                {% else %}
+                                    <div class="alert alert-info mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        {{ 'loan.message.cannot_edit_submitted_application'|trans }}
+                                    </div>
+                                {% endif %}
+                                <a href="{{ path('loan_application_show', {id: application.uuid}) }}" class="btn btn-outline-secondary ms-auto">
+                                    {{ 'form.action.cancel'|trans }}
+                                </a>
+                            </div>
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Application Info -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-info-square me-2"></i>
+                                {{ 'loan.section.application_info'|trans }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">{{ 'loan.field.reference'|trans }}</span>
+                                        <span class="fw-semibold">{{ application.applicationNumber }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">{{ 'loan.field.created'|trans }}</span>
+                                        <span>{{ application.createdAt|date('d/m/Y H:i') }}</span>
+                                    </div>
+                                </div>
+                                {% if application.submittedAt %}
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">{{ 'loan.field.submitted'|trans }}</span>
+                                            <span>{{ application.submittedAt|date('d/m/Y H:i') }}</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if application.reviewedAt %}
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">{{ 'loan.field.reviewed'|trans }}</span>
+                                            <span>{{ application.reviewedAt|date('d/m/Y H:i') }}</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Include Calculator from parent template -->
+                    {{ parent() }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
