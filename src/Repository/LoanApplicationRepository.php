@@ -148,6 +148,17 @@ class LoanApplicationRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findByUuidAndCustomer(string $uuid, User $customer): ?LoanApplication
+    {
+        return $this->createQueryBuilder('la')
+            ->where('la.uuid = :uuid')
+            ->andWhere('la.applicant = :customer')
+            ->setParameter('uuid', $uuid)
+            ->setParameter('customer', $customer)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findByApplicationNumber(string $applicationNumber): ?LoanApplication
     {
         return $this->createQueryBuilder('la')

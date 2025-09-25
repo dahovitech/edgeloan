@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\LoanDocument;
 use App\Entity\LoanApplication;
+use App\Entity\Enum\DocumentType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -27,13 +28,13 @@ class LoanDocumentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByApplicationAndType(LoanApplication $application, string $documentType): ?LoanDocument
+    public function findByApplicationAndType(LoanApplication $application, DocumentType $documentType): ?LoanDocument
     {
         return $this->createQueryBuilder('ld')
             ->where('ld.loanApplication = :application')
             ->andWhere('ld.documentType = :document_type')
             ->setParameter('application', $application)
-            ->setParameter('document_type', $documentType)
+            ->setParameter('document_type', $documentType->value)
             ->orderBy('ld.uploadedAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -52,11 +53,11 @@ class LoanDocumentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByDocumentType(string $documentType): array
+    public function findByDocumentType(DocumentType $documentType): array
     {
         return $this->createQueryBuilder('ld')
             ->where('ld.documentType = :document_type')
-            ->setParameter('document_type', $documentType)
+            ->setParameter('document_type', $documentType->value)
             ->orderBy('ld.uploadedAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -72,29 +73,23 @@ class LoanDocumentRepository extends ServiceEntityRepository
         $verified = [];
 
         foreach ($documents as $doc) {
-            $uploaded[] = $doc->getDocumentType();
+            $uploaded[] = $doc->getDocumentType()->value;
             
             if ($doc->isVerified()) {
-                $verified[] = $doc->getDocumentType();
+                $verified[] = $doc->getDocumentType()->value;
             }
 
             if ($doc->isRequired()) {
-                $required[] = $doc->getDocumentType();
+                $required[] = $doc->getDocumentType()->value;
             } else {
-                $optional[] = $doc->getDocumentType();
+                $optional[] = $doc->getDocumentType()->value;
             }
         }
 
-        // Documents typically required
-        $standardRequired = ['identity', 'income_proof', 'bank_statement'];
-        $businessRequired = ['business_registration', 'tax_return'];
+        // Get required document types from the enum
+        $requiredDocumentTypes = array_map(fn($type) => $type->value, DocumentType::getRequiredTypes());
         
-        $customer = $application->getCustomer();
-        if ($customer->isBusiness()) {
-            $standardRequired = array_merge($standardRequired, $businessRequired);
-        }
-
-        $missing = array_diff($standardRequired, $uploaded);
+        $missing = array_diff($requiredDocumentTypes, $uploaded);
         $pendingVerification = array_diff($uploaded, $verified);
 
         return [
@@ -104,7 +99,7 @@ class LoanDocumentRepository extends ServiceEntityRepository
             'pending_verification' => $pendingVerification,
             'required' => $required,
             'optional' => $optional,
-            'completion_rate' => empty($standardRequired) ? 100 : (count($uploaded) / count($standardRequired)) * 100,
+            'completion_rate' => empty($requiredDocumentTypes) ? 100 : (count($uploaded) / count($requiredDocumentTypes)) * 100,
             'verification_rate' => empty($uploaded) ? 0 : (count($verified) / count($uploaded)) * 100,
         ];
     }

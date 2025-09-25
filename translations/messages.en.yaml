@@ -263,6 +263,9 @@ loan:
     print: "Print"
     back_to_list: "Back to List"
     upload_document: "Upload Document"
+    manage_documents: "Manage Documents"
+    view_all: "View All"
+    upload_first_document: "Upload First Document"
 
   # Statistics
   statistics:
@@ -282,6 +285,7 @@ loan:
     application_duplicated: "Application duplicated successfully"
     no_documents: "No documents"
     upload_documents_help: "Upload your documents to speed up processing"
+    and_more: "and %count% more"
     cannot_edit_submitted_application: "This application can no longer be edited as it has been submitted"
 
   # Errors
@@ -380,3 +384,117 @@ contact:
 form:
   action:
     cancel: "Cancel"
+
+# Documents
+document:
+  type:
+    label: "Document Type"
+    help: "Select the type of document you're uploading"
+    required: "Document type is required"
+    identity: "Identity Document"
+    income_proof: "Income Proof"
+    bank_statement: "Bank Statement"
+    employment_verification: "Employment Verification"
+    property_document: "Property Document"
+    business_document: "Business Document"
+    tax_return: "Tax Return"
+    collateral_document: "Collateral Document"
+    other: "Other Document"
+  
+  description:
+    label: "Description"
+    placeholder: "Optional document description"
+    help: "Add a description to easily identify this document"
+    identity: "Valid ID card, passport, or driver's license"
+    income_proof: "Pay slip, employer certificate, or tax notice"
+    bank_statement: "Bank statements for the last 3 months"
+    employment_verification: "Work certificate or employment contract"
+    property_document: "Property deed, sales agreement, or lease"
+    business_document: "Business registration, articles, or balance sheet"
+    tax_return: "Previous year's income tax return"
+    collateral_document: "Document justifying the proposed guarantee"
+    other: "Any other document related to your application"
+
+  file:
+    label: "File"
+    help: "Accepted formats: PDF, JPG, PNG, GIF, DOC, DOCX (max 10 MB)"
+    size: "Size"
+    type: "Type"
+    invalid_type: "File type not allowed"
+    too_large: "File is too large (maximum 10 MB)"
+
+  status:
+    label: "Status"
+    uploaded: "Uploaded"
+    verified: "Verified"
+    missing: "Missing"
+    completion: "Completion"
+
+  upload:
+    title: "Upload Document"
+    form_title: "New Document"
+    submit: "Upload"
+    first: "Upload your first document"
+    success: "Document uploaded successfully"
+    error: "Error uploading document"
+    not_allowed: "Document upload is no longer allowed for this application"
+    important: "Important Information"
+    tip_1: "Ensure your documents are readable and of good quality"
+    tip_2: "PDF formats are preferred for official documents"
+    tip_3: "Check that all information is visible"
+    tip_4: "Documents must be recent and valid"
+
+  delete:
+    success: "Document deleted successfully"
+    error: "Error deleting document"
+    not_allowed: "Document deletion is no longer allowed for this application"
+    confirm_title: "Confirm Deletion"
+    confirm_message: "Are you sure you want to delete this document: %document%?"
+    warning: "This action is irreversible"
+
+  list:
+    title: "Application Documents"
+
+  no_documents:
+    title: "No documents uploaded"
+    message: "You haven't uploaded any documents for this application yet"
+
+  no_description: "No description"
+  required: "Required"
+  optional: "Optional"
+  uploaded_at: "Uploaded on"
+  verified_at: "Verified on"
+  not_found: "Document not found"
+  file_not_found: "File not found"
+
+  missing:
+    title: "Missing Documents"
+    message: "The following documents are required to process your application:"
+
+  hint:
+    identity: "Upload a valid official ID document (front and back)"
+    income_proof: "Provide your last 3 pay slips or income certificate"
+    bank_statement: "Bank statements for the last 3 months from your main account"
+    employment_verification: "Work certificate or current employment contract"
+    property_document: "Documents related to real estate property (title deed, etc.)"
+    business_document: "Official documents of your company (registration, articles, etc.)"
+    tax_return: "Complete tax return from the previous year"
+    collateral_document: "Documents justifying the guarantee you're offering"
+    other: "Any additional document useful for reviewing your application"
+
+  accepted_formats: "Accepted File Formats"
+  max_size: "Maximum Size"
+
+# Loan Application - Documents section
+loan_application:
+  documents:
+    title: "Document Management"
+  document:
+    upload_success: "Document uploaded successfully"
+    upload_error: "Error uploading document"
+    upload_not_allowed: "Upload not allowed for this application"
+    delete_success: "Document deleted successfully"
+    delete_error: "Error deleting document"
+    delete_not_allowed: "Deletion not allowed for this application"
+    not_found: "Document not found"
+    file_not_found: "File not found"

@@ -1,0 +1,224 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'loan_application.documents.title'|trans }} - {{ application.uuid }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Application Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">{{ 'loan_application.documents.title'|trans }}</h1>
+                            <p class="text-muted mb-0">
+                                {{ 'loan_application.reference'|trans }}: <strong>{{ application.uuid }}</strong> |
+                                {{ 'loan_application.amount'|trans }}: <strong>{{ application.amount|number_format(2, ',', ' ') }} €</strong> |
+                                {% set status_class = application.status == 'approved' ? 'success' : (application.status in ['rejected', 'cancelled'] ? 'danger' : 'warning') %}
+                                <span class="badge bg-{{ status_class }}">{{ ('loan_status.' ~ application.status)|trans }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ path('loan_application_show', {id: application.uuid}) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> {{ 'action.back_to_application'|trans }}
+                            </a>
+                            {% if application.status in ['draft', 'submitted', 'under_review'] %}
+                                <a href="{{ path('loan_application_document_upload', {id: application.uuid}) }}" class="btn btn-primary">
+                                    <i class="bi bi-cloud-upload"></i> {{ 'document.upload.title'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Status Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="display-6 text-primary mb-2">{{ document_status.uploaded|length }}</div>
+                            <h6 class="card-title">{{ 'document.status.uploaded'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="display-6 text-success mb-2">{{ document_status.verified|length }}</div>
+                            <h6 class="card-title">{{ 'document.status.verified'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="display-6 text-warning mb-2">{{ document_status.missing|length }}</div>
+                            <h6 class="card-title">{{ 'document.status.missing'|trans }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="display-6 text-info mb-2">{{ document_status.completion_rate|round }}%</div>
+                            <h6 class="card-title">{{ 'document.status.completion'|trans }}</h6>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar" role="progressbar" style="width: {{ document_status.completion_rate|round }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missing Documents Alert -->
+            {% if document_status.missing is not empty %}
+                <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-exclamation-triangle fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="alert-heading">{{ 'document.missing.title'|trans }}</h5>
+                            <p class="mb-2">{{ 'document.missing.message'|trans }}</p>
+                            <ul class="mb-0">
+                                {% for missing_type in document_status.missing %}
+                                    <li>{{ ('document.type.' ~ missing_type)|trans }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Documents List -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="card-title mb-0">{{ 'document.list.title'|trans }}</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if documents is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>{{ 'document.type.label'|trans }}</th>
+                                        <th>{{ 'document.description.label'|trans }}</th>
+                                        <th>{{ 'document.uploaded_at'|trans }}</th>
+                                        <th>{{ 'document.status.label'|trans }}</th>
+                                        <th class="text-end">{{ 'action.title'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi {{ document.documentType.icon }} text-primary me-2"></i>
+                                                    <div>
+                                                        <div class="fw-semibold">{{ document.documentType.label|trans }}</div>
+                                                        {% if document.isRequired %}
+                                                            <small class="text-danger">{{ 'document.required'|trans }}</small>
+                                                        {% else %}
+                                                            <small class="text-muted">{{ 'document.optional'|trans }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 200px;" title="{{ document.description }}">
+                                                    {{ document.description ?: ('document.no_description'|trans) }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    {{ document.uploadedAt|date('d/m/Y H:i') }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ document.statusBadgeClass }}">
+                                                    {{ document.statusLabel }}
+                                                </span>
+                                                {% if document.isVerified and document.verifiedAt %}
+                                                    <small class="d-block text-muted">
+                                                        {{ 'document.verified_at'|trans }}: {{ document.verifiedAt|date('d/m/Y') }}
+                                                    </small>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ path('loan_application_document_download', {id: application.uuid, docId: document.id}) }}" 
+                                                       class="btn btn-outline-primary"
+                                                       title="{{ 'action.download'|trans }}">
+                                                        <i class="bi bi-download"></i>
+                                                    </a>
+                                                    {% if application.status in ['draft', 'submitted'] %}
+                                                        <button type="button" 
+                                                                class="btn btn-outline-danger"
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteModal{{ document.id }}"
+                                                                title="{{ 'action.delete'|trans }}">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-file-earmark text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="text-muted mt-3">{{ 'document.no_documents.title'|trans }}</h5>
+                            <p class="text-muted">{{ 'document.no_documents.message'|trans }}</p>
+                            {% if application.status in ['draft', 'submitted', 'under_review'] %}
+                                <a href="{{ path('loan_application_document_upload', {id: application.uuid}) }}" class="btn btn-primary">
+                                    <i class="bi bi-cloud-upload"></i> {{ 'document.upload.first'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modals -->
+{% for document in documents %}
+    {% if application.status in ['draft', 'submitted'] %}
+        <div class="modal fade" id="deleteModal{{ document.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ 'document.delete.confirm_title'|trans }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ 'document.delete.confirm_message'|trans({'%document%': document.documentType.label|trans}) }}</p>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{ 'document.delete.warning'|trans }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            {{ 'action.cancel'|trans }}
+                        </button>
+                        <form action="{{ path('loan_application_document_delete', {id: application.uuid, docId: document.id}) }}" 
+                              method="post" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_document_' ~ document.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> {{ 'action.delete'|trans }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

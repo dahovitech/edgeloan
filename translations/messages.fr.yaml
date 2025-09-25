@@ -307,6 +307,9 @@ loan:
     print: "Imprimer"
     back_to_list: "Retour à la liste"
     upload_document: "Télécharger un document"
+    manage_documents: "Gérer les documents"
+    view_all: "Voir tout"
+    upload_first_document: "Télécharger le premier document"
 
   # Statistiques
   statistics:
@@ -326,6 +329,7 @@ loan:
     application_duplicated: "Demande dupliquée avec succès"
     no_documents: "Aucun document"
     upload_documents_help: "Téléchargez vos documents pour accélérer le traitement"
+    and_more: "et %count% de plus"
     cannot_edit_submitted_application: "Cette demande ne peut plus être modifiée car elle a été soumise"
 
   # Erreurs
@@ -425,4 +429,117 @@ form:
   action:
     cancel: "Annuler"
 
+# Documents (Documents)
+document:
+  type:
+    label: "Type de document"
+    help: "Sélectionnez le type de document que vous téléchargez"
+    required: "Le type de document est requis"
+    identity: "Pièce d'identité"
+    income_proof: "Justificatif de revenus"
+    bank_statement: "Relevé bancaire"
+    employment_verification: "Attestation d'emploi"
+    property_document: "Document immobilier"
+    business_document: "Document d'entreprise"
+    tax_return: "Déclaration fiscale"
+    collateral_document: "Document de garantie"
+    other: "Autre document"
+  
+  description:
+    label: "Description"
+    placeholder: "Description optionnelle du document"
+    help: "Ajoutez une description pour identifier facilement ce document"
+    identity: "Carte d'identité, passeport ou permis de conduire en cours de validité"
+    income_proof: "Bulletin de salaire, attestation d'employeur ou avis d'imposition"
+    bank_statement: "Relevés bancaires des 3 derniers mois"
+    employment_verification: "Certificat de travail ou contrat de travail"
+    property_document: "Acte de propriété, compromis de vente ou bail"
+    business_document: "Extrait Kbis, statuts ou bilan comptable"
+    tax_return: "Déclaration d'impôt sur le revenu de l'année précédente"
+    collateral_document: "Document justifiant la garantie proposée"
+    other: "Tout autre document en rapport avec votre demande"
+
+  file:
+    label: "Fichier"
+    help: "Formats acceptés : PDF, JPG, PNG, GIF, DOC, DOCX (max 10 MB)"
+    size: "Taille"
+    type: "Type"
+    invalid_type: "Type de fichier non autorisé"
+    too_large: "Le fichier est trop volumineux (maximum 10 MB)"
+
+  status:
+    label: "Statut"
+    uploaded: "Téléchargés"
+    verified: "Vérifiés"
+    missing: "Manquants"
+    completion: "Complétude"
+
+  upload:
+    title: "Télécharger un document"
+    form_title: "Nouveau document"
+    submit: "Télécharger"
+    first: "Télécharger votre premier document"
+    success: "Document téléchargé avec succès"
+    error: "Erreur lors du téléchargement du document"
+    not_allowed: "Le téléchargement de documents n'est plus autorisé pour cette demande"
+    important: "Informations importantes"
+    tip_1: "Assurez-vous que vos documents sont lisibles et de bonne qualité"
+    tip_2: "Les formats PDF sont préférés pour les documents officiels"
+    tip_3: "Vérifiez que toutes les informations sont visibles"
+    tip_4: "Les documents doivent être récents et en cours de validité"
+
+  delete:
+    success: "Document supprimé avec succès"
+    error: "Erreur lors de la suppression du document"
+    not_allowed: "La suppression de documents n'est plus autorisée pour cette demande"
+    confirm_title: "Confirmer la suppression"
+    confirm_message: "Êtes-vous sûr de vouloir supprimer ce document : %document% ?"
+    warning: "Cette action est irréversible"
+
+  list:
+    title: "Documents de la demande"
+
+  no_documents:
+    title: "Aucun document téléchargé"
+    message: "Vous n'avez pas encore téléchargé de documents pour cette demande"
+
+  no_description: "Aucune description"
+  required: "Requis"
+  optional: "Optionnel"
+  uploaded_at: "Téléchargé le"
+  verified_at: "Vérifié le"
+  not_found: "Document introuvable"
+  file_not_found: "Fichier introuvable"
+
+  missing:
+    title: "Documents manquants"
+    message: "Les documents suivants sont requis pour traiter votre demande :"
+
+  hint:
+    identity: "Téléchargez une pièce d'identité officielle en cours de validité (recto-verso)"
+    income_proof: "Fournissez vos 3 derniers bulletins de salaire ou attestation de revenus"
+    bank_statement: "Relevés bancaires des 3 derniers mois du compte principal"
+    employment_verification: "Certificat de travail ou contrat de travail en cours"
+    property_document: "Documents relatifs au bien immobilier (titre de propriété, etc.)"
+    business_document: "Documents officiels de votre entreprise (Kbis, statuts, etc.)"
+    tax_return: "Déclaration fiscale de l'année précédente complète"
+    collateral_document: "Documents justifiant la garantie que vous proposez"
+    other: "Tout document complémentaire utile à l'étude de votre dossier"
+
+  accepted_formats: "Formats de fichiers acceptés"
+  max_size: "Taille maximale"
+
+# Application de prêt (Loan Application) - Documents section
+loan_application:
+  documents:
+    title: "Gestion des documents"
+  document:
+    upload_success: "Document téléchargé avec succès"
+    upload_error: "Erreur lors du téléchargement"
+    upload_not_allowed: "Téléchargement non autorisé pour cette demande"
+    delete_success: "Document supprimé avec succès"
+    delete_error: "Erreur lors de la suppression"
+    delete_not_allowed: "Suppression non autorisée pour cette demande"
+    not_found: "Document introuvable"
+    file_not_found: "Fichier introuvable"
 

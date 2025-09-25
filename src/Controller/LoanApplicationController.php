@@ -3,15 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\LoanApplication;
+use App\Entity\LoanDocument;
+use App\Entity\Media;
 use App\Entity\Enum\LoanStatus;
 use App\Form\LoanApplicationFormType;
+use App\Form\LoanDocumentType;
 use App\Repository\LoanApplicationRepository;
+use App\Repository\LoanDocumentRepository;
+use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/loan-application', name: 'loan_application_')]
@@ -20,8 +29,11 @@ class LoanApplicationController extends AbstractController
 {
     public function __construct(
         private LoanApplicationRepository $loanApplicationRepository,
+        private LoanDocumentRepository $loanDocumentRepository,
+        private MediaRepository $mediaRepository,
         private EntityManagerInterface $entityManager,
-        private TranslatorInterface $translator
+        private TranslatorInterface $translator,
+        private SluggerInterface $slugger
     ) {}
 
     #[Route('/', name: 'index', methods: ['GET'])]
@@ -253,6 +265,174 @@ class LoanApplicationController extends AbstractController
             'total_interest' => number_format($totalInterest, 2),
             'interest_rate' => $interestRate,
         ]);
+    }
+
+    #[Route('/{id}/documents', name: 'documents', methods: ['GET'], requirements: ['id' => '[0-9a-f-]+'])]
+    public function documents(string $id): Response
+    {
+        $application = $this->loanApplicationRepository->findByUuidAndCustomer($id, $this->getUser());
+        if (!$application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.not_found'));
+        }
+
+        $documents = $this->loanDocumentRepository->findByApplication($application);
+        $documentStatus = $this->loanDocumentRepository->getApplicationDocumentStatus($application);
+        
+        return $this->render('loan_application/documents.html.twig', [
+            'application' => $application,
+            'documents' => $documents,
+            'document_status' => $documentStatus
+        ]);
+    }
+
+    #[Route('/{id}/documents/upload', name: 'document_upload', methods: ['GET', 'POST'], requirements: ['id' => '[0-9a-f-]+'])]
+    public function uploadDocument(string $id, Request $request): Response
+    {
+        $application = $this->loanApplicationRepository->findByUuidAndCustomer($id, $this->getUser());
+        if (!$application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.not_found'));
+        }
+
+        // Check if application allows document upload
+        if (!in_array($application->getStatus(), [LoanStatus::DRAFT, LoanStatus::SUBMITTED, LoanStatus::UNDER_REVIEW])) {
+            $this->addFlash('error', $this->translator->trans('loan_application.document.upload_not_allowed'));
+            return $this->redirectToRoute('loan_application_documents', ['id' => $id]);
+        }
+
+        $document = new LoanDocument();
+        $document->setLoanApplication($application);
+        
+        $form = $this->createForm(LoanDocumentType::class, $document);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadedFile = $form->get('file')->getData();
+            
+            if ($uploadedFile) {
+                try {
+                    // Create Media entity for the uploaded file
+                    $media = new Media();
+                    
+                    $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeFilename = $this->slugger->slug($originalFilename);
+                    $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+                    
+                    // Create upload directory if it doesn't exist
+                    $uploadDir = $this->getParameter('kernel.project_dir').'/public/uploads/documents';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    
+                    $uploadedFile->move($uploadDir, $newFilename);
+                    
+                    // Set Media properties
+                    $media->setName($originalFilename);
+                    $media->setPath('uploads/documents/' . $newFilename);
+                    $media->setType($uploadedFile->getMimeType());
+                    $media->setSize($uploadedFile->getSize());
+                    $media->setUploadedBy($this->getUser());
+                    
+                    $this->entityManager->persist($media);
+                    
+                    // Set document properties
+                    $document->setMedia($media);
+                    $document->setIsRequired($document->getDocumentType()->isRequired());
+                    
+                    $this->entityManager->persist($document);
+                    $this->entityManager->flush();
+                    
+                    $this->addFlash('success', $this->translator->trans('loan_application.document.upload_success'));
+                    
+                } catch (FileException $e) {
+                    $this->addFlash('error', $this->translator->trans('loan_application.document.upload_error'));
+                }
+            }
+            
+            return $this->redirectToRoute('loan_application_documents', ['id' => $id]);
+        }
+
+        return $this->render('loan_application/document_upload.html.twig', [
+            'application' => $application,
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/{id}/documents/{docId}/delete', name: 'document_delete', methods: ['POST'], requirements: ['id' => '[0-9a-f-]+', 'docId' => '\d+'])]
+    public function deleteDocument(string $id, int $docId, Request $request): Response
+    {
+        $application = $this->loanApplicationRepository->findByUuidAndCustomer($id, $this->getUser());
+        if (!$application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.not_found'));
+        }
+
+        $document = $this->loanDocumentRepository->find($docId);
+        if (!$document || $document->getLoanApplication() !== $application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.document.not_found'));
+        }
+
+        // Check if application allows document deletion
+        if (!in_array($application->getStatus(), [LoanStatus::DRAFT, LoanStatus::SUBMITTED])) {
+            $this->addFlash('error', $this->translator->trans('loan_application.document.delete_not_allowed'));
+            return $this->redirectToRoute('loan_application_documents', ['id' => $id]);
+        }
+
+        // Verify CSRF token
+        if ($this->isCsrfTokenValid('delete_document_'.$docId, $request->request->get('_token'))) {
+            try {
+                // Delete the physical file
+                $media = $document->getMedia();
+                $filePath = $this->getParameter('kernel.project_dir').'/public/'.$media->getPath();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                $this->entityManager->remove($media);
+                $this->entityManager->remove($document);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', $this->translator->trans('loan_application.document.delete_success'));
+            } catch (\Exception $e) {
+                $this->addFlash('error', $this->translator->trans('loan_application.document.delete_error'));
+            }
+        }
+
+        return $this->redirectToRoute('loan_application_documents', ['id' => $id]);
+    }
+
+    #[Route('/{id}/documents/{docId}/download', name: 'document_download', methods: ['GET'], requirements: ['id' => '[0-9a-f-]+', 'docId' => '\d+'])]
+    public function downloadDocument(string $id, int $docId): Response
+    {
+        $application = $this->loanApplicationRepository->findByUuidAndCustomer($id, $this->getUser());
+        if (!$application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.not_found'));
+        }
+
+        $document = $this->loanDocumentRepository->find($docId);
+        if (!$document || $document->getLoanApplication() !== $application) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.document.not_found'));
+        }
+
+        $media = $document->getMedia();
+        $filePath = $this->getParameter('kernel.project_dir').'/public/'.$media->getPath();
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException($this->translator->trans('loan_application.document.file_not_found'));
+        }
+
+        return $this->file($filePath, $media->getName(), ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+    }
+
+    #[Route('/api/documents/status/{id}', name: 'api_document_status', methods: ['GET'], requirements: ['id' => '[0-9a-f-]+'])]
+    public function getDocumentStatus(string $id): JsonResponse
+    {
+        $application = $this->loanApplicationRepository->findByUuidAndCustomer($id, $this->getUser());
+        if (!$application) {
+            return $this->json(['error' => 'Application not found'], 404);
+        }
+
+        $documentStatus = $this->loanDocumentRepository->getApplicationDocumentStatus($application);
+        
+        return $this->json($documentStatus);
     }
 
     private function calculateLoanPayment(float $amount, int $months, float $annualRate): float

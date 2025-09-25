@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Enum\DocumentType;
 use App\Repository\LoanDocumentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,9 +25,8 @@ class LoanDocument
     #[ORM\JoinColumn(nullable: false)]
     private Media $media;
 
-    #[ORM\Column(length: 50)]
-    #[Assert\Choice(choices: ['identity', 'income_proof', 'bank_statement', 'employment_proof', 'business_registration', 'tax_return', 'other'])]
-    private string $documentType;
+    #[ORM\Column(type: 'string', enumType: DocumentType::class)]
+    private DocumentType $documentType;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
@@ -81,12 +81,12 @@ class LoanDocument
         return $this;
     }
 
-    public function getDocumentType(): string
+    public function getDocumentType(): DocumentType
     {
         return $this->documentType;
     }
 
-    public function setDocumentType(string $documentType): static
+    public function setDocumentType(DocumentType $documentType): static
     {
         $this->documentType = $documentType;
         return $this;
@@ -170,16 +170,7 @@ class LoanDocument
 
     public function getDocumentTypeLabel(): string
     {
-        return match ($this->documentType) {
-            'identity' => 'Pièce d\'identité',
-            'income_proof' => 'Justificatif de revenus',
-            'bank_statement' => 'Relevé bancaire',
-            'employment_proof' => 'Justificatif d\'emploi',
-            'business_registration' => 'Extrait Kbis',
-            'tax_return' => 'Déclaration fiscale',
-            'other' => 'Autre document',
-            default => 'Document inconnu',
-        };
+        return $this->documentType->getLabel();
     }
 
     public function getStatusBadgeClass(): string

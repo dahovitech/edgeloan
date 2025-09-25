@@ -1,0 +1,233 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'document.upload.title'|trans }} - {{ application.uuid }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const documentTypeSelect = document.getElementById('loan_document_documentType');
+            const fileInput = document.getElementById('loan_document_file');
+            const descriptionTextarea = document.getElementById('loan_document_description');
+            const fileInfo = document.getElementById('file-info');
+            
+            // Show file info when file is selected
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const size = (file.size / 1024 / 1024).toFixed(2);
+                    const type = file.type || 'Unknown';
+                    
+                    fileInfo.innerHTML = `
+                        <div class="alert alert-info">
+                            <strong>${file.name}</strong><br>
+                            <small>{{ 'document.file.size'|trans }}: ${size} MB | {{ 'document.file.type'|trans }}: ${type}</small>
+                        </div>
+                    `;
+                    fileInfo.style.display = 'block';
+                    
+                    // Auto-fill description if empty
+                    if (!descriptionTextarea.value && documentTypeSelect.value) {
+                        const selectedOption = documentTypeSelect.options[documentTypeSelect.selectedIndex];
+                        descriptionTextarea.value = `${selectedOption.text} - ${file.name}`;
+                    }
+                } else {
+                    fileInfo.style.display = 'none';
+                }
+            });
+            
+            // Update description hint based on document type
+            documentTypeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const hint = document.getElementById('document-type-hint');
+                
+                if (selectedOption.value) {
+                    // Show relevant information based on document type
+                    const documentTypes = {
+                        'identity': '{{ 'document.hint.identity'|trans }}',
+                        'income_proof': '{{ 'document.hint.income_proof'|trans }}',
+                        'bank_statement': '{{ 'document.hint.bank_statement'|trans }}',
+                        'employment_verification': '{{ 'document.hint.employment_verification'|trans }}',
+                        'property_document': '{{ 'document.hint.property_document'|trans }}',
+                        'business_document': '{{ 'document.hint.business_document'|trans }}',
+                        'tax_return': '{{ 'document.hint.tax_return'|trans }}',
+                        'collateral_document': '{{ 'document.hint.collateral_document'|trans }}',
+                        'other': '{{ 'document.hint.other'|trans }}'
+                    };
+                    
+                    const hintText = documentTypes[selectedOption.value] || '';
+                    if (hintText) {
+                        hint.innerHTML = `<div class="alert alert-info"><i class="bi bi-info-circle"></i> ${hintText}</div>`;
+                        hint.style.display = 'block';
+                    } else {
+                        hint.style.display = 'none';
+                    }
+                } else {
+                    hint.style.display = 'none';
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Application Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-1">{{ 'document.upload.title'|trans }}</h1>
+                            <p class="text-muted mb-0">
+                                {{ 'loan_application.reference'|trans }}: <strong>{{ application.uuid }}</strong> |
+                                {{ 'loan_application.amount'|trans }}: <strong>{{ application.amount|number_format(2, ',', ' ') }} €</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ path('loan_application_documents', {id: application.uuid}) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> {{ 'action.back'|trans }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cloud-upload text-primary me-2"></i>
+                        {{ 'document.upload.form_title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'needs-validation', 'novalidate': true}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.documentType.vars.id }}" class="form-label">
+                                {{ form.documentType.vars.label|trans }}
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form_widget(form.documentType, {'attr': {'class': 'form-select'}}) }}
+                            {% if form.documentType.vars.errors|length > 0 %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.documentType) }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{{ 'document.type.help'|trans }}</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div id="document-type-hint" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.file.vars.id }}" class="form-label">
+                            {{ form.file.vars.label|trans }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        {{ form_widget(form.file, {'attr': {'class': 'form-control', 'accept': '.pdf,.jpg,.jpeg,.png,.gif,.doc,.docx'}}) }}
+                        {% if form.file.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {{ form_errors(form.file) }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">{{ form.file.vars.help|trans }}</div>
+                        <div id="file-info" style="display: none; margin-top: 10px;"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.description.vars.id }}" class="form-label">
+                            {{ form.description.vars.label|trans }}
+                        </label>
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': form.description.vars.attr.placeholder|trans}}) }}
+                        {% if form.description.vars.errors|length > 0 %}
+                            <div class="invalid-feedback d-block">
+                                {{ form_errors(form.description) }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">{{ form.description.vars.help|trans }}</div>
+                    </div>
+
+                    <!-- Important Information -->
+                    <div class="alert alert-info border-0">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-info-circle"></i>
+                            {{ 'document.upload.important'|trans }}
+                        </h6>
+                        <ul class="mb-0">
+                            <li>{{ 'document.upload.tip_1'|trans }}</li>
+                            <li>{{ 'document.upload.tip_2'|trans }}</li>
+                            <li>{{ 'document.upload.tip_3'|trans }}</li>
+                            <li>{{ 'document.upload.tip_4'|trans }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+                        <a href="{{ path('loan_application_documents', {id: application.uuid}) }}" class="btn btn-outline-secondary">
+                            {{ 'action.cancel'|trans }}
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Accepted File Types Info -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h6 class="card-title mb-0">{{ 'document.accepted_formats'|trans }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2">
+                            <div class="text-danger mb-2">
+                                <i class="bi bi-filetype-pdf" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>PDF</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-primary mb-2">
+                                <i class="bi bi-filetype-jpg" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>JPG/JPEG</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-success mb-2">
+                                <i class="bi bi-filetype-png" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>PNG</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-warning mb-2">
+                                <i class="bi bi-filetype-gif" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>GIF</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-info mb-2">
+                                <i class="bi bi-filetype-doc" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>DOC</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-secondary mb-2">
+                                <i class="bi bi-filetype-docx" style="font-size: 2rem;"></i>
+                            </div>
+                            <small>DOCX</small>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">{{ 'document.max_size'|trans }}: 10 MB</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
