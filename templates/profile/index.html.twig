@@ -1,0 +1,392 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'profile.index.title'|trans({}, 'profile') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .profile-avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border: 4px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+        .completion-circle {
+            width: 80px;
+            height: 80px;
+        }
+        .role-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin: 0.25rem;
+            display: inline-block;
+        }
+        .quick-actions .btn {
+            margin-bottom: 0.5rem;
+        }
+        .profile-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                {% if user.hasProfileImage %}
+                    <img src="{{ user.profileImageUrl }}" alt="{{ user.displayName }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">
+                        {{ user.initials }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <h1 class="h3 mb-1">{{ user.displayName }}</h1>
+                <p class="mb-2 opacity-75">{{ user.email }}</p>
+                <div class="d-flex flex-wrap">
+                    {% for role in user.activeRoles %}
+                        <span class="role-badge">{{ role.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ path('profile_edit') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit me-1"></i>
+                        {{ 'profile.actions.edit'|trans({}, 'profile') }}
+                    </a>
+                    <a href="{{ path('profile_preferences') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-cog me-1"></i>
+                        {{ 'profile.actions.preferences'|trans({}, 'profile') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-lg-6 mb-3">
+            <div class="stats-card text-center">
+                <div class="completion-circle mx-auto mb-3 position-relative">
+                    <svg width="80" height="80" class="transform-rotate-90">
+                        <circle cx="40" cy="40" r="36" stroke="#e9ecef" stroke-width="8" fill="none"></circle>
+                        <circle cx="40" cy="40" r="36" stroke="#28a745" stroke-width="8" fill="none"
+                                stroke-dasharray="{{ (2 * 3.14159 * 36) }}" 
+                                stroke-dashoffset="{{ (2 * 3.14159 * 36) * (1 - (stats.profile_completion / 100)) }}"
+                                style="transition: stroke-dashoffset 0.5s ease;"></circle>
+                    </svg>
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <div class="h4 mb-0 text-success">{{ stats.profile_completion }}%</div>
+                    </div>
+                </div>
+                <h6 class="text-muted">{{ 'profile.stats.completion'|trans({}, 'profile') }}</h6>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 mb-3">
+            <div class="stats-card text-center">
+                <div class="display-6 text-primary mb-2">{{ stats.active_roles|length }}</div>
+                <h6 class="text-muted">{{ 'profile.stats.active_roles'|trans({}, 'profile') }}</h6>
+                <small class="text-muted">{{ stats.total_permissions }} {{ 'profile.stats.permissions'|trans({}, 'profile') }}</small>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 mb-3">
+            <div class="stats-card text-center">
+                <div class="display-6 text-info mb-2">{{ stats.member_since }}</div>
+                <h6 class="text-muted">{{ 'profile.stats.member_since'|trans({}, 'profile') }}</h6>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 mb-3">
+            <div class="stats-card text-center">
+                <div class="display-6 text-warning mb-2">
+                    {% if stats.last_login %}
+                        <i class="fas fa-clock"></i>
+                    {% else %}
+                        <i class="fas fa-user-plus"></i>
+                    {% endif %}
+                </div>
+                <h6 class="text-muted">{{ 'profile.stats.last_login'|trans({}, 'profile') }}</h6>
+                <small class="text-muted">
+                    {{ stats.last_login ?: 'profile.stats.first_login'|trans({}, 'profile') }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-8">
+            <div class="profile-section">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        {{ 'profile.sections.personal_info'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.full_name'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ user.fullName }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.email'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">
+                                {{ user.email }}
+                                {% if user.accountVerified %}
+                                    <span class="badge bg-success ms-2">{{ 'profile.status.verified'|trans({}, 'profile') }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning ms-2">{{ 'profile.status.pending'|trans({}, 'profile') }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if user.phone %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.phone'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ user.phone }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.client_type'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">
+                                {% if user.individual %}
+                                    <i class="fas fa-user me-1"></i>{{ 'profile.client_type.individual'|trans({}, 'profile') }}
+                                {% else %}
+                                    <i class="fas fa-building me-1"></i>{{ 'profile.client_type.business'|trans({}, 'profile') }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if user.monthlyIncome or user.employmentStatus %}
+                    <hr>
+                    <h6 class="text-muted mb-3">{{ 'profile.sections.financial_info'|trans({}, 'profile') }}</h6>
+                    <div class="row">
+                        {% if user.monthlyIncome %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.monthly_income'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ user.monthlyIncome|number_format(2, '.', ' ') }}€</p>
+                        </div>
+                        {% endif %}
+                        {% if user.monthlyCharges %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.monthly_charges'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ user.monthlyCharges|number_format(2, '.', ' ') }}€</p>
+                        </div>
+                        {% endif %}
+                        {% if user.employmentStatus %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.employment_status'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ ('profile.employment.' ~ user.employmentStatus)|trans({}, 'profile') }}</p>
+                        </div>
+                        {% endif %}
+                        {% if user.employer %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">{{ 'profile.fields.employer'|trans({}, 'profile') }}</label>
+                            <p class="fw-medium">{{ user.employer }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Roles and Permissions -->
+            <div class="profile-section">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        {{ 'profile.sections.roles_permissions'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user.activeRoles|length > 0 %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">{{ 'profile.fields.roles'|trans({}, 'profile') }}</h6>
+                        {% for role in user.activeRoles %}
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-primary me-3">{{ role.priority }}</span>
+                            <div>
+                                <div class="fw-medium">{{ role.name }}</div>
+                                <small class="text-muted">{{ role.description }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% set permissions = user.allPermissions %}
+                    {% if permissions|length > 0 %}
+                    <div>
+                        <h6 class="text-muted mb-3">
+                            {{ 'profile.fields.permissions'|trans({}, 'profile') }}
+                            <span class="badge bg-secondary ms-2">{{ permissions|length }}</span>
+                        </h6>
+                        <div class="row">
+                            {% set permissionsByCategory = {} %}
+                            {% for permission in permissions %}
+                                {% set category = permission.category|default('GENERAL') %}
+                                {% if permissionsByCategory[category] is not defined %}
+                                    {% set permissionsByCategory = permissionsByCategory|merge({(category): []}) %}
+                                {% endif %}
+                                {% set permissionsByCategory = permissionsByCategory|merge({(category): permissionsByCategory[category]|merge([permission])}) %}
+                            {% endfor %}
+                            
+                            {% for category, categoryPermissions in permissionsByCategory %}
+                            <div class="col-md-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <h6 class="text-primary mb-2">{{ ('profile.permission_category.' ~ category|lower)|trans({}, 'profile') }}</h6>
+                                    {% for permission in categoryPermissions|slice(0, 3) %}
+                                    <small class="badge bg-light text-dark me-1 mb-1">{{ permission.name }}</small>
+                                    {% endfor %}
+                                    {% if categoryPermissions|length > 3 %}
+                                    <small class="badge bg-secondary">+{{ categoryPermissions|length - 3 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Sidebar -->
+        <div class="col-lg-4">
+            <div class="profile-section">
+                <div class="card-header border-0 pt-4">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        {{ 'profile.sections.quick_actions'|trans({}, 'profile') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 quick-actions">
+                        <a href="{{ path('profile_edit') }}" class="btn btn-primary">
+                            <i class="fas fa-user-edit me-2"></i>
+                            {{ 'profile.actions.edit_profile'|trans({}, 'profile') }}
+                        </a>
+                        <a href="{{ path('profile_change_password') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-key me-2"></i>
+                            {{ 'profile.actions.change_password'|trans({}, 'profile') }}
+                        </a>
+                        <a href="{{ path('profile_preferences') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-cog me-2"></i>
+                            {{ 'profile.actions.preferences'|trans({}, 'profile') }}
+                        </a>
+                        <a href="{{ path('profile_security') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            {{ 'profile.actions.security'|trans({}, 'profile') }}
+                        </a>
+                        <hr>
+                        <a href="{{ path('profile_download_data') }}" class="btn btn-outline-info">
+                            <i class="fas fa-download me-2"></i>
+                            {{ 'profile.actions.download_data'|trans({}, 'profile') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Completion -->
+            {% if stats.profile_completion < 100 %}
+            <div class="profile-section">
+                <div class="card-header border-0 pt-4">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        {{ 'profile.sections.completion'|trans({}, 'profile') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" style="width: {{ stats.profile_completion }}%"></div>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        {{ 'profile.completion.description'|trans({'%percentage%': stats.profile_completion}, 'profile') }}
+                    </p>
+                    <div class="small">
+                        {% if not user.phone %}
+                        <div class="mb-1">
+                            <i class="fas fa-circle text-warning me-1"></i>
+                            {{ 'profile.completion.add_phone'|trans({}, 'profile') }}
+                        </div>
+                        {% endif %}
+                        {% if not user.monthlyIncome %}
+                        <div class="mb-1">
+                            <i class="fas fa-circle text-warning me-1"></i>
+                            {{ 'profile.completion.add_income'|trans({}, 'profile') }}
+                        </div>
+                        {% endif %}
+                        {% if not user.hasProfileImage %}
+                        <div class="mb-1">
+                            <i class="fas fa-circle text-warning me-1"></i>
+                            {{ 'profile.completion.add_photo'|trans({}, 'profile') }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Add smooth animations for the completion circle
+        document.addEventListener('DOMContentLoaded', function() {
+            const circles = document.querySelectorAll('.completion-circle circle[stroke-dashoffset]');
+            circles.forEach(circle => {
+                setTimeout(() => {
+                    circle.style.transition = 'stroke-dashoffset 1s ease-in-out';
+                }, 100);
+            });
+        });
+    </script>
+{% endblock %}

@@ -103,6 +103,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $verifiedAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profileImage = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Choice(choices: ['fr', 'en', 'de', 'es'], message: 'La langue choisie n\'est pas valide')]
+    private ?string $preferredLanguage = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $notificationPreferences = [];
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $privacySettings = [];
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $displayPreferences = [];
+
+    #[ORM\Column]
+    private bool $isTwoFactorEnabled = false;
+
     /**
      * @var Collection<int, Role>
      */
@@ -115,6 +134,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->userRoles = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->notificationPreferences = [];
+        $this->privacySettings = [];
+        $this->displayPreferences = [];
+        $this->preferredLanguage = 'fr';
     }
 
     #[ORM\PreUpdate]
@@ -632,6 +655,185 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->hasPermission('USER_MANAGEMENT_CREATE') || 
                $this->hasPermission('USER_MANAGEMENT_UPDATE') ||
                $this->hasUserRoleByCode('ROLE_USER_MANAGER');
+    }
+
+    // Profile Management Methods
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    public function setProfileImage(?string $profileImage): static
+    {
+        $this->profileImage = $profileImage;
+        return $this;
+    }
+
+    public function getProfileImageUrl(): string
+    {
+        return $this->profileImage 
+            ? '/uploads/profile_images/' . $this->profileImage
+            : '/images/default-avatar.png';
+    }
+
+    public function hasProfileImage(): bool
+    {
+        return !empty($this->profileImage);
+    }
+
+    public function getPreferredLanguage(): ?string
+    {
+        return $this->preferredLanguage ?? 'fr';
+    }
+
+    public function setPreferredLanguage(?string $preferredLanguage): static
+    {
+        $this->preferredLanguage = $preferredLanguage;
+        return $this;
+    }
+
+    public function getNotificationPreferences(): ?array
+    {
+        return $this->notificationPreferences ?? [
+            'email_notifications' => true,
+            'sms_notifications' => false,
+            'loan_status_updates' => true,
+            'marketing_communications' => false,
+            'security_alerts' => true,
+        ];
+    }
+
+    public function setNotificationPreferences(?array $notificationPreferences): static
+    {
+        $this->notificationPreferences = $notificationPreferences;
+        return $this;
+    }
+
+    public function isNotificationEnabled(string $type): bool
+    {
+        $preferences = $this->getNotificationPreferences();
+        return $preferences[$type] ?? false;
+    }
+
+    public function getPrivacySettings(): ?array
+    {
+        return $this->privacySettings ?? [
+            'profile_visibility' => 'private',
+            'show_email' => false,
+            'show_phone' => false,
+            'show_employment_details' => false,
+            'data_processing_consent' => true,
+        ];
+    }
+
+    public function setPrivacySettings(?array $privacySettings): static
+    {
+        $this->privacySettings = $privacySettings;
+        return $this;
+    }
+
+    public function getPrivacySetting(string $key): mixed
+    {
+        $settings = $this->getPrivacySettings();
+        return $settings[$key] ?? null;
+    }
+
+    public function getDisplayPreferences(): ?array
+    {
+        return $this->displayPreferences ?? [
+            'theme' => 'light',
+            'items_per_page' => 10,
+            'show_tooltips' => true,
+            'compact_view' => false,
+        ];
+    }
+
+    public function setDisplayPreferences(?array $displayPreferences): static
+    {
+        $this->displayPreferences = $displayPreferences;
+        return $this;
+    }
+
+    public function getDisplayPreference(string $key): mixed
+    {
+        $preferences = $this->getDisplayPreferences();
+        return $preferences[$key] ?? null;
+    }
+
+    public function isTwoFactorEnabled(): bool
+    {
+        return $this->isTwoFactorEnabled;
+    }
+
+    public function setIsTwoFactorEnabled(bool $isTwoFactorEnabled): static
+    {
+        $this->isTwoFactorEnabled = $isTwoFactorEnabled;
+        return $this;
+    }
+
+    /**
+     * Get user's initials for avatar placeholder
+     */
+    public function getInitials(): string
+    {
+        $firstName = trim($this->firstName ?? '');
+        $lastName = trim($this->lastName ?? '');
+        
+        $firstInitial = !empty($firstName) ? mb_strtoupper(mb_substr($firstName, 0, 1)) : '';
+        $lastInitial = !empty($lastName) ? mb_strtoupper(mb_substr($lastName, 0, 1)) : '';
+        
+        return $firstInitial . $lastInitial;
+    }
+
+    /**
+     * Check if profile is complete
+     */
+    public function isProfileComplete(): bool
+    {
+        $requiredFields = [
+            $this->firstName,
+            $this->lastName,
+            $this->email,
+            $this->phone,
+        ];
+
+        return !in_array(null, $requiredFields, true) && !in_array('', $requiredFields, true);
+    }
+
+    /**
+     * Get profile completion percentage
+     */
+    public function getProfileCompletion(): int
+    {
+        $fields = [
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'monthlyIncome' => $this->monthlyIncome,
+            'employmentStatus' => $this->employmentStatus,
+            'profileImage' => $this->profileImage,
+        ];
+
+        $completedFields = array_filter($fields, fn($value) => !empty($value));
+        return round((count($completedFields) / count($fields)) * 100);
+    }
+
+    /**
+     * Get user's display name
+     */
+    public function getDisplayName(): string
+    {
+        return $this->getFullName() ?: $this->email;
+    }
+
+    /**
+     * Check if user has completed onboarding
+     */
+    public function hasCompletedOnboarding(): bool
+    {
+        return $this->isProfileComplete() && $this->isAccountVerified();
     }
 
     /**

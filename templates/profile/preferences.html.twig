@@ -1,0 +1,563 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'profile.preferences.title'|trans({}, 'profile') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .preferences-header {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .preference-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .preference-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .preference-item:last-child {
+            border-bottom: none;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .language-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .language-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .language-option:hover {
+            border-color: #007bff;
+        }
+        .language-option.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .language-option input[type="radio"] {
+            display: none;
+        }
+        .theme-option {
+            position: relative;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .theme-option:hover {
+            border-color: #007bff;
+        }
+        .theme-option.active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .theme-option input[type="radio"] {
+            display: none;
+        }
+        .theme-preview {
+            width: 60px;
+            height: 40px;
+            border-radius: 0.25rem;
+            margin: 0 auto 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        .theme-preview.light {
+            background: linear-gradient(to bottom, #f8f9fa 30%, #ffffff 30%);
+        }
+        .theme-preview.dark {
+            background: linear-gradient(to bottom, #343a40 30%, #212529 30%);
+        }
+        .notification-group {
+            margin-bottom: 1.5rem;
+        }
+        .notification-group h6 {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .privacy-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 0 0.375rem 0.375rem 0;
+            margin-bottom: 1.5rem;
+        }
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="preferences-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    {{ 'profile.preferences.title'|trans({}, 'profile') }}
+                </h1>
+                <p class="mb-0 opacity-75">{{ 'profile.preferences.subtitle'|trans({}, 'profile') }}</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ path('profile_index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    {{ 'profile.actions.back_to_profile'|trans({}, 'profile') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Indicator -->
+    <div class="save-indicator" id="save-indicator">
+        <div class="alert alert-success mb-0">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ 'profile.preferences.saved'|trans({}, 'profile') }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form method="POST" id="preferences-form">
+                <input type="hidden" name="_token" value="{{ csrf_token('update_preferences') }}">
+
+                <!-- Language Preferences -->
+                <div class="preference-section">
+                    <div class="card-header border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-language me-2"></i>
+                            {{ 'profile.preferences.language.title'|trans({}, 'profile') }}
+                        </h5>
+                        <p class="text-muted small mb-0">{{ 'profile.preferences.language.description'|trans({}, 'profile') }}</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="language-selector">
+                            <label class="language-option {{ user.preferredLanguage == 'fr' ? 'active' : '' }}">
+                                <input type="radio" name="preferences[language]" value="fr" {{ user.preferredLanguage == 'fr' ? 'checked' : '' }}>
+                                <i class="flag-icon flag-icon-fr me-2"></i>
+                                {{ 'profile.preferences.language.french'|trans({}, 'profile') }}
+                            </label>
+                            <label class="language-option {{ user.preferredLanguage == 'en' ? 'active' : '' }}">
+                                <input type="radio" name="preferences[language]" value="en" {{ user.preferredLanguage == 'en' ? 'checked' : '' }}>
+                                <i class="flag-icon flag-icon-gb me-2"></i>
+                                {{ 'profile.preferences.language.english'|trans({}, 'profile') }}
+                            </label>
+                            <label class="language-option {{ user.preferredLanguage == 'de' ? 'active' : '' }}">
+                                <input type="radio" name="preferences[language]" value="de" {{ user.preferredLanguage == 'de' ? 'checked' : '' }}>
+                                <i class="flag-icon flag-icon-de me-2"></i>
+                                {{ 'profile.preferences.language.german'|trans({}, 'profile') }}
+                            </label>
+                            <label class="language-option {{ user.preferredLanguage == 'es' ? 'active' : '' }}">
+                                <input type="radio" name="preferences[language]" value="es" {{ user.preferredLanguage == 'es' ? 'checked' : '' }}>
+                                <i class="flag-icon flag-icon-es me-2"></i>
+                                {{ 'profile.preferences.language.spanish'|trans({}, 'profile') }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Preferences -->
+                <div class="preference-section">
+                    <div class="card-header border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bell me-2"></i>
+                            {{ 'profile.preferences.notifications.title'|trans({}, 'profile') }}
+                        </h5>
+                        <p class="text-muted small mb-0">{{ 'profile.preferences.notifications.description'|trans({}, 'profile') }}</p>
+                    </div>
+                    <div class="card-body">
+                        {% set notificationPrefs = user.notificationPreferences %}
+                        
+                        <div class="notification-group">
+                            <h6>{{ 'profile.preferences.notifications.general'|trans({}, 'profile') }}</h6>
+                            
+                            <div class="preference-item">
+                                <div>
+                                    <div class="fw-medium">{{ 'profile.preferences.notifications.email'|trans({}, 'profile') }}</div>
+                                    <small class="text-muted">{{ 'profile.preferences.notifications.email_desc'|trans({}, 'profile') }}</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="preferences[notifications][email_notifications]" value="1" {{ notificationPrefs.email_notifications ? 'checked' : '' }}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <div>
+                                    <div class="fw-medium">{{ 'profile.preferences.notifications.sms'|trans({}, 'profile') }}</div>
+                                    <small class="text-muted">{{ 'profile.preferences.notifications.sms_desc'|trans({}, 'profile') }}</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="preferences[notifications][sms_notifications]" value="1" {{ notificationPrefs.sms_notifications ? 'checked' : '' }}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="notification-group">
+                            <h6>{{ 'profile.preferences.notifications.loan_related'|trans({}, 'profile') }}</h6>
+                            
+                            <div class="preference-item">
+                                <div>
+                                    <div class="fw-medium">{{ 'profile.preferences.notifications.loan_status'|trans({}, 'profile') }}</div>
+                                    <small class="text-muted">{{ 'profile.preferences.notifications.loan_status_desc'|trans({}, 'profile') }}</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="preferences[notifications][loan_status_updates]" value="1" {{ notificationPrefs.loan_status_updates ? 'checked' : '' }}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <div>
+                                    <div class="fw-medium">{{ 'profile.preferences.notifications.security_alerts'|trans({}, 'profile') }}</div>
+                                    <small class="text-muted">{{ 'profile.preferences.notifications.security_alerts_desc'|trans({}, 'profile') }}</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="preferences[notifications][security_alerts]" value="1" {{ notificationPrefs.security_alerts ? 'checked' : '' }}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="notification-group">
+                            <h6>{{ 'profile.preferences.notifications.marketing'|trans({}, 'profile') }}</h6>
+                            
+                            <div class="preference-item">
+                                <div>
+                                    <div class="fw-medium">{{ 'profile.preferences.notifications.marketing_communications'|trans({}, 'profile') }}</div>
+                                    <small class="text-muted">{{ 'profile.preferences.notifications.marketing_communications_desc'|trans({}, 'profile') }}</small>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" name="preferences[notifications][marketing_communications]" value="1" {{ notificationPrefs.marketing_communications ? 'checked' : '' }}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Preferences -->
+                <div class="preference-section">
+                    <div class="card-header border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-desktop me-2"></i>
+                            {{ 'profile.preferences.display.title'|trans({}, 'profile') }}
+                        </h5>
+                        <p class="text-muted small mb-0">{{ 'profile.preferences.display.description'|trans({}, 'profile') }}</p>
+                    </div>
+                    <div class="card-body">
+                        {% set displayPrefs = user.displayPreferences %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">{{ 'profile.preferences.display.theme'|trans({}, 'profile') }}</label>
+                            <div class="row g-3">
+                                <div class="col-6 col-md-3">
+                                    <label class="theme-option {{ displayPrefs.theme == 'light' ? 'active' : '' }}">
+                                        <input type="radio" name="preferences[display][theme]" value="light" {{ displayPrefs.theme == 'light' ? 'checked' : '' }}>
+                                        <div class="theme-preview light"></div>
+                                        <div class="small">{{ 'profile.preferences.display.light'|trans({}, 'profile') }}</div>
+                                    </label>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="theme-option {{ displayPrefs.theme == 'dark' ? 'active' : '' }}">
+                                        <input type="radio" name="preferences[display][theme]" value="dark" {{ displayPrefs.theme == 'dark' ? 'checked' : '' }}>
+                                        <div class="theme-preview dark"></div>
+                                        <div class="small">{{ 'profile.preferences.display.dark'|trans({}, 'profile') }}</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium">{{ 'profile.preferences.display.items_per_page'|trans({}, 'profile') }}</label>
+                                <select class="form-select" name="preferences[display][items_per_page]">
+                                    <option value="5" {{ displayPrefs.items_per_page == 5 ? 'selected' : '' }}>5</option>
+                                    <option value="10" {{ displayPrefs.items_per_page == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="25" {{ displayPrefs.items_per_page == 25 ? 'selected' : '' }}>25</option>
+                                    <option value="50" {{ displayPrefs.items_per_page == 50 ? 'selected' : '' }}>50</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="preference-item">
+                            <div>
+                                <div class="fw-medium">{{ 'profile.preferences.display.show_tooltips'|trans({}, 'profile') }}</div>
+                                <small class="text-muted">{{ 'profile.preferences.display.show_tooltips_desc'|trans({}, 'profile') }}</small>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="preferences[display][show_tooltips]" value="1" {{ displayPrefs.show_tooltips ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div>
+                                <div class="fw-medium">{{ 'profile.preferences.display.compact_view'|trans({}, 'profile') }}</div>
+                                <small class="text-muted">{{ 'profile.preferences.display.compact_view_desc'|trans({}, 'profile') }}</small>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="preferences[display][compact_view]" value="1" {{ displayPrefs.compact_view ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="preference-section">
+                    <div class="card-header border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            {{ 'profile.preferences.privacy.title'|trans({}, 'profile') }}
+                        </h5>
+                        <p class="text-muted small mb-0">{{ 'profile.preferences.privacy.description'|trans({}, 'profile') }}</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="privacy-section">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-info-circle text-warning me-2 mt-1"></i>
+                                <div>
+                                    <strong>{{ 'profile.preferences.privacy.notice_title'|trans({}, 'profile') }}</strong>
+                                    <p class="mb-0 small">{{ 'profile.preferences.privacy.notice_text'|trans({}, 'profile') }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% set privacySettings = user.privacySettings %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">{{ 'profile.preferences.privacy.profile_visibility'|trans({}, 'profile') }}</label>
+                            <select class="form-select" name="preferences[privacy][profile_visibility]">
+                                <option value="private" {{ privacySettings.profile_visibility == 'private' ? 'selected' : '' }}>
+                                    {{ 'profile.preferences.privacy.private'|trans({}, 'profile') }}
+                                </option>
+                                <option value="limited" {{ privacySettings.profile_visibility == 'limited' ? 'selected' : '' }}>
+                                    {{ 'profile.preferences.privacy.limited'|trans({}, 'profile') }}
+                                </option>
+                            </select>
+                            <div class="form-text">{{ 'profile.preferences.privacy.profile_visibility_desc'|trans({}, 'profile') }}</div>
+                        </div>
+
+                        <div class="preference-item">
+                            <div>
+                                <div class="fw-medium">{{ 'profile.preferences.privacy.show_email'|trans({}, 'profile') }}</div>
+                                <small class="text-muted">{{ 'profile.preferences.privacy.show_email_desc'|trans({}, 'profile') }}</small>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="preferences[privacy][show_email]" value="1" {{ privacySettings.show_email ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div>
+                                <div class="fw-medium">{{ 'profile.preferences.privacy.show_phone'|trans({}, 'profile') }}</div>
+                                <small class="text-muted">{{ 'profile.preferences.privacy.show_phone_desc'|trans({}, 'profile') }}</small>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="preferences[privacy][show_phone]" value="1" {{ privacySettings.show_phone ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div>
+                                <div class="fw-medium">{{ 'profile.preferences.privacy.show_employment'|trans({}, 'profile') }}</div>
+                                <small class="text-muted">{{ 'profile.preferences.privacy.show_employment_desc'|trans({}, 'profile') }}</small>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="preferences[privacy][show_employment_details]" value="1" {{ privacySettings.show_employment_details ? 'checked' : '' }}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Sidebar -->
+        <div class="col-lg-4">
+            <div class="preference-section">
+                <div class="card-header border-0 pt-4">
+                    <h6 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        {{ 'profile.preferences.help.title'|trans({}, 'profile') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="small fw-bold">{{ 'profile.preferences.help.language_help'|trans({}, 'profile') }}</h6>
+                        <p class="small text-muted">{{ 'profile.preferences.help.language_desc'|trans({}, 'profile') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="small fw-bold">{{ 'profile.preferences.help.notifications_help'|trans({}, 'profile') }}</h6>
+                        <p class="small text-muted">{{ 'profile.preferences.help.notifications_desc'|trans({}, 'profile') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="small fw-bold">{{ 'profile.preferences.help.privacy_help'|trans({}, 'profile') }}</h6>
+                        <p class="small text-muted">{{ 'profile.preferences.help.privacy_desc'|trans({}, 'profile') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preference-section">
+                <div class="card-header border-0 pt-4">
+                    <h6 class="mb-0">
+                        <i class="fas fa-download me-2"></i>
+                        {{ 'profile.preferences.data_export.title'|trans({}, 'profile') }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">{{ 'profile.preferences.data_export.description'|trans({}, 'profile') }}</p>
+                    <a href="{{ path('profile_download_data') }}" class="btn btn-outline-info btn-sm w-100">
+                        <i class="fas fa-download me-1"></i>
+                        {{ 'profile.preferences.data_export.download'|trans({}, 'profile') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('preferences-form');
+            const saveIndicator = document.getElementById('save-indicator');
+
+            // Auto-save preferences
+            function savePreferences() {
+                const formData = new FormData(form);
+                
+                fetch(form.action || window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.ok)
+                .then(success => {
+                    if (success) {
+                        showSaveIndicator();
+                    }
+                })
+                .catch(console.error);
+            }
+
+            function showSaveIndicator() {
+                saveIndicator.style.display = 'block';
+                setTimeout(() => {
+                    saveIndicator.style.display = 'none';
+                }, 3000);
+            }
+
+            // Language selection
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    savePreferences();
+                });
+            });
+
+            // Theme selection
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.theme-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    savePreferences();
+                });
+            });
+
+            // Toggle switches and other inputs
+            form.addEventListener('change', function(e) {
+                if (e.target.type === 'checkbox' || e.target.type === 'select-one' || e.target.type === 'radio') {
+                    savePreferences();
+                }
+            });
+
+            // Initial state for language options
+            const checkedLanguage = document.querySelector('input[name="preferences[language]"]:checked');
+            if (checkedLanguage) {
+                checkedLanguage.closest('.language-option').classList.add('active');
+            }
+
+            // Initial state for theme options
+            const checkedTheme = document.querySelector('input[name="preferences[display][theme]"]:checked');
+            if (checkedTheme) {
+                checkedTheme.closest('.theme-option').classList.add('active');
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,456 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'profile.edit.title'|trans({}, 'profile') }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .profile-edit-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .image-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e9ecef;
+        }
+        .image-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed #dee2e6;
+            color: #6c757d;
+            font-size: 2rem;
+        }
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-upload-input {
+            position: absolute;
+            left: -9999px;
+        }
+        .business-fields {
+            display: none;
+        }
+        .business-fields.show {
+            display: block;
+        }
+        .form-floating > .form-control {
+            height: calc(3.5rem + 2px);
+            line-height: 1.25;
+        }
+        .form-floating > label {
+            padding: 1rem 0.75rem;
+        }
+        .progress-indicator {
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="profile-edit-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-edit me-2"></i>
+                    {{ 'profile.edit.title'|trans({}, 'profile') }}
+                </h1>
+                <p class="mb-0 opacity-75">{{ 'profile.edit.subtitle'|trans({}, 'profile') }}</p>
+            </div>
+            <div class="col-auto">
+                <a href="{{ path('profile_index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    {{ 'profile.actions.back_to_profile'|trans({}, 'profile') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Form -->
+        <div class="col-lg-8">
+            {{ form_start(form, {attr: {class: 'needs-validation', novalidate: 'novalidate', id: 'profile-form'}}) }}
+            
+            <!-- Profile Image Section -->
+            <div class="form-section">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>
+                        {{ 'profile.edit.sections.profile_image'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div id="image-preview-container">
+                                {% if user.hasProfileImage %}
+                                    <img src="{{ user.profileImageUrl }}" alt="{{ user.displayName }}" class="image-preview" id="image-preview">
+                                {% else %}
+                                    <div class="image-placeholder" id="image-placeholder">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                {{ form_label(form.profileImage, null, {label_attr: {class: 'form-label'}}) }}
+                                {{ form_widget(form.profileImage, {attr: {class: 'form-control', id: 'profile-image-input', accept: 'image/*'}}) }}
+                                <div class="form-text">{{ 'profile.form.profile_image.help'|trans({}, 'profile') }}</div>
+                                {{ form_errors(form.profileImage) }}
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('profile-image-input').click()">
+                                    <i class="fas fa-upload me-1"></i>
+                                    {{ 'profile.edit.upload_image'|trans({}, 'profile') }}
+                                </button>
+                                {% if user.hasProfileImage %}
+                                <form method="POST" action="{{ path('profile_delete_image') }}" class="d-inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_image') }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('{{ 'profile.edit.confirm_delete_image'|trans({}, 'profile')|e('js') }}')">
+                                        <i class="fas fa-trash me-1"></i>
+                                        {{ 'profile.edit.delete_image'|trans({}, 'profile') }}
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="form-section">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        {{ 'profile.edit.sections.personal_info'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.firstName, {attr: {class: 'form-control', placeholder: 'profile.form.first_name.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.firstName) }}
+                                {{ form_errors(form.firstName) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.lastName, {attr: {class: 'form-control', placeholder: 'profile.form.last_name.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.lastName) }}
+                                {{ form_errors(form.lastName) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.email, {attr: {class: 'form-control', placeholder: 'profile.form.email.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.email) }}
+                                {{ form_errors(form.email) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.phone, {attr: {class: 'form-control', placeholder: 'profile.form.phone.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.phone) }}
+                                {{ form_errors(form.phone) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.clientType, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.clientType, {attr: {class: 'form-select', id: 'client-type-select'}}) }}
+                            <div class="form-text">{{ 'profile.form.client_type.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.clientType) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.preferredLanguage, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.preferredLanguage, {attr: {class: 'form-select'}}) }}
+                            <div class="form-text">{{ 'profile.form.preferred_language.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.preferredLanguage) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Information -->
+            <div class="form-section">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-euro-sign me-2"></i>
+                        {{ 'profile.edit.sections.financial_info'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.monthlyIncome, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.monthlyIncome, {attr: {class: 'form-control'}}) }}
+                            <div class="form-text">{{ 'profile.form.monthly_income.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.monthlyIncome) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.monthlyCharges, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.monthlyCharges, {attr: {class: 'form-control'}}) }}
+                            <div class="form-text">{{ 'profile.form.monthly_charges.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.monthlyCharges) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="form-section individual-fields">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-briefcase me-2"></i>
+                        {{ 'profile.edit.sections.employment_info'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.employmentStatus, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.employmentStatus, {attr: {class: 'form-select'}}) }}
+                            {{ form_errors(form.employmentStatus) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.employer, {attr: {class: 'form-control', placeholder: 'profile.form.employer.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.employer) }}
+                                {{ form_errors(form.employer) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.employmentStartDate, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.employmentStartDate, {attr: {class: 'form-control'}}) }}
+                            <div class="form-text">{{ 'profile.form.employment_start_date.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.employmentStartDate) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div class="form-section business-fields" id="business-fields">
+                <div class="card-header border-0 pt-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        {{ 'profile.edit.sections.business_info'|trans({}, 'profile') }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.businessName, {attr: {class: 'form-control', placeholder: 'profile.form.business_name.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.businessName) }}
+                                {{ form_errors(form.businessName) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form_widget(form.businessRegistration, {attr: {class: 'form-control', placeholder: 'profile.form.business_registration.placeholder'|trans({}, 'profile')}}) }}
+                                {{ form_label(form.businessRegistration) }}
+                                <div class="form-text">{{ 'profile.form.business_registration.help'|trans({}, 'profile') }}</div>
+                                {{ form_errors(form.businessRegistration) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.businessYears, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.businessYears, {attr: {class: 'form-control'}}) }}
+                            <div class="form-text">{{ 'profile.form.business_years.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.businessYears) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.annualRevenue, null, {label_attr: {class: 'form-label'}}) }}
+                            {{ form_widget(form.annualRevenue, {attr: {class: 'form-control'}}) }}
+                            <div class="form-text">{{ 'profile.form.annual_revenue.help'|trans({}, 'profile') }}</div>
+                            {{ form_errors(form.annualRevenue) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-section">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ path('profile_index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>
+                            {{ 'profile.form.cancel'|trans({}, 'profile') }}
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-1"></i>
+                            {{ 'profile.form.save_changes'|trans({}, 'profile') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+
+        <!-- Progress Sidebar -->
+        <div class="col-lg-4">
+            <div class="progress-indicator">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-tasks me-2"></i>
+                            {{ 'profile.edit.completion_status'|trans({}, 'profile') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress mb-3">
+                            <div class="progress-bar" style="width: {{ user.profileCompletion }}%"></div>
+                        </div>
+                        <p class="text-muted small">
+                            {{ 'profile.edit.completion_description'|trans({'%percentage%': user.profileCompletion}, 'profile') }}
+                        </p>
+                        
+                        <div class="small">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                {{ 'profile.edit.required_fields'|trans({}, 'profile') }}
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-{{ user.hasProfileImage ? 'check-circle text-success' : 'circle text-muted' }} me-2"></i>
+                                {{ 'profile.edit.profile_image'|trans({}, 'profile') }}
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-{{ user.phone ? 'check-circle text-success' : 'circle text-muted' }} me-2"></i>
+                                {{ 'profile.edit.phone_number'|trans({}, 'profile') }}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{{ user.monthlyIncome ? 'check-circle text-success' : 'circle text-muted' }} me-2"></i>
+                                {{ 'profile.edit.financial_info'|trans({}, 'profile') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            {{ 'profile.edit.tips.title'|trans({}, 'profile') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="small text-muted mb-0">
+                            <li class="mb-2">{{ 'profile.edit.tips.complete_profile'|trans({}, 'profile') }}</li>
+                            <li class="mb-2">{{ 'profile.edit.tips.professional_photo'|trans({}, 'profile') }}</li>
+                            <li>{{ 'profile.edit.tips.accurate_information'|trans({}, 'profile') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Client type switching
+            const clientTypeSelect = document.getElementById('client-type-select');
+            const businessFields = document.getElementById('business-fields');
+            const individualFields = document.querySelector('.individual-fields');
+            
+            function toggleFields() {
+                if (clientTypeSelect.value === 'business') {
+                    businessFields.classList.add('show');
+                    individualFields.style.display = 'none';
+                } else {
+                    businessFields.classList.remove('show');
+                    individualFields.style.display = 'block';
+                }
+            }
+            
+            clientTypeSelect.addEventListener('change', toggleFields);
+            toggleFields(); // Initial call
+
+            // Image preview
+            const imageInput = document.getElementById('profile-image-input');
+            const imagePreview = document.getElementById('image-preview');
+            const imagePlaceholder = document.getElementById('image-placeholder');
+            const previewContainer = document.getElementById('image-preview-container');
+            
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            if (imagePreview) {
+                                imagePreview.src = e.target.result;
+                            } else {
+                                previewContainer.innerHTML = '<img src="' + e.target.result + '" alt="Profile Preview" class="image-preview" id="image-preview">';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Form validation
+            const form = document.getElementById('profile-form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                });
+            }
+
+            // Auto-save draft (optional feature)
+            let saveTimeout;
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        // Could implement auto-save to localStorage here
+                        console.log('Auto-saving draft...');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+{% endblock %}
