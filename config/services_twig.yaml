@@ -1,0 +1,16 @@
+# Configuration Twig Extensions et Services
+services:
+    App\Twig\SecurityExtension:
+        tags: ['twig.extension']
+        
+    # Configuration des filtres globaux pour la sécurité
+    twig.extension.security:
+        class: App\Twig\SecurityExtension
+        tags: ['twig.extension']
+        public: false
+        
+    # Extension pour les fonctions de validation
+    twig.runtime.security_runtime:
+        class: App\Twig\SecurityRuntime
+        tags: ['twig.runtime']
+        public: false

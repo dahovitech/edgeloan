@@ -6,7 +6,23 @@ twig:
     # Security improvements
     autoescape: 'html'          # Force HTML escaping by default
     strict_variables: true       # Enable strict variables in all environments
+    # Performance optimizations
+    cache: '%kernel.cache_dir%/twig'
+    auto_reload: '%kernel.debug%'
+    optimizations: -1           # Enable all optimizations in production
+
+when@prod:
+    twig:
+        # Production-specific settings
+        auto_reload: false
+        debug: false
+        strict_variables: true
+        # Error handling
+        exception_controller: null  # Use default error pages
 
 when@test:
     twig:
         strict_variables: true
+        # Test-specific settings
+        auto_reload: true
+        cache: false

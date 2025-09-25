@@ -12,10 +12,11 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h1 class="fw-bold mb-2">{{ 'loans.my_loans'|trans }}</h1>
-                    <p class="text-muted">{{ 'loans.dashboard_welcome'|trans }} {{ (user.firstName ?? user.email)|e }}, {{ 'loans.manage_easily'|trans }}</p>
+                    <p class="text-muted">{{ 'loans.dashboard_welcome'|trans }} {{ (user.firstName ?? user.email)|safe_user_data }}, {{ 'loans.manage_easily'|trans }}</p>
                 </div>
-                <a href="{{ path('loan_apply') }}" class="btn btn-primary-modern">
-                    <i class="fas fa-plus me-2"></i>{{ 'loans.new_application'|trans }}
+                <a href="{{ path('loan_apply') }}" class="btn btn-primary-modern" 
+                   aria-label="{{ 'loans.new_application'|trans }} - {{ 'accessibility.new_window'|trans }}">
+                    <i class="fas fa-plus me-2" aria-hidden="true"></i>{{ 'loans.new_application'|trans }}
                 </a>
             </div>
         </div>
@@ -67,7 +68,7 @@
                 <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
                     <i class="fas fa-euro-sign fa-xl text-info"></i>
                 </div>
-                <h3 class="fw-bold mb-1">{{ (totalAmount/1000)|number_format(0) }}K€</h3>
+                <h3 class="fw-bold mb-1">{{ totalAmount|currency_format('EUR') }}</h3>
                 <p class="text-muted mb-0">{{ 'loans.total_amount'|trans }}</p>
             </div>
         </div>
@@ -230,28 +231,54 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
-    // Animation pour les cartes de statistiques
+    // Animation pour les cartes de statistiques avec gestion d'erreurs
     document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.card-modern');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '0';
-                    entry.target.style.transform = 'translateY(20px)';
-                    entry.target.style.transition = 'all 0.6s ease-out';
-                    
-                    setTimeout(() => {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }, 100);
-                }
+        try {
+            const cards = document.querySelectorAll('.card-modern');
+            
+            if (!cards.length) {
+                console.info('No cards found for animation');
+                return;
+            }
+            
+            // Check for Intersection Observer support
+            if (!('IntersectionObserver' in window)) {
+                console.info('IntersectionObserver not supported, skipping animations');
+                return;
+            }
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        try {
+                            const target = entry.target;
+                            target.style.opacity = '0';
+                            target.style.transform = 'translateY(20px)';
+                            target.style.transition = 'all 0.6s ease-out';
+                            
+                            requestAnimationFrame(() => {
+                                setTimeout(() => {
+                                    target.style.opacity = '1';
+                                    target.style.transform = 'translateY(0)';
+                                }, 100);
+                            });
+                        } catch (animationError) {
+                            console.warn('Animation error for card:', animationError);
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '50px'
             });
-        });
-        
-        cards.forEach(card => {
-            observer.observe(card);
-        });
+            
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+            
+        } catch (error) {
+            console.error('Dashboard animation initialization error:', error);
+        }
     });
 </script>
 {% endblock %}
